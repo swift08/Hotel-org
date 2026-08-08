@@ -314,6 +314,52 @@ export async function seedCurryCourtyard() {
     { category: "Desserts & Sweets", name: "Sizzling Brownie with Ice Cream", description: "Warm chocolate brownie served on a hot iron plate with vanilla scoop & fudge.", price: 219, tags: ["veg"], prep: 8 },
   ];
 
+  function getDishImage(item) {
+    if (item.images && item.images.length > 0) {
+      return item.images;
+    }
+    const name = item.name.toLowerCase();
+    const category = item.category.toLowerCase();
+    
+    if (category.includes("soup") || name.includes("shorba")) {
+      return ["/images/dishes/tamatar_shorba.png"];
+    }
+    if (category.includes("veg starter") || name.includes("paneer tikka")) {
+      return ["/images/dishes/paneer_tikka.png"];
+    }
+    if (category.includes("non-veg starter") || category.includes("grill") || name.includes("tikka")) {
+      return ["/images/dishes/chicken_tikka.png"];
+    }
+    if (name.includes("butter chicken") || name.includes("murgh makhani")) {
+      return ["/images/dishes/butter_chicken.png"];
+    }
+    if (category.includes("non-veg gravy") || name.includes("curry") || name.includes("rogan") || name.includes("mutton")) {
+      return ["/images/dishes/mutton_curry.png"];
+    }
+    if (category.includes("veg gravy") || name.includes("dal") || name.includes("paneer")) {
+      return ["/images/dishes/paneer_butter_masala.png"];
+    }
+    if (category.includes("south indian") || name.includes("dosa")) {
+      return ["/images/dishes/masala_dosa.png"];
+    }
+    if (category.includes("bread") || name.includes("naan") || name.includes("roti") || name.includes("paratha")) {
+      return ["/images/dishes/garlic_naan.png"];
+    }
+    if (category.includes("biryani") || name.includes("rice") || name.includes("pulao")) {
+      if (name.includes("veg") || name.includes("peas")) {
+        return ["/images/dishes/veg_biryani.png"];
+      }
+      return ["/images/dishes/mutton_biryani.png"];
+    }
+    if (category.includes("beverage") || name.includes("lassi") || name.includes("lime") || name.includes("mojito")) {
+      return ["/images/dishes/mango_lassi.png"];
+    }
+    if (category.includes("dessert") || name.includes("jamun") || name.includes("halwa") || name.includes("kulfi")) {
+      return ["/images/dishes/gulab_jamun.png"];
+    }
+    return ["/images/dishes/butter_chicken.png"];
+  }
+
   const productIdMap = {};
   for (let idx = 0; idx < menuItems.length; idx++) {
     const item = menuItems[idx];
@@ -332,7 +378,7 @@ export async function seedCurryCourtyard() {
           sort_order: idx + 1,
           state: "published",
           is_available: true,
-          images: item.images || [],
+          images: getDishImage(item),
         })
         .select("id, name, base_price")
         .single();

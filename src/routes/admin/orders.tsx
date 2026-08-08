@@ -72,38 +72,38 @@ const STATUS_TABS = [
 
 const STATUS_CONFIG: Record<string, { badge: string; dot: string; label: string }> = {
   pending: {
-    badge: "bg-orange-500/15 text-orange-300 border border-orange-500/25",
-    dot: "bg-orange-400",
+    badge: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/25",
+    dot: "bg-orange-500 dark:bg-orange-400",
     label: "New",
   },
   accepted: {
-    badge: "bg-sky-500/15 text-sky-300 border border-sky-500/25",
-    dot: "bg-sky-400",
+    badge: "bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/25",
+    dot: "bg-sky-500 dark:bg-sky-400",
     label: "Accepted",
   },
   preparing: {
-    badge: "bg-blue-500/15 text-blue-300 border border-blue-500/25",
-    dot: "bg-blue-400",
+    badge: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25",
+    dot: "bg-blue-500 dark:bg-blue-400",
     label: "Preparing",
   },
   ready: {
-    badge: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25",
-    dot: "bg-emerald-400",
+    badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
+    dot: "bg-emerald-500 dark:bg-emerald-400",
     label: "Ready",
   },
   served: {
-    badge: "bg-purple-500/15 text-purple-300 border border-purple-500/25",
-    dot: "bg-purple-400",
+    badge: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/25",
+    dot: "bg-purple-500 dark:bg-purple-400",
     label: "Served",
   },
   completed: {
-    badge: "bg-slate-700/60 text-slate-400 border border-slate-700",
-    dot: "bg-slate-500",
+    badge: "bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/25",
+    dot: "bg-slate-500 dark:bg-slate-400",
     label: "Completed",
   },
   cancelled: {
-    badge: "bg-red-500/15 text-red-400 border border-red-500/25",
-    dot: "bg-red-400",
+    badge: "bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/25",
+    dot: "bg-red-500 dark:bg-red-400",
     label: "Cancelled",
   },
 };
@@ -199,6 +199,23 @@ function AdminOrdersManager() {
 
       if (error) throw error;
 
+      // Automatically set table to occupied when order is accepted
+      if (nextStatus === "accepted") {
+        const targetOrder = orders.find((o) => o.id === orderId) || selectedOrder;
+        if (targetOrder?.table_id) {
+          await supabase
+            .from("restaurant_tables")
+            .update({ state: "occupied" })
+            .eq("id", targetOrder.table_id);
+        } else if (targetOrder?.table_label && context?.membership?.business_id) {
+          await supabase
+            .from("restaurant_tables")
+            .update({ state: "occupied" })
+            .eq("business_id", context.membership.business_id)
+            .eq("label", targetOrder.table_label);
+        }
+      }
+
       // Automatically free table when order is completed
       if (nextStatus === "completed") {
         const targetOrder = orders.find((o) => o.id === orderId) || selectedOrder;
@@ -293,7 +310,9 @@ function AdminOrdersManager() {
       {/* ── Page Header ──────────────────────────────────── */}
       <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">Live Orders & Billing</h1>
+          <h1 className="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-2.5">
+            <ShoppingBag className="h-6 w-6 text-amber-500 shrink-0" /> Live Orders & Billing
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Real-time counter tickets, order progression, and payment processing.
           </p>
@@ -303,9 +322,9 @@ function AdminOrdersManager() {
           variant="outline"
           size="sm"
           disabled={loading}
-          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white shrink-0"
+          className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white shrink-0"
         >
-          <RefreshCw className={`mr-2 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`mr-2 h-3.5 w-3.5 shrink-0 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
       </div>
@@ -356,7 +375,7 @@ function AdminOrdersManager() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-650 hover:text-slate-750 dark:hover:text-slate-400"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-500 hover:text-slate-750 dark:hover:text-slate-400"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -376,7 +395,7 @@ function AdminOrdersManager() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <ShoppingBag className="h-12 w-12 text-slate-400 dark:text-slate-700 mb-4" />
             <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">No orders found</h3>
-            <p className="text-sm text-slate-550 dark:text-slate-600 mt-1">
+            <p className="text-sm text-slate-500 dark:text-slate-600 mt-1">
               {searchQuery ? "Try a different search term." : "No orders match this status filter."}
             </p>
           </div>
@@ -404,7 +423,7 @@ function AdminOrdersManager() {
                             #{ord.order_number}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-650">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-500">
                           {new Date(ord.created_at).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",

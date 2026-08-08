@@ -201,7 +201,7 @@ function ReportsAndAnalytics() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
-            Financial Reports & Analytics
+            <BarChart3 className="h-7 w-7 text-amber-500 shrink-0" /> Financial Reports & Analytics
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Audited financial breakdown reconciled against completed and paid order records.
@@ -213,9 +213,9 @@ function ReportsAndAnalytics() {
             onClick={fetchReportsData}
             variant="outline"
             size="sm"
-            className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
+            <RefreshCw className={`mr-2 h-4 w-4 shrink-0 ${loading ? "animate-spin" : ""}`} /> Refresh
           </Button>
 
           <Button
@@ -223,7 +223,7 @@ function ReportsAndAnalytics() {
             size="sm"
             className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20 border border-amber-600/30"
           >
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+            <Download className="mr-2 h-4 w-4 shrink-0" /> Export CSV
           </Button>
         </div>
       </div>
@@ -299,9 +299,10 @@ function ReportsAndAnalytics() {
                       backgroundColor: "rgba(15, 23, 42, 0.95)",
                       borderColor: "#334155",
                       borderRadius: "12px",
-                      color: "#fff",
                       fontSize: "12px",
                     }}
+                    itemStyle={{ color: "#fff" }}
+                    labelStyle={{ color: "#fff" }}
                     formatter={(value) => [`${currencySymbol}${value}`, "Revenue"]}
                   />
                   <Area type="monotone" dataKey="amount" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
@@ -352,9 +353,10 @@ function ReportsAndAnalytics() {
                         backgroundColor: "rgba(15, 23, 42, 0.95)",
                         borderColor: "#334155",
                         borderRadius: "12px",
-                        color: "#fff",
                         fontSize: "12px",
                       }}
+                      itemStyle={{ color: "#fff" }}
+                      labelStyle={{ color: "#fff" }}
                     />
                   </RechartsPieChart>
                 </ResponsiveContainer>
@@ -401,9 +403,10 @@ function ReportsAndAnalytics() {
                       backgroundColor: "rgba(15, 23, 42, 0.95)",
                       borderColor: "#334155",
                       borderRadius: "12px",
-                      color: "#fff",
                       fontSize: "12px",
                     }}
+                    itemStyle={{ color: "#fff" }}
+                    labelStyle={{ color: "#fff" }}
                     cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
                   />
                   <Bar dataKey="quantity" fill="#f59e0b" radius={[4, 4, 0, 0]} maxBarSize={50}>

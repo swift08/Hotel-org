@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { getMyContext, updateBusinessSettings } from "@/lib/business.functions";
 import { 
@@ -9,7 +9,8 @@ import {
   DollarSign, 
   CheckCircle2, 
   Save, 
-  Loader2 
+  Loader2,
+  ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+
+const isLogoUrl = (url: any) =>
+  url &&
+  typeof url === "string" &&
+  url.trim().length > 0 &&
+  (url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:"));
 
 export const Route = createFileRoute("/admin/settings")({
   component: BusinessSettingsPage,
@@ -36,6 +43,7 @@ function BusinessSettingsPage() {
   const [postalCode, setPostalCode] = useState("");
   const [phone, setPhone] = useState("");
   const [gstin, setGstin] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
   const [taxMode, setTaxMode] = useState<"inclusive" | "exclusive">("exclusive");
   const [defaultTaxRate, setDefaultTaxRate] = useState(5.0);
   const [serviceChargeRate, setServiceChargeRate] = useState(0.0);
@@ -56,6 +64,7 @@ function BusinessSettingsPage() {
         setPostalCode(ctx.settings.postal_code || "");
         setPhone(ctx.settings.phone || "");
         setGstin(ctx.settings.gstin || "");
+        setLogoUrl(ctx.settings.address_line2 || "");
         setTaxMode(ctx.settings.tax_mode || "exclusive");
         setDefaultTaxRate(Number(ctx.settings.default_tax_rate || 5.0));
         setServiceChargeRate(Number(ctx.settings.service_charge_rate || 0.0));
@@ -90,6 +99,7 @@ function BusinessSettingsPage() {
           postal_code: postalCode || undefined,
           phone: phone || undefined,
           gstin: gstin || undefined,
+          address_line2: logoUrl || null,
           tax_mode: taxMode,
           default_tax_rate: Number(defaultTaxRate),
           service_charge_rate: Number(serviceChargeRate),
@@ -118,15 +128,23 @@ function BusinessSettingsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
-            Business Settings
-          </h1>
-          <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
-            Configure legal profile, GST tax calculations, receipt layout, and payment options.
-          </p>
+      {/* Back link & Header */}
+      <div className="flex flex-col gap-1 border-b border-slate-200 dark:border-slate-800 pb-6">
+        <Link
+          to="/admin/dashboard"
+          className="text-xs text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1.5 font-bold mb-2 transition-all w-fit"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
+        </Link>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
+              <Settings className="h-7 w-7 text-amber-500 shrink-0" /> Business Settings
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Configure legal profile, GST tax calculations, receipt layout, and payment options.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -192,6 +210,23 @@ function BusinessSettingsPage() {
                   onChange={(e) => setPhone(e.target.value)}
                   className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white"
                 />
+              </div>
+
+              <div className="space-y-2 sm:col-span-2">
+                <Label className="text-xs text-slate-600 dark:text-slate-300">Business Logo URL</Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    placeholder="e.g. /images/logo.png or external link"
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                    className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white flex-1"
+                  />
+                  {isLogoUrl(logoUrl) && (
+                    <div className="h-10 w-28 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                      <img src={logoUrl} alt="Logo Preview" className="h-full w-auto object-contain" />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>

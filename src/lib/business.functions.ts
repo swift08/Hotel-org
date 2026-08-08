@@ -157,6 +157,7 @@ export const updateBusinessSettings = createServerFn({ method: "POST" })
         postal_code: z.string().trim().max(12).nullable().optional(),
         phone: z.string().trim().max(20).nullable().optional(),
         gstin: z.string().trim().max(20).nullable().optional(),
+        address_line2: z.string().trim().max(500).nullable().optional(),
         tax_mode: z.enum(["inclusive", "exclusive"]).optional(),
         default_tax_rate: z.number().min(0).max(40).optional(),
         service_charge_rate: z.number().min(0).max(30).optional(),

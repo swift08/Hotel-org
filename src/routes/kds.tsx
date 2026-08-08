@@ -45,6 +45,7 @@ function KitchenDisplaySystem() {
           .select(`
             id,
             order_number,
+            table_id,
             table_label,
             status,
             customer_name,
@@ -147,6 +148,16 @@ function KitchenDisplaySystem() {
         .eq("id", orderId);
 
       if (error) throw error;
+
+      // Automatically set table state to occupied when the order is accepted
+      const targetOrder = orders.find((o) => o.id === orderId);
+      if (nextStatus === "accepted" && targetOrder?.table_id) {
+        const { error: tblErr } = await supabase
+          .from("restaurant_tables")
+          .update({ state: "occupied" })
+          .eq("id", targetOrder.table_id);
+        if (tblErr) console.error("Failed to set table occupied:", tblErr.message);
+      }
 
       // Log event
       if (context?.membership?.business_id) {

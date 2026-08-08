@@ -15,7 +15,7 @@ import {
   Settings2,
   Eye,
   EyeOff,
-  Sparkles
+  BadgeCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -244,7 +244,7 @@ function StaffManagement() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
-            Staff & Permissions Matrix
+            <Users className="h-7 w-7 text-amber-500 shrink-0" /> Staff & Permissions Matrix
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Manage team access, role assignments, and granular RBAC permission matrix.
@@ -255,7 +255,7 @@ function StaffManagement() {
           onClick={() => setAddModalOpen(true)}
           className="bg-amber-500 font-extrabold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
         >
-          <UserPlus className="mr-2 h-4 w-4" /> Add Staff Member
+          <UserPlus className="mr-2 h-4 w-4 shrink-0" /> Add Staff Member
         </Button>
       </div>
 
@@ -308,7 +308,7 @@ function StaffManagement() {
                           onClick={() => handleOpenEditStaff(m)}
                           variant="outline"
                           size="sm"
-                          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-950 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition-colors h-8 text-xs font-bold shadow-sm"
+                          className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition-colors h-8 text-xs font-bold shadow-sm"
                         >
                           <Settings2 className="h-3.5 w-3.5 mr-1.5" /> Edit Staff
                         </Button>
@@ -464,7 +464,7 @@ function StaffManagement() {
             {newRole === "custom" && (
               <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1">
                 <Label className="text-xs text-amber-400 font-bold flex items-center gap-1">
-                  <Sparkles className="h-3.5 w-3.5" /> Custom Role Title *
+                  <BadgeCheck className="h-3.5 w-3.5" /> Custom Role Title *
                 </Label>
                 <Input
                   placeholder="e.g. Head Bartender, Captain, Hostess"
@@ -567,7 +567,7 @@ function StaffManagement() {
             {addRole === "custom" && (
               <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1">
                 <Label className="text-xs text-amber-400 font-bold flex items-center gap-1">
-                  <Sparkles className="h-3.5 w-3.5" /> Custom Role Title *
+                  <BadgeCheck className="h-3.5 w-3.5" /> Custom Role Title *
                 </Label>
                 <Input
                   placeholder="e.g. Head Bartender, Captain, Sommelier, Hostess"

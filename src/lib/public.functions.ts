@@ -27,7 +27,7 @@ export const resolveTable = createServerFn({ method: "POST" })
       supabaseAdmin.from("businesses").select("id, name, currency, is_active").eq("id", table.business_id).maybeSingle(),
       supabaseAdmin
         .from("business_settings")
-        .select("tax_mode, default_tax_rate, service_charge_rate, cash_payment_enabled, online_payment_enabled")
+        .select("tax_mode, default_tax_rate, service_charge_rate, cash_payment_enabled, online_payment_enabled, address_line2")
         .eq("business_id", table.business_id)
         .maybeSingle(),
       supabaseAdmin.from("branches").select("id, name, is_active").eq("id", table.branch_id).maybeSingle(),

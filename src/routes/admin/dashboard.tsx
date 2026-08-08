@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
@@ -16,7 +16,8 @@ import {
   ArrowRight,
   Plus,
   RefreshCw,
-  Sparkles,
+  Award,
+  PieChart,
   Users,
   Timer,
   Flame,
@@ -33,6 +34,7 @@ import {
   Calendar,
   AlertCircle,
   Search,
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -45,6 +47,7 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [context, setContext] = useState<any>(null);
   const [tables, setTables] = useState<any[]>([]);
@@ -183,15 +186,15 @@ function Dashboard() {
 
   const getOrderStatusBadge = (status: string) => {
     const map: Record<string, string> = {
-      pending: "bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/25",
-      new: "bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/25",
-      preparing: "bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/25",
-      ready: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/25",
-      served: "bg-purple-500/15 text-purple-650 dark:text-purple-300 border-purple-500/25",
-      completed: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600",
-      cancelled: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/25",
+      pending: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/25",
+      new: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/25",
+      preparing: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25",
+      ready: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
+      served: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/25",
+      completed: "bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/25",
+      cancelled: "bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/25",
     };
-    return map[status] || "bg-slate-100 dark:bg-slate-700 text-slate-650 dark:text-slate-400";
+    return map[status] || "bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/25";
   };
 
   // Render role header banner
@@ -199,14 +202,15 @@ function Dashboard() {
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
       <div>
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-2.5">
+            <LayoutDashboard className="h-7 w-7 text-amber-500 shrink-0" />
             {title}
-            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-semibold text-xs">
-              <Circle className="h-2 w-2 fill-emerald-500 dark:fill-emerald-400 mr-1" />
+            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-semibold text-xs shrink-0">
+              <Circle className="h-2 w-2 fill-emerald-500 dark:fill-emerald-400 mr-1 shrink-0" />
               Live
             </Badge>
           </h1>
-          <Badge className={`text-[10px] font-bold px-2 py-0.5 border ${roleInfo.color}`}>
+          <Badge className={`text-[10px] font-bold px-2 py-0.5 border shrink-0 ${roleInfo.color}`}>
             {roleInfo.label}
           </Badge>
         </div>
@@ -221,7 +225,7 @@ function Dashboard() {
           variant="outline"
           size="sm"
           disabled={loading}
-          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+          className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
         >
           <RefreshCw className={`mr-2 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -581,6 +585,8 @@ function Dashboard() {
       icon: IndianRupee,
       color: "text-amber-400",
       bg: "bg-amber-500/10 border-amber-500/20",
+      targetRoute: "/admin/reports",
+      actionHint: "Reports & Financials →",
     },
     {
       label: "Orders Today",
@@ -589,14 +595,18 @@ function Dashboard() {
       icon: ShoppingBag,
       color: "text-blue-400",
       bg: "bg-blue-500/10 border-blue-500/20",
+      targetRoute: "/admin/orders",
+      actionHint: "Live Orders & Tickets →",
     },
     {
       label: "Avg Order Value",
       value: `${currencySymbol}${stats.averageOrderValue.toFixed(0)}`,
       sub: "Per completed bill",
-      icon: Sparkles,
+      icon: Award,
       color: "text-emerald-400",
       bg: "bg-emerald-500/10 border-emerald-500/20",
+      targetRoute: "/admin/reports",
+      actionHint: "Sales Breakdown →",
     },
     {
       label: "Table Occupancy",
@@ -605,6 +615,8 @@ function Dashboard() {
       icon: QrCode,
       color: "text-purple-400",
       bg: "bg-purple-500/10 border-purple-500/20",
+      targetRoute: "/admin/tables",
+      actionHint: "Floor View & QRs →",
     },
     {
       label: "New (Pending)",
@@ -614,6 +626,8 @@ function Dashboard() {
       color: stats.pendingOrdersCount > 0 ? "text-orange-400" : "text-slate-500",
       bg: stats.pendingOrdersCount > 0 ? "bg-orange-500/10 border-orange-500/20" : "bg-slate-800/40 border-slate-700/40",
       urgent: stats.pendingOrdersCount > 3,
+      targetRoute: "/admin/orders",
+      actionHint: "Process Pending →",
     },
     {
       label: "Kitchen Queue",
@@ -622,6 +636,8 @@ function Dashboard() {
       icon: Flame,
       color: stats.preparingOrdersCount > 0 ? "text-red-400" : "text-slate-500",
       bg: stats.preparingOrdersCount > 0 ? "bg-red-500/10 border-red-500/20" : "bg-slate-800/40 border-slate-700/40",
+      targetRoute: "/kds",
+      actionHint: "Kitchen KDS →",
     },
   ];
 
@@ -638,36 +654,43 @@ function Dashboard() {
         {kpiCards.map((card) => {
           const IconComp = card.icon;
           return (
-            <Card
-              key={card.label}
-              className={`border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur text-slate-800 dark:text-slate-100 shadow-md dark:shadow-lg transition-transform hover:-translate-y-0.5 ${
-                card.urgent ? "ring-1 ring-orange-500/30" : ""
-              }`}
-            >
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 leading-tight">
-                    {card.label}
-                  </span>
-                  <div className={`flex h-7 w-7 items-center justify-center rounded-lg border ${card.bg}`}>
-                    <IconComp className={`h-3.5 w-3.5 ${card.color}`} />
+            <Link key={card.label} to={card.targetRoute as any} className="block group">
+              <Card
+                className={`border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur text-slate-800 dark:text-slate-100 shadow-md dark:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/10 cursor-pointer relative overflow-hidden flex flex-col justify-between h-full ${
+                  card.urgent ? "ring-1 ring-orange-500/30" : ""
+                }`}
+              >
+                <CardContent className="p-4 sm:p-5 flex flex-col justify-between h-full space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 leading-tight group-hover:text-amber-500 transition-colors">
+                        {card.label}
+                      </span>
+                      <div className={`flex h-7 w-7 items-center justify-center rounded-lg border transition-transform duration-300 group-hover:scale-110 ${card.bg}`}>
+                        <IconComp className={`h-3.5 w-3.5 ${card.color}`} />
+                      </div>
+                    </div>
+                    <span className="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-white block leading-none">
+                      {loading ? (
+                        <span className="inline-block h-6 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      ) : (
+                        card.value
+                      )}
+                    </span>
+                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-snug">{card.sub}</p>
+                    {card.urgent && (
+                      <Badge className="mt-2 bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/25 text-[9px] font-bold px-1.5 py-0.5">
+                        ⚡ Needs attention
+                      </Badge>
+                    )}
                   </div>
-                </div>
-                <span className="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-white block leading-none">
-                  {loading ? (
-                    <span className="inline-block h-6 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                  ) : (
-                    card.value
-                  )}
-                </span>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-snug">{card.sub}</p>
-                {card.urgent && (
-                  <Badge className="mt-2 bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/25 text-[9px] font-bold px-1.5 py-0.5">
-                    ⚡ Needs attention
-                  </Badge>
-                )}
-              </CardContent>
-            </Card>
+
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-[10px] font-bold text-slate-400 group-hover:text-amber-500 transition-colors">
+                    <span>{card.actionHint}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
       </div>
@@ -795,7 +818,7 @@ function Dashboard() {
               </svg>
 
               {/* Peak Tooltip */}
-              <div className="absolute top-3 left-[66%] -translate-x-1/2 bg-white dark:bg-slate-950/90 border border-slate-250 dark:border-amber-500/40 px-2.5 py-1 rounded-lg shadow-lg text-[10px] text-amber-600 dark:text-amber-300 font-bold backdrop-blur">
+              <div className="absolute top-3 left-[66%] -translate-x-1/2 bg-white dark:bg-slate-950/90 border border-slate-200 dark:border-amber-500/40 px-2.5 py-1 rounded-lg shadow-lg text-[10px] text-amber-600 dark:text-amber-300 font-bold backdrop-blur">
                 Dinner Peak: ₹14,250
               </div>
             </div>
@@ -814,7 +837,7 @@ function Dashboard() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur-xl shadow-2xl flex flex-col justify-between">
           <CardHeader className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
             <CardTitle className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-emerald-500 dark:text-emerald-400" /> Category Revenue Share
+              <PieChart className="h-4 w-4 text-emerald-500 dark:text-emerald-400" /> Category Revenue Share
             </CardTitle>
             <CardDescription className="text-xs text-slate-500 dark:text-slate-400">Sales split across culinary categories</CardDescription>
           </CardHeader>
@@ -857,7 +880,7 @@ function Dashboard() {
               </CardDescription>
             </div>
             <Link to="/admin/tables">
-              <Button size="sm" variant="outline" className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
+              <Button size="sm" variant="outline" className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
                 Manage Tables
               </Button>
             </Link>
@@ -873,7 +896,7 @@ function Dashboard() {
                <div className="text-center py-10 text-slate-500">
                 <QrCode className="h-10 w-10 mx-auto mb-3 text-slate-400 dark:text-slate-700" />
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-400">No tables configured</p>
-                <p className="text-xs text-slate-500 dark:text-slate-650 mt-1">Set up your floor plan to see live status</p>
+                <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Set up your floor plan to see live status</p>
                 <Link to="/admin/tables" className="mt-3 inline-block">
                   <Button size="sm" className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
                     <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Tables
@@ -926,7 +949,7 @@ function Dashboard() {
               </CardDescription>
             </div>
             <Link to="/admin/orders">
-              <Button size="sm" variant="outline" className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
+              <Button size="sm" variant="outline" className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
                 All Orders
               </Button>
             </Link>
@@ -951,7 +974,7 @@ function Dashboard() {
                     <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                       {order.table_label || "Counter"}
                     </p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-650">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">
                       {new Date(order.created_at).toLocaleTimeString("en-IN", {
                         hour: "2-digit",
                         minute: "2-digit",

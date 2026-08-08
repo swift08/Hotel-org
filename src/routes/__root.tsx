@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,7 +40,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
 
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
     const msg = error?.message?.toLowerCase() || "";
     if (msg.includes("unauthorized") || msg.includes("sign in") || msg.includes("no authorization")) {
       if (typeof window !== "undefined") {
@@ -125,6 +123,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      {
+        rel: "stylesheet",
+        href: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-grid.min.css",
+      },
+      {
+        rel: "preload",
+        href: "/images/rasoi_hero_devices.png",
+        as: "image",
+      },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

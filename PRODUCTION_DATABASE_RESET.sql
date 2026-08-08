@@ -46,3 +46,16 @@ UNION ALL
 SELECT 'restaurant_tables', count(*) FROM public.restaurant_tables
 UNION ALL
 SELECT 'products', count(*) FROM public.products;
+
+-- 5. Enable Realtime for restaurant_tables safely
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+      AND schemaname = 'public' 
+      AND tablename = 'restaurant_tables'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.restaurant_tables;
+  END IF;
+END $$;

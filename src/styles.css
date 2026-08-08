@@ -206,3 +206,149 @@
   line-height: 1.45;
 }
 
+/* ─── Landing Page Animations & Overrides ─── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
+  50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.35); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Landing page scoped styles */
+.landing-page {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.landing-page h1,
+.landing-page h2,
+.landing-page h3,
+.landing-page h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Prevent Bootstrap from overriding admin/dashboard pages */
+.landing-page .container,
+.landing-page .row,
+.landing-page [class*="col-"] {
+  /* Use Bootstrap grid only within landing-page */
+}
+
+/* Landing hero gradient background */
+.landing-hero-bg {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(217, 119, 6, 0.12), transparent),
+    radial-gradient(ellipse 50% 30% at 10% 60%, rgba(180, 83, 9, 0.08), transparent),
+    linear-gradient(180deg, #0a0e1a 0%, #0d1117 50%, #111827 100%);
+}
+
+/* Glass card style */
+.glass-card {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(245, 158, 11, 0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(245, 158, 11, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Feature card colored top accents */
+.feature-accent-amber { border-top: 3px solid #f59e0b; }
+.feature-accent-emerald { border-top: 3px solid #10b981; }
+.feature-accent-blue { border-top: 3px solid #3b82f6; }
+.feature-accent-purple { border-top: 3px solid #8b5cf6; }
+
+.feature-accent-amber:hover { border-top-color: #fbbf24; box-shadow: 0 20px 60px rgba(245, 158, 11, 0.12), 0 8px 24px rgba(0,0,0,0.3); }
+.feature-accent-emerald:hover { border-top-color: #34d399; box-shadow: 0 20px 60px rgba(16, 185, 129, 0.12), 0 8px 24px rgba(0,0,0,0.3); }
+.feature-accent-blue:hover { border-top-color: #60a5fa; box-shadow: 0 20px 60px rgba(59, 130, 246, 0.12), 0 8px 24px rgba(0,0,0,0.3); }
+.feature-accent-purple:hover { border-top-color: #a78bfa; box-shadow: 0 20px 60px rgba(139, 92, 246, 0.12), 0 8px 24px rgba(0,0,0,0.3); }
+
+/* Stat counter animation */
+.stat-item {
+  animation: fade-in-up 0.6s ease-out both;
+}
+.stat-item:nth-child(1) { animation-delay: 0.1s; }
+.stat-item:nth-child(2) { animation-delay: 0.25s; }
+.stat-item:nth-child(3) { animation-delay: 0.4s; }
+.stat-item:nth-child(4) { animation-delay: 0.55s; }
+
+/* Step connector line */
+.step-connector {
+  position: relative;
+}
+.step-connector::after {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: calc(50% + 32px);
+  width: calc(100% - 64px);
+  height: 2px;
+  background: linear-gradient(90deg, rgba(245,158,11,0.4), rgba(16,185,129,0.4));
+  z-index: 0;
+}
+
+/* CTA section shimmer */
+.cta-shimmer {
+  background: linear-gradient(110deg, transparent 25%, rgba(245,158,11,0.06) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 4s infinite;
+}
+
+/* Image container for CLS prevention */
+.hero-img-container {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.showcase-img-container {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* Scrollbar styling for landing page */
+.landing-page::-webkit-scrollbar {
+  width: 8px;
+}
+.landing-page::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+.landing-page::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.3);
+  border-radius: 4px;
+}
+.landing-page::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.5);
+}
+

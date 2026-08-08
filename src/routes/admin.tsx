@@ -55,6 +55,12 @@ const ICON_MAP: Record<string, any> = {
   dollar: DollarSign,
 };
 
+const isLogoUrl = (url: any) =>
+  url &&
+  typeof url === "string" &&
+  url.trim().length > 0 &&
+  (url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:"));
+
 function AdminLayout() {
   const navigate = useNavigate();
   const routerState = useRouterState();
@@ -115,7 +121,7 @@ function AdminLayout() {
       <BrandedLoadingScreen
         restaurantName={context?.business?.name || "RASOI"}
         subtitle="Loading workspace & live floor state..."
-        logoUrl="/images/logo.png"
+        logoUrl={isLogoUrl(context?.settings?.address_line2) ? context.settings.address_line2 : "/images/logo.png"}
       />
     );
   }
@@ -128,6 +134,10 @@ function AdminLayout() {
   const businessName = context?.business?.name || "My Business";
   const branchName = context?.branches?.[0]?.name || "Main Branch";
   const userName = context?.profile?.full_name || context?.user?.email?.split("@")[0] || "User";
+  const rawLogo = context?.settings?.address_line2;
+  const businessLogo = isLogoUrl(rawLogo)
+    ? rawLogo!.trim()
+    : "/images/logo.png";
 
   // ── Sidebar component (shared between mobile + desktop)
   const SidebarContent = () => (
@@ -135,7 +145,14 @@ function AdminLayout() {
       {/* Brand */}
       <div className="px-4 pt-4 pb-3 border-b border-slate-200 dark:border-slate-800/60">
         <div className="flex flex-col items-start gap-1">
-          <img src="/images/logo.png" alt="Rasoi Logo" className="h-11 w-auto object-contain shrink-0" />
+          <img
+            src={businessLogo}
+            alt={businessName || "Rasoi Logo"}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = "/images/logo.png";
+            }}
+            className="h-11 w-auto max-w-[150px] object-contain shrink-0 drop-shadow-sm"
+          />
           <div className="min-w-0 flex-1 pl-1">
             <p className="font-extrabold text-slate-800 dark:text-white text-xs truncate leading-tight">{businessName}</p>
             <p className="text-[10px] text-amber-600 dark:text-amber-400/80 font-medium truncate">{branchName}</p>
@@ -198,7 +215,7 @@ function AdminLayout() {
       {/* User footer */}
       <div className="border-t border-slate-200 dark:border-slate-800/60 p-4 space-y-3">
         <div className="flex items-center gap-3 px-1">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-200 shrink-0 border border-slate-250 dark:border-slate-650">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-200 shrink-0 border border-slate-200 dark:border-slate-700">
             {userName.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -270,7 +287,7 @@ function AdminLayout() {
               <span>›</span>
               <span className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[160px]">{businessName}</span>
               <span>›</span>
-              <span className="truncate max-w-[120px] text-slate-550 dark:text-slate-500">{branchName}</span>
+              <span className="truncate max-w-[120px] text-slate-500 dark:text-slate-500">{branchName}</span>
             </div>
           </div>
 
@@ -289,25 +306,25 @@ function AdminLayout() {
             >
               {theme === "dark" ? (
                 <>
-                  <Sun className="h-3.5 w-3.5 text-amber-400" />
-                  <span className="hidden md:inline text-[11px]">Light</span>
+                  <Sun className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                  <span className="hidden md:inline text-[11px] shrink-0">Light</span>
                 </>
               ) : (
                 <>
-                  <Moon className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
-                  <span className="hidden md:inline text-[11px]">Dark</span>
+                  <Moon className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
+                  <span className="hidden md:inline text-[11px] shrink-0">Dark</span>
                 </>
               )}
             </button>
 
-            <button className="text-slate-500 hover:text-slate-800 dark:hover:text-white p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative">
-              <Bell className="h-4 w-4" />
+            <button className="flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative shrink-0">
+              <Bell className="h-4 w-4 shrink-0" />
             </button>
-            <button className="text-slate-500 hover:text-slate-800 dark:hover:text-white p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-              <HelpCircle className="h-4 w-4" />
+            <button className="flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+              <HelpCircle className="h-4 w-4 shrink-0" />
             </button>
 
-            <div className="flex items-center gap-2 ml-1 pl-3 border-l border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2 ml-1 pl-3 border-l border-slate-200 dark:border-slate-800 shrink-0">
               <div className="h-7 w-7 rounded-full bg-gradient-to-br from-amber-450 to-amber-600 flex items-center justify-center text-[11px] font-black text-slate-950">
                 {userName.charAt(0).toUpperCase()}
               </div>

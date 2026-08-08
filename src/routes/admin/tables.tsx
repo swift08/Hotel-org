@@ -306,7 +306,7 @@ function TablesManager() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
             Tables & QR Codes
           </h1>
-          <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Permanent unique QR code resolution per table. Download PNG or print bulk table stand sheets.
           </p>
         </div>
@@ -316,7 +316,7 @@ function TablesManager() {
             onClick={() => setIsPrintView(!isPrintView)}
             variant="outline"
             size="sm"
-            className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <Printer className="mr-2 h-4 w-4" />
             {isPrintView ? "Exit Print Sheet" : "Bulk Print Sheet"}
@@ -326,7 +326,7 @@ function TablesManager() {
             onClick={() => setBulkModalOpen(true)}
             variant="outline"
             size="sm"
-            className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <Plus className="mr-1.5 h-4 w-4" /> Bulk Add Tables
           </Button>
@@ -382,8 +382,8 @@ function TablesManager() {
               ))}
             </div>
           ) : tables.length === 0 ? (
-            <Card className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-550 dark:text-slate-400">
-              <QrCode className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-650" />
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400">
+              <QrCode className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-500" />
               <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Tables Configured</h3>
               <p className="text-xs mb-4">Create tables to generate unique QR codes for your customers.</p>
               <Button onClick={() => setBulkModalOpen(true)} className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
@@ -429,7 +429,7 @@ function TablesManager() {
                         {qrUrl ? (
                           <img src={qrUrl} alt={t.label} className="h-28 w-28 rounded-lg border border-slate-200 bg-white p-1" />
                         ) : (
-                          <div className="h-28 w-28 flex items-center justify-center text-slate-400 dark:text-slate-650">
+                          <div className="h-28 w-28 flex items-center justify-center text-slate-400 dark:text-slate-500">
                             <QrCode className="h-8 w-8" />
                           </div>
                         )}
@@ -466,7 +466,7 @@ function TablesManager() {
                             size="sm"
                             className="w-full bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-400 h-8 text-xs shadow-md shadow-emerald-500/20"
                           >
-                            <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Collect Payment & Free Table
+                            <CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Settle & Free Table
                           </Button>
                         )}
                         <div className="flex items-center gap-2">
@@ -474,7 +474,7 @@ function TablesManager() {
                             onClick={() => handleViewQr(t)}
                             variant="outline"
                             size="sm"
-                            className="flex-1 border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-650 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white h-8 text-xs"
+                            className="flex-1 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white h-8 text-xs"
                           >
                             <Eye className="mr-1.5 h-3.5 w-3.5" /> View & Print
                           </Button>

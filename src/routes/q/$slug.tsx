@@ -13,7 +13,6 @@ import {
   Minus, 
   X, 
   CheckCircle2, 
-  Sparkles, 
   AlertCircle, 
   Loader2,
   Phone,
@@ -33,6 +32,12 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/q/$slug")({
   component: CustomerMenuScreen,
 });
+
+const isLogoUrl = (url: any) =>
+  url &&
+  typeof url === "string" &&
+  url.trim().length > 0 &&
+  (url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:"));
 
 function CustomerMenuScreen() {
   const { slug } = Route.useParams();
@@ -142,7 +147,7 @@ function CustomerMenuScreen() {
       <BrandedLoadingScreen
         restaurantName={tableContext?.business?.name || "RASOI"}
         subtitle={`Preparing digital menu for ${tableContext?.table?.label || "your table"}...`}
-        logoUrl="/images/logo.png"
+        logoUrl={isLogoUrl(tableContext?.settings?.address_line2) ? tableContext.settings.address_line2 : "/images/logo.png"}
       />
     );
   }
@@ -434,9 +439,15 @@ function CustomerMenuScreen() {
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur px-4 py-3 shadow-xl">
         <div className="mx-auto max-w-lg lg:max-w-7xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/20">
-              <Utensils className="h-5 w-5" />
-            </div>
+            {isLogoUrl(tableContext?.settings?.address_line2) ? (
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 border border-slate-800/80 overflow-hidden shrink-0">
+                <img src={tableContext.settings.address_line2} alt="Logo" className="h-full w-full object-contain" />
+              </div>
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/20">
+                <Utensils className="h-5 w-5" />
+              </div>
+            )}
             <div>
               <h1 className="font-bold text-white tracking-tight leading-tight">
                 {tableContext?.business?.name}

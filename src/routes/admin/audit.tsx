@@ -70,9 +70,9 @@ function AuditLogsView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
-            Append-Only Audit Trail
+            <ShieldAlert className="h-7 w-7 text-amber-500 shrink-0" /> Append-Only Audit Trail
           </h1>
-          <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Tamper-proof audit logs recording all sensitive business mutations and access events.
           </p>
         </div>
@@ -81,15 +81,15 @@ function AuditLogsView() {
           onClick={fetchAuditLogs}
           variant="outline"
           size="sm"
-          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
         >
-          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh Logs
+          <RefreshCw className={`mr-2 h-4 w-4 shrink-0 ${loading ? "animate-spin" : ""}`} /> Refresh Logs
         </Button>
       </div>
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-550" />
+        <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400 dark:text-slate-500" />
         <Input
           placeholder="Filter logs by action, entity type, actor role..."
           value={searchQuery}
@@ -104,7 +104,7 @@ function AuditLogsView() {
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       ) : filteredLogs.length === 0 ? (
-        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-550 dark:text-slate-400">
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400">
           <ShieldAlert className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-600" />
           <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Audit Records Found</h3>
           <p className="text-xs">No audit events match your search query.</p>
