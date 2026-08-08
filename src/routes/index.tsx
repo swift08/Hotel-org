@@ -2,6 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
+import ScrollExpand from "@/components/ui/ScrollExpand";
+import CursorGrid from "@/components/ui/CursorGrid";
+import SpecularButton from "@/components/ui/SpecularButton";
+import MagicBento from "@/components/ui/MagicBento";
+import BorderGlow from "@/components/ui/BorderGlow";
+
 import {
   QrCode,
   Utensils,
@@ -66,8 +72,10 @@ function Index() {
 
   return (
     <div className="landing-page" style={{ minHeight: "100vh", background: "#ffffff", color: "#334155", overflowX: "hidden", fontFamily: "'Manrope', sans-serif" }}>
+
       
       {/* ═══════ 1. FIXED HEADER / NAVIGATION ═══════ */}
+
       <header
         style={{
           position: "fixed",
@@ -115,101 +123,51 @@ function Index() {
               {/* Desktop Buttons */}
               <div className="d-none d-md-flex align-items-center" style={{ gap: 12 }}>
                 {userContext?.onboarded ? (
-                  <button
+                  <SpecularButton
+                    size="sm"
+                    radius={24}
+                    tint="#f59e0b"
+                    tintOpacity={1}
+                    textColor="#ffffff"
+                    lineColor="#ffffff"
+                    baseColor="#d97706"
                     onClick={() => navigate({ to: "/admin/dashboard" })}
-                    style={{
-                      background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      fontSize: 14,
-                      padding: "10px 24px",
-                      borderRadius: 24,
-                      border: "none",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      boxShadow: "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)",
-                      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
-                      e.currentTarget.style.boxShadow = "0 0 25px rgba(245, 158, 11, 0.7), 0 8px 22px rgba(245,158,11,0.5)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0) scale(1)";
-                      e.currentTarget.style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)";
-                    }}
                   >
                     Go to Dashboard <ArrowRight size={16} />
-                  </button>
+                  </SpecularButton>
                 ) : (
                   <>
-                    <Link
-                      to="/auth/login"
-                      style={{
-                        color: "#0f172a",
-                        fontSize: 14,
-                        fontWeight: 700,
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        border: "1.5px solid #cbd5e1",
-                        padding: "9px 22px",
-                        borderRadius: 24,
-                        background: "#ffffff",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-                        transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "#f8fafc";
-                        e.currentTarget.style.borderColor = "#0284c7";
-                        e.currentTarget.style.color = "#0284c7";
-                        e.currentTarget.style.transform = "translateY(-2px) scale(1.03)";
-                        e.currentTarget.style.boxShadow = "0 0 18px rgba(2, 132, 199, 0.35), 0 4px 12px rgba(0,0,0,0.05)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "#ffffff";
-                        e.currentTarget.style.borderColor = "#cbd5e1";
-                        e.currentTarget.style.color = "#0f172a";
-                        e.currentTarget.style.transform = "translateY(0) scale(1)";
-                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
-                      }}
-                    >
-                      <User size={15} /> Login
+                    <Link to="/auth/login" style={{ textDecoration: "none" }}>
+                      <SpecularButton
+                        size="sm"
+                        radius={24}
+                        tint="#ffffff"
+                        tintOpacity={1}
+                        textColor="#0f172a"
+                        lineColor="#0284c7"
+                        baseColor="#cbd5e1"
+                      >
+                        <User size={15} /> Login
+                      </SpecularButton>
                     </Link>
 
-                    <Link
-                      to="/auth/signup"
-                      style={{
-                        background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                        color: "#ffffff",
-                        fontWeight: 700,
-                        fontSize: 14,
-                        padding: "10px 24px",
-                        borderRadius: 24,
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        boxShadow: "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)",
-                        transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
-                        e.currentTarget.style.boxShadow = "0 0 28px rgba(245, 158, 11, 0.8), 0 8px 22px rgba(245,158,11,0.5)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0) scale(1)";
-                        e.currentTarget.style.boxShadow = "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)";
-                      }}
-                    >
-                      Request Demo
+                    <Link to="/auth/signup" style={{ textDecoration: "none" }}>
+                      <SpecularButton
+                        size="sm"
+                        radius={24}
+                        tint="#f59e0b"
+                        tintOpacity={1}
+                        textColor="#ffffff"
+                        lineColor="#ffffff"
+                        baseColor="#d97706"
+                      >
+                        Request Demo
+                      </SpecularButton>
                     </Link>
                   </>
                 )}
               </div>
+
 
               {/* Mobile Hamburger Toggle Button */}
               <button
@@ -320,7 +278,27 @@ function Index() {
           }}
         />
 
+        {/* CursorGrid Interactive Background */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "auto" }}>
+          <CursorGrid
+            cellSize={70}
+            color="#EAB308"
+            radius={140}
+            falloff="smooth"
+            holdTime={400}
+            fadeDuration={800}
+            lineWidth={1.2}
+            maxOpacity={1}
+            fillOpacity={0}
+            gridOpacity={0}
+            cellRadius={0}
+            clickPulse
+            pulseSpeed={600}
+          />
+        </div>
+
         <div className="container" style={{ position: "relative", zIndex: 2 }}>
+
           <div className="row align-items-center g-5">
             {/* Hero Left Content */}
             <div className="col-12 col-lg-6">
@@ -351,35 +329,21 @@ function Index() {
 
               <div className="d-flex align-items-center flex-wrap gap-3">
                 <Link to="/auth/signup" style={{ textDecoration: "none" }}>
-                  <button
-                    style={{
-                      background: "#0284c7",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      fontSize: 16,
-                      padding: "14px 36px",
-                      borderRadius: 8,
-                      border: "none",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 10,
-                      boxShadow: "0 4px 18px rgba(2, 132, 199, 0.35)",
-                      transition: "all 0.3s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#0369a1";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "#0284c7";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
+                  <SpecularButton
+                    size="lg"
+                    radius={12}
+                    tint="#0284c7"
+                    tintOpacity={1}
+                    textColor="#ffffff"
+                    lineColor="#38bdf8"
+                    baseColor="#0369a1"
+                    intensity={1.2}
                   >
                     <Monitor size={18} /> Request for Demo
-                  </button>
+                  </SpecularButton>
                 </Link>
               </div>
+
 
               {/* Scroll down indicator */}
               <div className="d-flex align-items-center gap-2" style={{ marginTop: 48, color: "#64748b", fontSize: 14, fontWeight: 500 }}>
@@ -405,6 +369,9 @@ function Index() {
                   width={600}
                   height={450}
                   loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+
                   style={{
                     maxWidth: "100%",
                     height: "auto",
@@ -467,58 +434,55 @@ function Index() {
               },
             ].map((benefit, i) => (
               <div key={i} className="col-12 col-md-6 col-lg-3">
-                <div
-                  style={{
-                    background: "#ffffff",
-                    border: "1px solid #e2e8f0",
-                    borderTop: benefit.borderColor,
-                    borderRadius: "16px",
-                    padding: "28px 24px",
-                    height: "100%",
-                    boxShadow: "0 10px 30px rgba(15, 23, 42, 0.02)",
-                    transition: "transform 0.3s, box-shadow 0.3s",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 16,
-                  }}
-                  className="benefit-card"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow = "0 15px 35px rgba(15, 23, 42, 0.06)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 10px 30px rgba(15, 23, 42, 0.02)";
-                  }}
+                <BorderGlow
+                  backgroundColor="#ffffff"
+                  borderRadius={16}
+                  glowRadius={30}
+                  edgeSensitivity={30}
+                  colors={['#f59e0b', '#0ea5e9', '#10b981']}
+                  style={{ height: "100%" }}
                 >
                   <div
                     style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: "50%",
-                      background: benefit.bg,
-                      color: benefit.color,
+                      padding: "28px 24px",
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: "1px solid rgba(255, 255, 255, 0.8)",
-                      boxShadow: "0 4px 10px rgba(0,0,0,0.02)",
-                      flexShrink: 0,
+                      flexDirection: "column",
+                      gap: 16,
+                      height: "100%",
+                      borderTop: benefit.borderColor,
+                      borderRadius: "16px",
                     }}
                   >
-                    {benefit.icon}
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        background: benefit.bg,
+                        color: benefit.color,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "1px solid rgba(255, 255, 255, 0.8)",
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.02)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {benefit.icon}
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", marginBottom: 8, lineHeight: 1.3 }}>
+                        {benefit.title}
+                      </h3>
+                      <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5, margin: 0 }}>
+                        {benefit.desc}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", marginBottom: 8, lineHeight: 1.3 }}>
-                      {benefit.title}
-                    </h3>
-                    <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5, margin: 0 }}>
-                      {benefit.desc}
-                    </p>
-                  </div>
-                </div>
+                </BorderGlow>
               </div>
             ))}
+
           </div>
         </div>
       </section>
@@ -541,172 +505,139 @@ function Index() {
           {/* Row 1: Ordering + Payment side-by-side cards */}
           <div className="row g-4" style={{ marginBottom: 40 }}>
             <div className="col-12 col-lg-6">
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e2e8f0",
-                  borderRadius: 16,
-                  padding: "40px",
-                  height: "100%",
-                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-6px) scale(1.01)";
-                  e.currentTarget.style.boxShadow = "0 20px 40px -10px rgba(2, 132, 199, 0.18)";
-                  e.currentTarget.style.borderColor = "rgba(2, 132, 199, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0) scale(1)";
-                  e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.borderColor = "#e2e8f0";
-                }}
+              <BorderGlow
+                backgroundColor="#ffffff"
+                borderRadius={16}
+                glowRadius={40}
+                edgeSensitivity={30}
+                colors={['#0284c7', '#38bdf8', '#0ea5e9']}
+                style={{ height: "100%" }}
               >
-                <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
-                  <div
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 12,
-                      background: "rgba(2, 132, 199, 0.08)",
-                      color: "#0284c7",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Smartphone size={24} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>
-                      Effortless Ordering from Anywhere
-                    </h3>
-                    <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
-                      Guests can access the menu instantly by scanning the room's QR code. This connects them to a visually rich, highly customizable takeout and delivery menu. Guests can effortlessly browse, select items, and complete their orders within minutes. The platform supports multiple languages, ensuring accessibility for international travelers.
-                    </p>
+                <div style={{ padding: "40px", height: "100%" }}>
+                  <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 12,
+                        background: "rgba(2, 132, 199, 0.08)",
+                        color: "#0284c7",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Smartphone size={24} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>
+                        Effortless Ordering from Anywhere
+                      </h3>
+                      <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
+                        Guests can access the menu instantly by scanning the room's QR code. This connects them to a visually rich, highly customizable takeout and delivery menu. Guests can effortlessly browse, select items, and complete their orders within minutes. The platform supports multiple languages, ensuring accessibility for international travelers.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </BorderGlow>
             </div>
 
             <div className="col-12 col-lg-6">
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e2e8f0",
-                  borderRadius: 16,
-                  padding: "40px",
-                  height: "100%",
-                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-6px) scale(1.01)";
-                  e.currentTarget.style.boxShadow = "0 20px 40px -10px rgba(16, 185, 129, 0.18)";
-                  e.currentTarget.style.borderColor = "rgba(16, 185, 129, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0) scale(1)";
-                  e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.borderColor = "#e2e8f0";
-                }}
+              <BorderGlow
+                backgroundColor="#ffffff"
+                borderRadius={16}
+                glowRadius={40}
+                edgeSensitivity={30}
+                colors={['#10b981', '#34d399', '#059669']}
+                style={{ height: "100%" }}
               >
-                <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
-                  <div
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 12,
-                      background: "rgba(16, 185, 129, 0.08)",
-                      color: "#10b981",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <CreditCard size={24} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>
-                      Secure Payment &amp; Order Validation
-                    </h3>
-                    <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
-                      Simplify guest payments with flexible choices: charge directly to their room or pay securely via credit card. Rasoi verifies the check-in details with the PMS to ensure a seamless and secure transaction, giving both guests and hotel staff peace of mind. The system integrates with hotel property management systems (PMS) to provide accurate billing and tracking.
-                    </p>
+                <div style={{ padding: "40px", height: "100%" }}>
+                  <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 12,
+                        background: "rgba(16, 185, 129, 0.08)",
+                        color: "#10b981",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <CreditCard size={24} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>
+                        Secure Payment &amp; Order Validation
+                      </h3>
+                      <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
+                        Simplify guest payments with flexible choices: charge directly to their room or pay securely via credit card. Rasoi verifies the check-in details with the PMS to ensure a seamless and secure transaction, giving both guests and hotel staff peace of mind. The system integrates with hotel property management systems (PMS) to provide accurate billing and tracking.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </BorderGlow>
             </div>
           </div>
 
           {/* Row 2: Full width KDS card */}
           <div className="row">
             <div className="col-12">
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e2e8f0",
-                  borderRadius: 16,
-                  padding: "40px",
-                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-6px)";
-                  e.currentTarget.style.boxShadow = "0 22px 45px -10px rgba(245, 158, 11, 0.2)";
-                  e.currentTarget.style.borderColor = "rgba(245, 158, 11, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.borderColor = "#e2e8f0";
-                }}
+              <BorderGlow
+                backgroundColor="#ffffff"
+                borderRadius={16}
+                glowRadius={50}
+                edgeSensitivity={30}
+                colors={['#f59e0b', '#fbbf24', '#d97706']}
               >
-                <div className="row align-items-center g-4">
-                  <div className="col-12 col-lg-7">
-                    <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
-                      <div
-                        style={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: 12,
-                          background: "rgba(245, 158, 11, 0.08)",
-                          color: "#f59e0b",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <ChefHat size={24} />
-                      </div>
-                      <div>
-                        <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", marginBottom: 16 }}>
-                          Real-Time Kitchen Order Management
-                        </h3>
-                        <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, marginBottom: 20 }}>
-                          Rasoi's notification system and Order Management Services immediately alert the kitchen staff when an order is placed. Every detail is accurately transmitted to prevent errors, ensuring food is prepared to perfection and delivered on time.
-                        </p>
-                        
-                        <div style={{ fontSize: 15, color: "#0f172a", fontWeight: 700, marginBottom: 12 }}>
-                          Hotels can manage kitchen operations with multiple options, including:
+                <div style={{ padding: "40px" }}>
+                  <div className="row align-items-center g-4">
+                    <div className="col-12 col-lg-7">
+                      <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
+                        <div
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 12,
+                            background: "rgba(245, 158, 11, 0.08)",
+                            color: "#f59e0b",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <ChefHat size={24} />
                         </div>
-                        
-                        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-                          <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#475569", fontWeight: 500 }}>
-                            <span style={{ color: "#f59e0b", fontWeight: 700 }}>»</span>
-                            <strong>Digital prep sheets</strong> for organized order fulfillment.
-                          </li>
-                          <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#475569", fontWeight: 500 }}>
-                            <span style={{ color: "#f59e0b", fontWeight: 700 }}>»</span>
-                            <strong>Kitchen display systems (KDS)</strong> to streamline communication.
-                          </li>
-                          <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#475569", fontWeight: 500 }}>
-                            <span style={{ color: "#f59e0b", fontWeight: 700 }}>»</span>
-                            <strong>Traditional ticket printing</strong> for businesses that prefer paper records.
-                          </li>
+                        <div>
+                          <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", marginBottom: 16 }}>
+                            Real-Time Kitchen Order Management
+                          </h3>
+                          <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, marginBottom: 20 }}>
+                            Rasoi's notification system and Order Management Services immediately alert the kitchen staff when an order is placed. Every detail is accurately transmitted to prevent errors, ensuring food is prepared to perfection and delivered on time.
+                          </p>
+                          
+                          <div style={{ fontSize: 15, color: "#0f172a", fontWeight: 700, marginBottom: 12 }}>
+                            Hotels can manage kitchen operations with multiple options, including:
+                          </div>
+                          
+                          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+                            <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#475569", fontWeight: 500 }}>
+                              <span style={{ color: "#f59e0b", fontWeight: 700 }}>»</span>
+                              <strong>Digital prep sheets</strong> for organized order fulfillment.
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#475569", fontWeight: 500 }}>
+                              <span style={{ color: "#f59e0b", fontWeight: 700 }}>»</span>
+                              <strong>Kitchen display systems (KDS)</strong> to streamline communication.
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#475569", fontWeight: 500 }}>
+                              <span style={{ color: "#f59e0b", fontWeight: 700 }}>»</span>
+                              <strong>Traditional ticket printing</strong> for businesses that prefer paper records.
+                            </li>
+
                         </ul>
 
                         <p style={{ fontSize: 14, color: "#64748b", fontStyle: "italic", marginTop: 20, marginBottom: 0 }}>
@@ -733,143 +664,141 @@ function Index() {
                   </div>
                 </div>
               </div>
-            </div>
+            </BorderGlow>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      {/* ═══════ 5. IMAGE LEFT (GLASS FRAME + GLOW), SLEEK LIST FEATURES RIGHT (REDESIGNED) ═══════ */}
+
+
+      {/* ═══════ 5. FEATURE SHOWCASE SECTION (ScrollExpand Left + 2x2 Grid Right) ═══════ */}
       <section
+        id="features"
         style={{
-          padding: "90px 0",
-          background: "radial-gradient(circle at 15% 50%, rgba(245, 158, 11, 0.05), transparent 60%), #ffffff",
-          borderTop: "1px solid #f1f5f9"
+          padding: "100px 0 120px",
+          background: "#ffffff",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <div className="container">
-          <div className="row align-items-center g-5">
-            {/* Tablet Mockup Left inside glowing glass frame */}
-            <div className="col-12 col-lg-6 text-center text-lg-start">
-              <div
-                style={{
-                  display: "inline-block",
-                  padding: "16px",
-                  borderRadius: "28px",
-                  background: "rgba(255, 255, 255, 0.65)",
-                  border: "1px solid rgba(245, 158, 11, 0.12)",
-                  boxShadow: "0 35px 70px rgba(15, 23, 42, 0.08), 0 0 50px rgba(245, 158, 11, 0.1)",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
-                  transition: "transform 0.4s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-4px)")}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
-              >
-                <img
-                  src="/images/rasoi_kds_tablet.webp"
-                  alt="Rasoi Kitchen Display System (KDS) tablet device layout"
-                  width={560}
-                  height={400}
-                  loading="lazy"
-                  style={{
-                    maxWidth: "100%",
-                    height: "auto",
-                    borderRadius: "16px",
-                    display: "block",
-                  }}
-                />
-              </div>
+        <div style={{ maxWidth: "1360px", margin: "0 auto", padding: "0 24px" }}>
+          <div className="row align-items-center g-5" style={{ minHeight: "560px" }}>
+            
+            {/* LEFT: ScrollExpand Image Showcase Container */}
+            <div className="col-12 col-lg-6">
+              <ScrollExpand
+                src="/images/rasoi_kitchen_kds_showcase.webp"
+                alt="Rasoi restaurant kitchen management"
+                startWidth={85}
+                startHeight={420}
+                startRadius={24}
+                endRadius={16}
+                mediaZoom={1.25}
+                scrollDistance={1.2}
+                holdDistance={0.35}
+                smoothing={0.08}
+                overlayScrim={0.2}
+                useWindowScroll
+              />
             </div>
 
-            {/* List Features Right (Premium design with custom border-left and layout) */}
+            {/* RIGHT: 2x2 Grid of Feature Cards */}
             <div className="col-12 col-lg-6">
               <div className="row g-4">
                 {[
                   {
-                    icon: <QrCode size={22} />,
-                    iconBg: "rgba(245, 158, 11, 0.08)",
-                    iconColor: "#d97706",
-                    borderColor: "4px solid #f59e0b",
+                    icon: <QrCode size={22} strokeWidth={2} />,
+                    iconBg: "#fff7ed",
+                    iconColor: "#ea580c",
                     title: "QR Code Ordering",
                     desc: "Guests can access the menu instantly by scanning a QR code, reducing the need for phone calls and minimizing wait times.",
                   },
                   {
-                    icon: <Layers size={22} />,
-                    iconBg: "rgba(2, 132, 199, 0.08)",
+                    icon: <Layers size={22} strokeWidth={2} />,
+                    iconBg: "#f0f9ff",
                     iconColor: "#0284c7",
-                    borderColor: "4px solid #0284c7",
                     title: "Customizable Menus",
-                    desc: "Tailor the digital menu with high-resolution images, detailed descriptions, dietary labels, and real-time price adjustments.",
+                    desc: "Tailor the digital menu with high-resolution imagery, detailed descriptions, dietary labels, and real-time price adjustments.",
                   },
                   {
-                    icon: <CreditCard size={22} />,
-                    iconBg: "rgba(124, 58, 237, 0.08)",
-                    iconColor: "#7c3aed",
-                    borderColor: "4px solid #7c3aed",
+                    icon: <CreditCard size={22} strokeWidth={2} />,
+                    iconBg: "#faf5ff",
+                    iconColor: "#9333ea",
                     title: "Multiple Payment Options",
                     desc: "Guests can charge to their room, pay securely via credit card, or opt for digital wallets like Apple Pay and Google Pay.",
                   },
                   {
-                    icon: <Bell size={22} />,
-                    iconBg: "rgba(22, 163, 74, 0.08)",
+                    icon: <Bell size={22} strokeWidth={2} />,
+                    iconBg: "#f0fdf4",
                     iconColor: "#16a34a",
-                    borderColor: "4px solid #16a34a",
                     title: "Real-Time Notifications",
                     desc: "Instant alerts to the kitchen ensure timely food preparation and reduce wait times.",
                   },
-                ].map((feature, i) => (
+                ].map((card, i) => (
                   <div key={i} className="col-12 col-sm-6">
-                    <div
-                      style={{
-                        background: "#ffffff",
-                        border: "1px solid #f1f5f9",
-                        borderLeft: feature.borderColor,
-                        borderRadius: "16px",
-                        padding: "28px 24px",
-                        height: "100%",
-                        boxShadow: "0 10px 30px rgba(15, 23, 42, 0.02)",
-                        transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 16,
-                      }}
-                      className="feature-list-card"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-4px)";
-                        e.currentTarget.style.boxShadow = "0 18px 40px rgba(15, 23, 42, 0.06)";
-                        e.currentTarget.style.borderColor = "rgba(15, 23, 42, 0.04)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "0 10px 30px rgba(15, 23, 42, 0.02)";
-                        e.currentTarget.style.borderLeft = feature.borderColor;
-                      }}
+                    <BorderGlow
+                      backgroundColor="#ffffff"
+                      borderRadius={20}
+                      glowRadius={35}
+                      edgeSensitivity={30}
+                      colors={['#f59e0b', '#0284c7', '#10b981']}
+                      style={{ height: "100%" }}
                     >
-                      <div className="d-flex align-items-center gap-3">
+                      <div
+                        style={{
+                          padding: "32px 28px",
+                          minHeight: "220px",
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "18px",
+                        }}
+                      >
+                        {/* Top-left icon container */}
                         <div
                           style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: "12px",
-                            background: feature.iconBg,
-                            color: feature.iconColor,
+                            width: "48px",
+                            height: "48px",
+                            borderRadius: "14px",
+                            background: card.iconBg,
+                            color: card.iconColor,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             flexShrink: 0,
                           }}
                         >
-                          {feature.icon}
+                          {card.icon}
                         </div>
-                        <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", margin: 0 }}>
-                          {feature.title}
-                        </h3>
+
+                        {/* Content */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <h3
+                            style={{
+                              fontSize: "20px",
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              lineHeight: 1.25,
+                              margin: 0,
+                            }}
+                          >
+                            {card.title}
+                          </h3>
+                          <p
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: 400,
+                              color: "#64748b",
+                              lineHeight: 1.55,
+                              margin: 0,
+                            }}
+                          >
+                            {card.desc}
+                          </p>
+                        </div>
                       </div>
-                      
-                      <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6, margin: 0 }}>
-                        {feature.desc}
-                      </p>
-                    </div>
+                    </BorderGlow>
                   </div>
                 ))}
               </div>
@@ -878,10 +807,11 @@ function Index() {
         </div>
       </section>
 
-      {/* ═══════ 6. DETAILED FEATURES GRID (With Mockup Images Inside Each Container) ═══════ */}
+
+      {/* ═══════ 6. DETAILED FEATURES GRID (MagicBento Component) ═══════ */}
       <section style={{ padding: "80px 0", background: "#f8fafc", borderTop: "1px solid #f1f5f9" }}>
         <div className="container">
-          <div className="row justify-content-center" style={{ marginBottom: 56 }}>
+          <div className="row justify-content-center" style={{ marginBottom: 40 }}>
             <div className="col-12 col-lg-8 text-center">
               <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.5rem)", fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>
                 Advanced Features &amp; Integrations
@@ -892,139 +822,20 @@ function Index() {
             </div>
           </div>
 
-          <div className="row g-4">
-            {[
-              {
-                icon: <Clock size={22} />,
-                title: "Seamless Order Tracking",
-                desc: "Live order states tracked from placement to preparation status updates pushed directly back to the guest's browser.",
-                img: "/images/rasoi_feature_tracking.webp",
-              },
-              {
-                icon: <Utensils size={22} />,
-                title: "Easy-to-use Order Management",
-                desc: "Central command panel that handles incoming room service tickets, counter billing, bar tickets, and delivery states.",
-                img: "/images/rasoi_feature_mgmt.webp",
-              },
-              {
-                icon: <ChefHat size={22} />,
-                title: "Multiple Kitchen Management",
-                desc: "Route tickets automatically to different stations (Main Kitchen, Pastry Station, Lobby Bar) based on menu item tags.",
-                img: "/images/rasoi_feature_kitchen.webp",
-              },
-              {
-                icon: <Monitor size={22} />,
-                title: "User-Friendly Interface",
-                desc: "Glanceable touch interfaces requiring zero training for line chefs, receptionists, and waiting staff.",
-                img: "/images/rasoi_feature_interface.webp",
-              },
-              {
-                icon: <Layers size={22} />,
-                title: "Integrated PMS/POS",
-                desc: "Syncs directly with hotel property management systems (PMS) for automated check-in verification and room folio charge posting.",
-                img: "/images/rasoi_feature_pms_pos.webp",
-              },
-              {
-                icon: <Building2 size={22} />,
-                title: "Flexible Setup & Customization",
-                desc: "Fully customizable branding options, currency support, tax templates (GST/VAT), service fees, and menu hour templates.",
-                img: "/images/rasoi_feature_setup.webp",
-              },
-              {
-                icon: <TrendingUp size={22} />,
-                title: "Live Reporting & Analytics",
-                desc: "Detailed breakdowns of daily revenue, peak operating hours, top-selling items, and feedback ratings.",
-                img: "/images/rasoi_feature_analytics.webp",
-              },
-              {
-                icon: <ThumbsUp size={22} />,
-                title: "Guest Reviews & Ratings",
-                desc: "Collect real-time satisfaction surveys automatically after billing to monitor and elevate service delivery standards.",
-                img: "/images/rasoi_feature_reviews.webp",
-              },
-            ].map((gridItem, i) => (
-              <div key={i} className="col-12 col-md-6 col-lg-3">
-                <div
-                  style={{
-                    background: "#ffffff",
-                    border: "1.5px solid #e2e8f0",
-                    borderRadius: 16,
-                    padding: "28px 24px 20px",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-                    cursor: "pointer",
-                  }}
-                  className="hover-card"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
-                    e.currentTarget.style.boxShadow = "0 22px 45px -10px rgba(245, 158, 11, 0.2), 0 12px 25px -5px rgba(15, 23, 42, 0.08)";
-                    e.currentTarget.style.borderColor = "rgba(245, 158, 11, 0.5)";
-                    const img = e.currentTarget.querySelector("img");
-                    if (img) img.style.transform = "scale(1.12)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0) scale(1)";
-                    e.currentTarget.style.boxShadow = "none";
-                    e.currentTarget.style.borderColor = "#e2e8f0";
-                    const img = e.currentTarget.querySelector("img");
-                    if (img) img.style.transform = "scale(1)";
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "12px",
-                        background: "rgba(245, 158, 11, 0.1)",
-                        color: "#d97706",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: 16,
-                        boxShadow: "0 2px 8px rgba(245, 158, 11, 0.15)",
-                      }}
-                    >
-                      {gridItem.icon}
-                    </div>
-                    <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", marginBottom: 10, lineHeight: 1.3 }}>
-                      {gridItem.title}
-                    </h3>
-                    <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6, marginBottom: 16 }}>
-                      {gridItem.desc}
-                    </p>
-                  </div>
-                  
-                  {/* Container Image (Enlarged and Animated) */}
-                  <div style={{ marginTop: "auto", paddingTop: 12, textAlign: "center", overflow: "hidden", borderRadius: 12 }}>
-                    <img
-                      src={gridItem.img}
-                      alt={gridItem.title}
-                      width={300}
-                      height={190}
-                      loading="lazy"
-                      style={{
-                        width: "100%",
-                        height: "190px",
-                        maxHeight: "200px",
-                        objectFit: "contain",
-                        borderRadius: 12,
-                        display: "block",
-                        margin: "0 auto",
-                        filter: "drop-shadow(0 6px 14px rgba(15, 23, 42, 0.06))",
-                        transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <MagicBento
+            glowColor="245, 158, 11"
+            spotlightRadius={600}
+            particleCount={10}
+            enableStars={true}
+            enableSpotlight={true}
+            enableBorderGlow={true}
+            enableTilt={true}
+            enableMagnetism={true}
+            clickEffect={true}
+          />
         </div>
       </section>
+
 
       {/* ═══════ 7. BOTTOM CTA SECTION ═══════ */}
       <section
@@ -1082,71 +893,36 @@ function Index() {
                   </p>
 
                   <div className="pt-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
-                    <Link to="/auth/signup" style={{ textDecoration: "none", width: "100%", maxWidth: "240px" }}>
-                      <button
-                        style={{
-                          width: "100%",
-                          background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                          color: "#030712",
-                          fontWeight: 800,
-                          fontSize: 16,
-                          padding: "16px 36px",
-                          borderRadius: "16px",
-                          border: "none",
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 10,
-                          boxShadow: "0 10px 25px rgba(245,158,11,0.25)",
-                          transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = "translateY(-3px)";
-                          e.currentTarget.style.boxShadow = "0 15px 35px rgba(245,158,11,0.35)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow = "0 10px 25px rgba(245,158,11,0.25)";
-                        }}
+                    <Link to="/auth/signup" style={{ textDecoration: "none" }}>
+                      <SpecularButton
+                        size="lg"
+                        radius={16}
+                        tint="#f59e0b"
+                        tintOpacity={1}
+                        textColor="#ffffff"
+                        lineColor="#ffffff"
+                        baseColor="#d97706"
+                        intensity={1.2}
                       >
                         Start Free Trial Now <ArrowRight size={18} />
-                      </button>
+                      </SpecularButton>
                     </Link>
 
-                    <Link to="/auth/login" style={{ textDecoration: "none", width: "100%", maxWidth: "240px" }}>
-                      <button
-                        style={{
-                          width: "100%",
-                          background: "rgba(255, 255, 255, 0.03)",
-                          color: "#ffffff",
-                          fontWeight: 700,
-                          fontSize: 16,
-                          padding: "15px 32px",
-                          borderRadius: "16px",
-                          border: "1px solid rgba(255, 255, 255, 0.1)",
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 10,
-                          transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                          e.currentTarget.style.border = "1px solid rgba(255, 255, 255, 0.2)";
-                          e.currentTarget.style.transform = "translateY(-2px)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-                          e.currentTarget.style.border = "1px solid rgba(255, 255, 255, 0.1)";
-                          e.currentTarget.style.transform = "translateY(0)";
-                        }}
+                    <Link to="/auth/login" style={{ textDecoration: "none" }}>
+                      <SpecularButton
+                        size="lg"
+                        radius={16}
+                        tint="#1e293b"
+                        tintOpacity={0.8}
+                        textColor="#ffffff"
+                        lineColor="#94a3b8"
+                        baseColor="#334155"
                       >
                         Request a Demo
-                      </button>
+                      </SpecularButton>
                     </Link>
                   </div>
+
                 </div>
               </div>
             </div>

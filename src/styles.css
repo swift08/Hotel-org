@@ -352,3 +352,27 @@
   background: rgba(245, 158, 11, 0.5);
 }
 
+/* PageSpeed Insights & Butter-Smooth Rendering Optimizations */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overflow-x: hidden;
+  backface-visibility: hidden;
+}
+
+img {
+  content-visibility: auto;
+}
+
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+
