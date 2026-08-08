@@ -319,7 +319,8 @@ function Index() {
                   boxShadow: "0 4px 15px rgba(245, 158, 11, 0.1)",
                 }}
               >
-                <span style={{ fontSize: "13px", fontWeight: 800, color: "#d97706", letterSpacing: "0.05em" }}>⚡ TRANSPARENT PRICING:</span>
+                <span style={{ fontSize: "13px", fontWeight: 800, color: "#d97706", letterSpacing: "0.05em" }}>TRANSPARENT PRICING:</span>
+
                 <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0f172a" }}>
                   One-Time Setup: <strong style={{ color: "#d97706" }}>₹5,000</strong> &nbsp;|&nbsp; Monthly: <strong style={{ color: "#0ea5e9" }}>₹1,000</strong>
                 </span>
