@@ -117,6 +117,7 @@ export const saveProduct = createServerFn({ method: "POST" })
         availableFrom: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
         availableTo: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
         state: z.enum(["draft", "published"]).optional(),
+        images: z.array(z.string()).max(10).optional(),
       })
       .parse(input),
   )
@@ -154,6 +155,7 @@ export const saveProduct = createServerFn({ method: "POST" })
       available_from: data.availableFrom ?? null,
       available_to: data.availableTo ?? null,
       state: data.state ?? "draft",
+      images: data.images ?? [],
     };
 
     const query = data.id

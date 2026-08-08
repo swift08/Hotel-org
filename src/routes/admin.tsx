@@ -79,6 +79,19 @@ function AdminLayout() {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const root = window.document.documentElement;
+      if (theme === "dark") {
+        root.classList.add("dark");
+        root.classList.remove("light");
+      } else {
+        root.classList.add("light");
+        root.classList.remove("dark");
+      }
+    }
+  }, [theme]);
+
+  useEffect(() => {
     getMyContext()
       .then((ctx) => {
         if (!ctx?.membership) {

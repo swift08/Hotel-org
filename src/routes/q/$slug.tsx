@@ -636,8 +636,8 @@ function CustomerMenuScreen() {
 
                           return (
                             <Card key={p.id} className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between">
-                              <CardContent className="p-4 flex flex-col justify-between h-full gap-3">
-                                <div className="space-y-1">
+                              <CardContent className="p-4 flex gap-3 items-start justify-between h-full">
+                                <div className="flex-1 space-y-1.5 min-w-0">
                                   <div className="flex items-center gap-1.5">
                                     {tag === "veg" && (
                                       <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-emerald-500 p-0.5 shrink-0">
@@ -649,16 +649,14 @@ function CustomerMenuScreen() {
                                         <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                                       </span>
                                     )}
-                                    <h3 className="font-bold text-sm text-white leading-snug">{p.name}</h3>
+                                    <h3 className="font-bold text-sm text-white leading-snug truncate">{p.name}</h3>
                                   </div>
 
                                   {p.description && (
                                     <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{p.description}</p>
                                   )}
-                                </div>
 
-                                <div className="flex items-center justify-between pt-1 border-t border-slate-900">
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2 pt-1">
                                     <span className="text-sm font-extrabold text-amber-400">
                                       {currencySymbol}{Number(p.base_price).toFixed(2)}
                                     </span>
@@ -666,20 +664,32 @@ function CustomerMenuScreen() {
                                       <Clock className="h-2.5 w-2.5" /> {p.prep_time_minutes}m
                                     </span>
                                   </div>
+                                </div>
 
-                                  {/* Add Button */}
-                                  <div className="flex flex-col items-end">
+                                {/* Right Side: Thumbnail + ADD button */}
+                                <div className="flex flex-col items-center shrink-0 gap-2">
+                                  {p.images?.[0] ? (
+                                    <div className="h-20 w-20 rounded-xl overflow-hidden border border-slate-800 relative bg-slate-950">
+                                      <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
+                                    </div>
+                                  ) : (
+                                    <div className="h-20 w-20 rounded-xl bg-slate-900 border border-slate-850 flex items-center justify-center text-slate-700">
+                                      <Utensils className="h-6 w-6 opacity-30" />
+                                    </div>
+                                  )}
+                                  
+                                  <div className="flex flex-col items-center">
                                     <Button
                                       onClick={() => handleAddToCartClick(p)}
                                       size="sm"
-                                      className="bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold text-xs px-3 h-8 rounded-xl shadow-md"
+                                      className="bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold text-[10px] px-2.5 h-7 rounded-lg shadow-md"
                                     >
                                       + ADD {inCartQty > 0 ? `(${inCartQty})` : ""}
                                     </Button>
                                     {pVariants.length > 0 ? (
-                                      <span className="text-[9px] text-slate-500 mt-1">Customizable</span>
+                                      <span className="text-[8px] text-slate-500 mt-0.5">Customizable</span>
                                     ) : inCartQty > 0 ? (
-                                      <span className="text-[9px] text-amber-400 font-semibold mt-1">{inCartQty} in cart</span>
+                                      <span className="text-[8px] text-amber-400 font-semibold mt-0.5">{inCartQty} in cart</span>
                                     ) : null}
                                   </div>
                                 </div>
@@ -709,8 +719,8 @@ function CustomerMenuScreen() {
 
                         return (
                           <Card key={p.id} className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between">
-                            <CardContent className="p-4 flex flex-col justify-between h-full gap-3">
-                              <div className="space-y-1">
+                            <CardContent className="p-4 flex gap-3 items-start justify-between h-full">
+                              <div className="flex-1 space-y-1.5 min-w-0">
                                 <div className="flex items-center gap-1.5">
                                   {tag === "veg" && (
                                     <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-emerald-500 p-0.5 shrink-0">
@@ -722,16 +732,14 @@ function CustomerMenuScreen() {
                                       <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                                     </span>
                                   )}
-                                  <h3 className="font-bold text-sm text-white leading-snug">{p.name}</h3>
+                                  <h3 className="font-bold text-sm text-white leading-snug truncate">{p.name}</h3>
                                 </div>
 
                                 {p.description && (
                                   <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{p.description}</p>
                                 )}
-                              </div>
 
-                              <div className="flex items-center justify-between pt-1 border-t border-slate-900">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 pt-1">
                                   <span className="text-sm font-extrabold text-amber-400">
                                     {currencySymbol}{Number(p.base_price).toFixed(2)}
                                   </span>
@@ -739,20 +747,32 @@ function CustomerMenuScreen() {
                                     <Clock className="h-2.5 w-2.5" /> {p.prep_time_minutes}m
                                   </span>
                                 </div>
+                              </div>
 
-                                {/* Add Button */}
-                                <div className="flex flex-col items-end">
+                              {/* Right Side: Thumbnail + ADD button */}
+                              <div className="flex flex-col items-center shrink-0 gap-2">
+                                {p.images?.[0] ? (
+                                  <div className="h-20 w-20 rounded-xl overflow-hidden border border-slate-800 relative bg-slate-950">
+                                    <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
+                                  </div>
+                                ) : (
+                                  <div className="h-20 w-20 rounded-xl bg-slate-900 border border-slate-850 flex items-center justify-center text-slate-700">
+                                    <Utensils className="h-6 w-6 opacity-30" />
+                                  </div>
+                                )}
+                                
+                                <div className="flex flex-col items-center">
                                   <Button
                                     onClick={() => handleAddToCartClick(p)}
                                     size="sm"
-                                    className="bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold text-xs px-3 h-8 rounded-xl shadow-md"
+                                    className="bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold text-[10px] px-2.5 h-7 rounded-lg shadow-md"
                                   >
                                     + ADD {inCartQty > 0 ? `(${inCartQty})` : ""}
                                   </Button>
                                   {pVariants.length > 0 ? (
-                                    <span className="text-[9px] text-slate-500 mt-1">Customizable</span>
+                                    <span className="text-[8px] text-slate-500 mt-0.5">Customizable</span>
                                   ) : inCartQty > 0 ? (
-                                    <span className="text-[9px] text-amber-400 font-semibold mt-1">{inCartQty} in cart</span>
+                                    <span className="text-[8px] text-amber-400 font-semibold mt-0.5">{inCartQty} in cart</span>
                                   ) : null}
                                 </div>
                               </div>

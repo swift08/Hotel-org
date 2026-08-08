@@ -98,9 +98,67 @@ function StaffManagement() {
     }
   };
 
+  const [permissionsMatrix, setPermissionsMatrix] = useState<Record<string, Record<string, boolean>>>({});
+
   useEffect(() => {
     fetchStaffData();
   }, []);
+
+  useEffect(() => {
+    if (context?.membership?.business_id) {
+      const businessId = context.membership.business_id;
+      const saved = localStorage.getItem(`rbac_custom_permissions_${businessId}`);
+      if (saved) {
+        try {
+          setPermissionsMatrix(JSON.parse(saved));
+        } catch (e) {
+          console.error("Error loading permissions matrix:", e);
+        }
+      } else {
+        // Initialize default matrix
+        const initialMatrix: Record<string, Record<string, boolean>> = {};
+        PERMISSION_KEYS.forEach((pk) => {
+          initialMatrix[pk.key] = {
+            owner: true,
+            manager: !pk.key.startsWith("settings") && pk.key !== "reports.financial",
+            waiter: ["orders.view", "orders.create", "orders.edit", "menu.view", "tables.manage"].includes(pk.key),
+            cashier: ["orders.view", "orders.create", "payments.collect", "menu.view"].includes(pk.key),
+            chef: pk.key.startsWith("kds.") || pk.key === "menu.view" || pk.key === "orders.view",
+          };
+        });
+        setPermissionsMatrix(initialMatrix);
+        localStorage.setItem(`rbac_custom_permissions_${businessId}`, JSON.stringify(initialMatrix));
+      }
+    }
+  }, [context?.membership?.business_id]);
+
+  const handleTogglePermission = (permissionKey: string, roleKey: string) => {
+    if (roleKey === "owner") {
+      toast.error("Owner permissions are locked and cannot be edited.");
+      return;
+    }
+
+    const userRole = context?.membership?.role;
+    if (userRole !== "owner") {
+      toast.error("Only the restaurant Owner can edit role permissions.");
+      return;
+    }
+
+    const currentVal = permissionsMatrix[permissionKey]?.[roleKey] ?? false;
+    const updated = {
+      ...permissionsMatrix,
+      [permissionKey]: {
+        ...(permissionsMatrix[permissionKey] || {}),
+        [roleKey]: !currentVal,
+      },
+    };
+
+    setPermissionsMatrix(updated);
+    if (context?.membership?.business_id) {
+      localStorage.setItem(`rbac_custom_permissions_${context.membership.business_id}`, JSON.stringify(updated));
+    }
+    toast.success(`Permission updated for ${roleKey.toUpperCase()}`);
+  };
 
   // Edit Staff Modal
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -286,50 +344,64 @@ function StaffManagement() {
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
                   {PERMISSION_KEYS.map((pk) => {
-                    // Default logic per matrix
-                    const isOwnerAllowed = true;
-                    const isManagerAllowed = !pk.key.startsWith("settings") && pk.key !== "reports.financial";
-                    const isWaiterAllowed = ["orders.view", "orders.create", "orders.edit", "menu.view", "tables.manage"].includes(pk.key);
-                    const isCashierAllowed = ["orders.view", "orders.create", "payments.collect", "menu.view"].includes(pk.key);
-                    const isChefAllowed = pk.key.startsWith("kds.") || pk.key === "menu.view" || pk.key === "orders.view";
+                    const renderCell = (roleKey: string) => {
+                      const isAllowed = permissionsMatrix[pk.key]?.[roleKey] ?? false;
+                      const currentUserRole = context?.membership?.role;
+                      const isEditable = roleKey !== "owner" && currentUserRole === "owner";
+
+                      const handleCellClick = () => {
+                        if (isEditable) {
+                          handleTogglePermission(pk.key, roleKey);
+                        } else if (roleKey === "owner") {
+                          toast.error("Owner permissions are locked and cannot be edited.");
+                        } else {
+                          toast.error("Only the restaurant Owner can edit role permissions.");
+                        }
+                      };
+
+                      return (
+                        <td key={roleKey} className="p-4 text-center">
+                          <button
+                            onClick={handleCellClick}
+                            type="button"
+                            className={`inline-flex items-center justify-center p-2 rounded-xl transition-all duration-300 ${
+                              isAllowed
+                                ? "bg-amber-500/10 border border-amber-500/35 text-amber-400 hover:bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                                : "bg-slate-950 border border-slate-800/80 text-slate-600 hover:border-slate-700/80"
+                            } ${
+                              isEditable
+                                ? "cursor-pointer hover:scale-105 active:scale-95"
+                                : "cursor-not-allowed opacity-80"
+                            }`}
+                            title={
+                              roleKey === "owner"
+                                ? "Owner has full access"
+                                : isEditable
+                                ? `Toggle permission for ${roleKey}`
+                                : `Role permissions (managed by Owner)`
+                            }
+                          >
+                            {isAllowed ? (
+                              <ShieldCheck className="h-4.5 w-4.5" />
+                            ) : (
+                              <Lock className="h-4.5 w-4.5" />
+                            )}
+                          </button>
+                        </td>
+                      );
+                    };
 
                     return (
-                      <tr key={pk.key} className="hover:bg-slate-800/40 transition-colors">
+                      <tr key={pk.key} className="hover:bg-slate-800/20 transition-colors">
                         <td className="p-4 font-medium text-white">
-                          <div className="font-bold">{pk.label}</div>
-                          <div className="text-[10px] text-slate-500 font-mono">{pk.key}</div>
+                          <div className="font-bold text-sm">{pk.label}</div>
+                          <div className="text-[10px] text-slate-500 font-mono mt-0.5">{pk.key}</div>
                         </td>
-                        <td className="p-4 text-center">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-400 mx-auto" />
-                        </td>
-                        <td className="p-4 text-center">
-                          {isManagerAllowed ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-400 mx-auto" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-slate-600 mx-auto" />
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          {isWaiterAllowed ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-400 mx-auto" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-slate-600 mx-auto" />
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          {isCashierAllowed ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-400 mx-auto" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-slate-600 mx-auto" />
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          {isChefAllowed ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-400 mx-auto" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-slate-600 mx-auto" />
-                          )}
-                        </td>
+                        {renderCell("owner")}
+                        {renderCell("manager")}
+                        {renderCell("waiter")}
+                        {renderCell("cashier")}
+                        {renderCell("chef")}
                       </tr>
                     );
                   })}

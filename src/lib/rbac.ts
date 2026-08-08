@@ -252,25 +252,85 @@ export const ROLE_DISPLAY: Record<StaffRole, { label: string; color: string; des
 };
 
 /**
+ * Get dynamic permission based on Owner's custom RBAC matrix settings
+ */
+export const getCustomPermission = (role: string, permissionKey: string, businessId?: string): boolean => {
+  // Owner & Business Admin always have full access to everything
+  if (role === "owner" || role === "business_admin") return true;
+
+  if (typeof window !== "undefined" && businessId) {
+    const saved = localStorage.getItem(`rbac_custom_permissions_${businessId}`);
+    if (saved) {
+      try {
+        const matrix = JSON.parse(saved);
+        // Normalize role key as matrix columns map to main categories (owner, manager, waiter, cashier, chef)
+        let matrixRole = role;
+        if (role === "general_manager" || role === "branch_manager" || role === "floor_manager") {
+          matrixRole = "manager";
+        } else if (role === "kitchen_staff" || role === "bar_staff") {
+          matrixRole = "chef";
+        }
+        
+        if (matrix[permissionKey] && typeof matrix[permissionKey][matrixRole] === "boolean") {
+          return matrix[permissionKey][matrixRole];
+        }
+      } catch (e) {
+        console.error("Error parsing custom permissions from localStorage:", e);
+      }
+    }
+  }
+
+  // Fallback defaults if not customized
+  const DEFAULT_MATRIX: Record<string, Record<string, boolean>> = {
+    "orders.view": { manager: true, waiter: true, cashier: true, chef: true },
+    "orders.create": { manager: true, waiter: true, cashier: true, chef: false },
+    "orders.edit": { manager: true, waiter: true, cashier: false, chef: false },
+    "orders.cancel": { manager: true, waiter: false, cashier: false, chef: false },
+    "orders.discount": { manager: true, waiter: false, cashier: false, chef: false },
+    "kds.view": { manager: true, waiter: false, cashier: false, chef: true },
+    "kds.manage": { manager: true, waiter: false, cashier: false, chef: true },
+    "menu.view": { manager: true, waiter: true, cashier: true, chef: true },
+    "menu.edit": { manager: true, waiter: false, cashier: false, chef: true },
+    "tables.manage": { manager: true, waiter: true, cashier: false, chef: false },
+    "staff.view": { manager: true, waiter: false, cashier: false, chef: false },
+    "staff.manage": { manager: true, waiter: false, cashier: false, chef: false },
+    "payments.collect": { manager: true, waiter: false, cashier: true, chef: false },
+    "payments.refund": { manager: true, waiter: false, cashier: false, chef: false },
+    "reports.view": { manager: true, waiter: false, cashier: false, chef: false },
+    "reports.financial": { manager: false, waiter: false, cashier: false, chef: false },
+    "settings.manage": { manager: false, waiter: false, cashier: false, chef: false },
+  };
+
+  let matrixRole = role;
+  if (role === "general_manager" || role === "branch_manager" || role === "floor_manager") {
+    matrixRole = "manager";
+  } else if (role === "kitchen_staff" || role === "bar_staff") {
+    matrixRole = "chef";
+  }
+
+  return DEFAULT_MATRIX[permissionKey]?.[matrixRole] ?? false;
+};
+
+/**
  * Permission checking helpers
  */
 export const ROLE_CAN = {
-  viewRevenue: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager"].includes(role),
-  manageMenu: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager", "chef"].includes(role),
-  manageStaff: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager"].includes(role),
-  collectPayment: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager", "cashier", "waiter"].includes(role),
-  viewKds: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager", "floor_manager", "chef", "kitchen_staff", "bar_staff"].includes(role),
-  createOrders: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager", "floor_manager", "waiter", "cashier"].includes(role),
-  viewReports: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager"].includes(role),
-  manageSettings: (role: StaffRole) =>
-    ["owner", "business_admin"].includes(role),
-  viewFullFloor: (role: StaffRole) =>
-    ["owner", "business_admin", "general_manager", "branch_manager", "floor_manager"].includes(role),
+  viewRevenue: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "reports.view", businessId),
+  manageMenu: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "menu.edit", businessId),
+  manageStaff: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "staff.manage", businessId),
+  collectPayment: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "payments.collect", businessId),
+  viewKds: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "kds.view", businessId),
+  createOrders: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "orders.create", businessId),
+  viewReports: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "reports.view", businessId),
+  manageSettings: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "settings.manage", businessId),
+  viewFullFloor: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "tables.manage", businessId),
 };

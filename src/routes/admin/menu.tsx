@@ -26,8 +26,11 @@ import {
   Layers, 
   DollarSign,
   Loader2,
-  Filter
+  Filter,
+  Camera,
+  Utensils
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,6 +79,46 @@ function MenuCMS() {
   const [prodPrepTime, setProdPrepTime] = useState(10);
   const [prodFoodTag, setProdFoodTag] = useState("veg");
   const [prodStation, setProdStation] = useState<"kitchen" | "bar">("kitchen");
+  const [prodImages, setProdImages] = useState<string[]>([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (file: File): Promise<string | null> => {
+    try {
+      const bucketName = "product-images";
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${context?.membership?.business_id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from(bucketName)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: true
+        });
+
+      if (error) {
+        if (error.message.includes("bucket not found") || error.message.includes("does not exist")) {
+          // Attempt to create bucket dynamically
+          await supabase.storage.createBucket(bucketName, { public: true });
+          const retry = await supabase.storage.from(bucketName).upload(filePath, file, { upsert: true });
+          if (retry.error) throw retry.error;
+          const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+          return publicUrlData.publicUrl;
+        }
+        throw error;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+      return publicUrlData.publicUrl;
+    } catch (err: any) {
+      console.error("Storage upload failed, falling back to data URL:", err);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    }
+  };
 
   // Variant Form State
   const [variantName, setVariantName] = useState("");
@@ -146,6 +189,7 @@ function MenuCMS() {
           foodTags: [prodFoodTag],
           station: prodStation,
           state: "published",
+          images: prodImages,
         },
       });
       toast.success(prodId ? "Product updated!" : "Product created!");
@@ -207,6 +251,7 @@ function MenuCMS() {
     setProdPrepTime(10);
     setProdFoodTag("veg");
     setProdStation("kitchen");
+    setProdImages([]);
   };
 
   const openEditProduct = (p: any) => {
@@ -218,6 +263,7 @@ function MenuCMS() {
     setProdPrepTime(p.prep_time_minutes || 10);
     setProdFoodTag(p.food_tags?.[0] || "veg");
     setProdStation(p.station || "kitchen");
+    setProdImages(p.images || []);
     setProdModalOpen(true);
   };
 
@@ -364,7 +410,17 @@ function MenuCMS() {
             const tag = p.food_tags?.[0] || "veg";
 
             return (
-              <Card key={p.id} className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-lg text-slate-100 flex flex-col justify-between hover:border-slate-700 hover:-translate-y-0.5 transition-all">
+              <Card key={p.id} className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-lg text-slate-100 flex flex-col justify-between hover:border-slate-700 hover:-translate-y-0.5 transition-all overflow-hidden">
+                {p.images?.[0] ? (
+                  <div className="h-36 w-full overflow-hidden relative">
+                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
+                  </div>
+                ) : (
+                  <div className="h-32 w-full bg-gradient-to-br from-slate-900 to-slate-950 flex items-center justify-center text-slate-750 relative border-b border-slate-900/40">
+                    <Utensils className="h-8 w-8 opacity-20" />
+                  </div>
+                )}
                 <CardContent className="p-5 space-y-4">
                   {/* Header: Name, Tag, Stock Switch */}
                   <div className="flex items-start justify-between gap-2">
@@ -574,6 +630,63 @@ function MenuCMS() {
                   onChange={(e) => setProdDesc(e.target.value)}
                   className="bg-slate-950 border-slate-800 text-white"
                 />
+              </div>
+
+              {/* Photo Upload & Preview Widget */}
+              <div className="space-y-2 sm:col-span-2 border-t border-slate-800/80 pt-4 mt-2">
+                <Label className="text-xs font-bold text-amber-400">Dish Photo</Label>
+                <div className="flex items-center gap-4 bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                  {prodImages?.[0] ? (
+                    <div className="h-16 w-16 rounded-lg overflow-hidden border border-slate-800 shrink-0 relative group">
+                      <img src={prodImages[0]} alt="Preview" className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setProdImages([])}
+                        className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-red-400 text-[10px] font-bold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="h-16 w-16 rounded-lg bg-slate-900 border border-dashed border-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+                      <Camera className="h-5 w-5" />
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-1.5">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="dish-image-file"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadingImage(true);
+                          const url = await handleImageUpload(file);
+                          if (url) {
+                            setProdImages([url]);
+                          }
+                          setUploadingImage(false);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="dish-image-file"
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-300 cursor-pointer hover:bg-slate-800 hover:text-white transition-all ${
+                        uploadingImage ? "opacity-50 pointer-events-none" : ""
+                      }`}
+                    >
+                      {uploadingImage ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading...
+                        </>
+                      ) : (
+                        "Select Photo"
+                      )}
+                    </label>
+                    <p className="text-[10px] text-slate-500">Supports JPEG, PNG, WEBP (Max 2MB)</p>
+                  </div>
+                </div>
               </div>
             </div>
 

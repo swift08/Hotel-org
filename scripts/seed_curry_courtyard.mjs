@@ -201,7 +201,7 @@ export async function seedCurryCourtyard() {
   console.log("Seeding 80+ Indian dishes with tags...");
   const menuItems = [
     // 1. Soups & Shorbas
-    { category: "Soups & Shorbas", name: "Tamatar Dhaniya Shorba", description: "Infused ripe tomato broth spiced with fresh coriander roots & cumin.", price: 189, tags: ["veg"], prep: 10 },
+    { category: "Soups & Shorbas", name: "Tamatar Dhaniya Shorba", description: "Infused ripe tomato broth spiced with fresh coriander roots & cumin.", price: 189, tags: ["veg"], prep: 10, images: ["/images/dishes/tamatar_shorba.png"] },
     { category: "Soups & Shorbas", name: "Murgh Jahangiri Shorba", description: "Slow-simmered aromatic chicken bone broth with black pepper & ghee.", price: 229, tags: ["non_veg", "bestseller"], prep: 12 },
     { category: "Soups & Shorbas", name: "Sweet Corn Veg Soup", description: "Classic comforting soup with sweet corn kernels & finely diced veggies.", price: 179, tags: ["veg"], prep: 10 },
     { category: "Soups & Shorbas", name: "Hot & Sour Chicken Soup", description: "Tangy & spicy chicken soup spiked with green chilies, soy & dark vinegar.", price: 209, tags: ["non_veg", "spicy"], prep: 12 },
@@ -238,7 +238,7 @@ export async function seedCurryCourtyard() {
     { category: "Tandoori Grills & Kebabs", name: "Royal Non-Veg Grill Platter", description: "Sizzling platter of Tandoori Chicken, Malai Tikka, Seekh Kebab & Fish Tikka.", price: 899, tags: ["non_veg", "chef_special"], prep: 24 },
 
     // 5. Chef's Signature Specials
-    { category: "Chef's Signature Specials", name: "Curry Courtyard Butter Chicken", description: "Slow-cooked tandoori chicken simmered in silky velvet tomato & butter gravy.", price: 469, tags: ["non_veg", "bestseller"], prep: 18 },
+    { category: "Chef's Signature Specials", name: "Curry Courtyard Butter Chicken", description: "Slow-cooked tandoori chicken simmered in silky velvet tomato & butter gravy.", price: 469, tags: ["non_veg", "bestseller"], prep: 18, images: ["/images/dishes/butter_chicken.png"] },
     { category: "Chef's Signature Specials", name: "Royal Mutton Nalli Nihari", description: "Slow-cooked lamb shanks in rich spicy stew topped with fried ginger & mint.", price: 599, tags: ["non_veg", "chef_special"], prep: 25 },
     { category: "Chef's Signature Specials", name: "Paneer Lababdar Special", description: "Cottage cheese in rich onion tomato cashew gravy topped with grated paneer.", price: 389, tags: ["veg", "bestseller"], prep: 16 },
     { category: "Chef's Signature Specials", name: "Murgh Musallam Special", description: "Whole roasted chicken stuffed with minced meat & boiled eggs in rich gravy.", price: 549, tags: ["non_veg", "chef_special"], prep: 25 },
@@ -276,7 +276,7 @@ export async function seedCurryCourtyard() {
 
     // 9. Indian Tandoori Breads
     { category: "Indian Tandoori Breads", name: "Butter Naan", description: "Soft leavened tandoori bread brushed with salted cream butter.", price: 79, tags: ["veg", "bestseller"], prep: 8 },
-    { category: "Indian Tandoori Breads", name: "Garlic Naan", description: "Fluffy tandoori naan topped with finely minced garlic & fresh coriander.", price: 99, tags: ["veg", "bestseller"], prep: 8 },
+    { category: "Indian Tandoori Breads", name: "Garlic Naan", description: "Fluffy tandoori naan topped with finely minced garlic & fresh coriander.", price: 99, tags: ["veg", "bestseller"], prep: 8, images: ["/images/dishes/garlic_naan.png"] },
     { category: "Indian Tandoori Breads", name: "Cheese Garlic Naan", description: "Stuffed with melted mozzarella & topped with roasted garlic flakes.", price: 129, tags: ["veg", "chef_special"], prep: 10 },
     { category: "Indian Tandoori Breads", name: "Tandoori Roti Plain", description: "Unleavened whole wheat flatbread baked in clay oven.", price: 49, tags: ["veg"], prep: 6 },
     { category: "Indian Tandoori Breads", name: "Butter Tandoori Roti", description: "Whole wheat tandoori roti brushed with Desi ghee.", price: 59, tags: ["veg"], prep: 6 },
@@ -287,7 +287,7 @@ export async function seedCurryCourtyard() {
 
     // 10. Royal Biryanis & Rice
     { category: "Royal Biryanis & Rice", name: "Hyderabadi Dum Chicken Biryani", description: "Long grain basmati rice layered with marinated chicken & fried onions.", price: 399, tags: ["non_veg", "bestseller"], prep: 20 },
-    { category: "Royal Biryanis & Rice", name: "Awadhi Mutton Biryani", description: "Succulent mutton cooked dum style with saffron scented basmati rice.", price: 479, tags: ["non_veg", "chef_special"], prep: 22 },
+    { category: "Royal Biryanis & Rice", name: "Awadhi Mutton Biryani", description: "Succulent mutton cooked dum style with saffron scented basmati rice.", price: 479, tags: ["non_veg", "chef_special"], prep: 22, images: ["/images/dishes/mutton_biryani.png"] },
     { category: "Royal Biryanis & Rice", name: "Royal Veg Dum Biryani", description: "Seasonal garden vegetables cooked with aromatic Biryani masala & rice.", price: 329, tags: ["veg"], prep: 18 },
     { category: "Royal Biryanis & Rice", name: "Paneer Tikka Dum Biryani", description: "Basmati rice layered with tandoori paneer tikka & fried onions.", price: 359, tags: ["veg"], prep: 18 },
     { category: "Royal Biryanis & Rice", name: "Egg Dum Biryani", description: "Basmati rice dum cooked with boiled spiced eggs & kewra water.", price: 299, tags: ["non_veg"], prep: 16 },
@@ -296,7 +296,7 @@ export async function seedCurryCourtyard() {
     { category: "Royal Biryanis & Rice", name: "Kashmiri Peas Pulao", description: "Basmati rice cooked with green peas, saffron & fried cashews.", price: 229, tags: ["veg"], prep: 12 },
 
     // 11. Beverages & Lassi
-    { category: "Beverages & Lassi", name: "Royal Mango Lassi", description: "Creamy yogurt drink blended with sweet Alphonso mango pulp.", price: 149, tags: ["veg", "bestseller"], prep: 5 },
+    { category: "Beverages & Lassi", name: "Royal Mango Lassi", description: "Creamy yogurt drink blended with sweet Alphonso mango pulp.", price: 149, tags: ["veg", "bestseller"], prep: 5, images: ["/images/dishes/mango_lassi.png"] },
     { category: "Beverages & Lassi", name: "Sweet Punjabi Lassi", description: "Traditional thick curd drink sweetened & topped with malai.", price: 129, tags: ["veg"], prep: 5 },
     { category: "Beverages & Lassi", name: "Masala Chaas", description: "Chilled buttermilk spiced with roasted cumin, black salt & mint.", price: 99, tags: ["veg"], prep: 5 },
     { category: "Beverages & Lassi", name: "Fresh Lime Soda", description: "Refreshing fizzy soda with fresh lime juice & salt/sugar.", price: 119, tags: ["veg"], prep: 5 },
@@ -306,7 +306,7 @@ export async function seedCurryCourtyard() {
     { category: "Beverages & Lassi", name: "Shahi Dry Fruit Lassi", description: "Thick sweet lassi topped with saffron strands & chopped almonds/pistachios.", price: 179, tags: ["veg", "chef_special"], prep: 5 },
 
     // 12. Desserts & Sweets
-    { category: "Desserts & Sweets", name: "Gulab Jamun with Ice Cream", description: "Soft hot milk solids soaked in rose syrup served with vanilla ice cream.", price: 169, tags: ["veg", "bestseller"], prep: 5 },
+    { category: "Desserts & Sweets", name: "Gulab Jamun with Ice Cream", description: "Soft hot milk solids soaked in rose syrup served with vanilla ice cream.", price: 169, tags: ["veg", "bestseller"], prep: 5, images: ["/images/dishes/gulab_jamun.png"] },
     { category: "Desserts & Sweets", name: "Saffron Rasmalai (2 Pcs)", description: "Soft cottage cheese patties soaked in chilled saffron cardamom milk.", price: 179, tags: ["veg", "chef_special"], prep: 5 },
     { category: "Desserts & Sweets", name: "Warm Gajar Ka Halwa", description: "Rich carrot pudding cooked with milk, ghee, khoya & dry fruits.", price: 169, tags: ["veg"], prep: 8 },
     { category: "Desserts & Sweets", name: "Shahi Tukda Mughlai", description: "Crispy fried bread soaked in saffron rabri topped with pistachios.", price: 189, tags: ["veg"], prep: 8 },
@@ -332,6 +332,7 @@ export async function seedCurryCourtyard() {
           sort_order: idx + 1,
           state: "published",
           is_available: true,
+          images: item.images || [],
         })
         .select("id, name, base_price")
         .single();
