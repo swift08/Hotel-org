@@ -1,0 +1,108 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+
+export type Db = SupabaseClient<Database>;
+
+const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+
+/** Non-guessable public identifier used in QR links. Never a sequential id. */
+export function randomSlug(length = 10) {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  let out = "";
+  for (const b of bytes) out += ALPHABET[b % ALPHABET.length];
+  return out;
+}
+
+export function slugifyName(name: string) {
+  const base = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+  return `${base || "business"}-${randomSlug(5).toLowerCase()}`;
+}
+
+export async function logAudit(
+  db: Db,
+  entry: {
+    business_id: string;
+    actor_id: string;
+    actor_role?: Database["public"]["Enums"]["staff_role"] | null;
+    actor_label?: string | null;
+    action: string;
+    entity_type: string;
+    entity_id?: string | null;
+    before_state?: unknown;
+    after_state?: unknown;
+    reason?: string | null;
+    ip_address?: string | null;
+    user_agent?: string | null;
+  },
+) {
+  const { error } = await db.from("audit_logs").insert({
+    business_id: entry.business_id,
+    actor_id: entry.actor_id,
+    actor_role: entry.actor_role ?? null,
+    actor_label: entry.actor_label ?? null,
+    action: entry.action,
+    entity_type: entry.entity_type,
+    entity_id: entry.entity_id ?? null,
+    before_state: (entry.before_state ?? null) as never,
+    after_state: (entry.after_state ?? null) as never,
+    reason: entry.reason ?? null,
+    ip_address: entry.ip_address ?? null,
+    user_agent: entry.user_agent ?? null,
+  });
+  if (error) console.error("[audit] failed to write entry", error.message);
+}
+
+/** Resolves the caller's single membership, or throws a user-safe error. */
+export async function requireMembership(db: Db, userId: string, businessId?: string) {
+  let query = db
+    .from("memberships")
+    .select("id, business_id, role, branch_id, is_active")
+    .eq("user_id", userId)
+    .eq("is_active", true);
+  if (businessId) query = query.eq("business_id", businessId);
+
+  const { data, error } = await query.limit(1).maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("You are not a member of this business.");
+  return data;
+}
+
+/** Effective permissions: business overrides layered on role defaults. */
+export async function resolvePermissions(
+  db: Db,
+  businessId: string,
+  role: Database["public"]["Enums"]["staff_role"],
+) {
+  if (role === "owner") {
+    const { data } = await db.from("permissions").select("key");
+    return (data ?? []).map((p) => p.key);
+  }
+  const [{ data: defaults }, { data: overrides }] = await Promise.all([
+    db.from("role_default_permissions").select("permission_key").eq("role", role),
+    db.from("role_permissions").select("permission_key, allowed").eq("business_id", businessId).eq("role", role),
+  ]);
+  const set = new Set((defaults ?? []).map((d) => d.permission_key));
+  for (const o of overrides ?? []) {
+    if (o.allowed) set.add(o.permission_key);
+    else set.delete(o.permission_key);
+  }
+  return [...set];
+}
+
+export function assertPerm(perms: string[], key: string) {
+  if (!perms.includes(key)) throw new Error("You do not have permission to do this.");
+}
+
+export async function nextOrderNumber(db: Db, businessId: string) {
+  const { count } = await db
+    .from("orders")
+    .select("id", { count: "exact", head: true })
+    .eq("business_id", businessId);
+  const seq = (count ?? 0) + 1;
+  return `${new Date().toISOString().slice(2, 10).replace(/-/g, "")}-${String(seq).padStart(4, "0")}`;
+}
