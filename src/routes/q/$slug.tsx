@@ -412,11 +412,27 @@ function CustomerMenuScreen() {
     return matchesCat && matchesSearch && matchesTag;
   });
 
+  // Group products by category
+  const groupedProducts: Record<string, any[]> = {};
+  filteredProducts.forEach((p: any) => {
+    const catId = p.category_id || "other";
+    if (!groupedProducts[catId]) {
+      groupedProducts[catId] = [];
+    }
+    groupedProducts[catId].push(p);
+  });
+
+  const categoriesToRender = selectedCategory === "all"
+    ? menuData.categories.filter((c: any) => groupedProducts[c.id]?.length > 0)
+    : menuData.categories.filter((c: any) => c.id === selectedCategory && groupedProducts[c.id]?.length > 0);
+
+  const showOtherCategory = selectedCategory === "all" && groupedProducts["other"]?.length > 0;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-28 selection:bg-amber-500 selection:text-slate-950">
       {/* Sticky Table Header Banner */}
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur px-4 py-3 shadow-xl">
-        <div className="mx-auto max-w-lg flex items-center justify-between">
+        <div className="mx-auto max-w-lg lg:max-w-7xl flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/20">
               <Utensils className="h-5 w-5" />
@@ -431,193 +447,430 @@ function CustomerMenuScreen() {
             </div>
           </div>
 
-          {cartItems.length > 0 && (
+          <div className="flex items-center gap-2">
+            {/* Desktop Back Button or Info */}
+            <span className="hidden lg:inline text-xs text-slate-400 font-medium bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl">
+              Table QR: <span className="text-amber-400 font-bold">{tableContext?.table?.label}</span>
+            </span>
+
+            {/* Cart Button (Mobile only, on desktop cart is always visible) */}
             <Button
               onClick={() => setCartDrawerOpen(true)}
               size="sm"
-              className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md"
+              className="lg:hidden bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md"
             >
               <ShoppingBag className="mr-1.5 h-4 w-4" />
               {cartItems.reduce((a, b) => a + b.quantity, 0)}
             </Button>
-          )}
+          </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="mx-auto max-w-lg px-4 pt-4 space-y-4">
-        {/* Active Order Banner if placed */}
-        {activeOrderId && (
-          <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-slate-100 flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 font-bold text-emerald-400">
-                <CheckCircle2 className="h-5 w-5" />
-                <span>Order Placed!</span>
-              </div>
-              <p className="text-xs text-slate-300 mt-0.5">Your kitchen ticket is active.</p>
-            </div>
-            <Badge className="bg-emerald-500 text-slate-950 font-bold px-3 py-1">
-              Active
-            </Badge>
-          </div>
-        )}
-
-        {/* Search & Food Tag Filters */}
-        <div className="space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
-            <Input
-              placeholder="Search dishes, drinks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-900 border-slate-800 text-white placeholder:text-slate-500 h-10 rounded-xl"
-            />
-          </div>
-
-          {/* Veg / Non-Veg Quick Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            <button
-              onClick={() => setFoodFilter("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 transition-all ${
-                foodFilter === "all" ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
-              }`}
-            >
-              All Items
-            </button>
-            <button
-              onClick={() => setFoodFilter("veg")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition-all ${
-                foodFilter === "veg" ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20" : "bg-slate-900 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10"
-              }`}
-            >
-              <span className="flex h-2.5 w-2.5 items-center justify-center rounded border border-emerald-500 p-0.5">
-                <span className="h-1 w-1 rounded-full bg-emerald-500" />
-              </span>
-              Pure Veg
-            </button>
-            <button
-              onClick={() => setFoodFilter("non_veg")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition-all ${
-                foodFilter === "non_veg" ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "bg-slate-900 text-red-400 border border-red-500/30 hover:bg-red-500/10"
-              }`}
-            >
-              <span className="flex h-2.5 w-2.5 items-center justify-center rounded border border-red-500 p-0.5">
-                <span className="h-1 w-1 rounded-full bg-red-500" />
-              </span>
-              Non-Veg
-            </button>
-            <button
-              onClick={() => setFoodFilter("bestseller")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 transition-all ${
-                foodFilter === "bestseller" ? "bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20" : "bg-slate-900 text-amber-300 border border-amber-500/30 hover:bg-amber-500/10"
-              }`}
-            >
-              🔥 Bestsellers
-            </button>
-          </div>
-        </div>
-
-        {/* Category Horizontal Scroll Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+      {/* Responsive Layout Grid */}
+      <main className="mx-auto max-w-lg lg:max-w-7xl px-4 pt-4 lg:grid lg:grid-cols-12 lg:gap-8 items-start">
+        {/* Left Sidebar Category Navigation (Desktop only) */}
+        <aside className="lg:col-span-3 hidden lg:block sticky top-20 self-start bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-4 space-y-1 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-none shadow-2xl">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">Menu Categories</h3>
           <button
             onClick={() => setSelectedCategory("all")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
+            className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all border ${
               selectedCategory === "all"
-                ? "bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-sm"
-                : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-sm"
+                : "text-slate-400 hover:text-white hover:bg-slate-800/40 border-transparent"
             }`}
           >
-            All
+            All Items
           </button>
-          {menuData.categories.map((c: any) => (
+          {menuData.categories.map((c: any) => {
+            const hasProducts = menuData.products.some((p: any) => p.category_id === c.id);
+            if (!hasProducts) return null;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCategory(c.id)}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between border ${
+                  selectedCategory === c.id
+                    ? "bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-sm"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800/40 border-transparent"
+                }`}
+              >
+                <span>{c.name}</span>
+                <span className="text-[10px] text-slate-500 font-extrabold bg-slate-950 px-2 py-0.5 rounded-full">
+                  {menuData.products.filter((p: any) => p.category_id === c.id).length}
+                </span>
+              </button>
+            );
+          })}
+        </aside>
+
+        {/* Central Food Items Section */}
+        <div className="lg:col-span-6 col-span-12 space-y-4">
+          {/* Active Order Banner if placed */}
+          {activeOrderId && (
+            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-slate-100 flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 font-bold text-emerald-400">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span>Order Placed!</span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">Your kitchen ticket is active.</p>
+              </div>
+              <Badge className="bg-emerald-500 text-slate-950 font-bold px-3 py-1">
+                Active
+              </Badge>
+            </div>
+          )}
+
+          {/* Search & Food Tag Filters */}
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <Input
+                placeholder="Search dishes, drinks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-slate-900 border-slate-800 text-white placeholder:text-slate-500 h-10 rounded-xl"
+              />
+            </div>
+
+            {/* Veg / Non-Veg Quick Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <button
+                onClick={() => setFoodFilter("all")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 transition-all ${
+                  foodFilter === "all" ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
+                }`}
+              >
+                All Items
+              </button>
+              <button
+                onClick={() => setFoodFilter("veg")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition-all ${
+                  foodFilter === "veg" ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20" : "bg-slate-900 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10"
+                }`}
+              >
+                <span className="flex h-2.5 w-2.5 items-center justify-center rounded border border-emerald-500 p-0.5">
+                  <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                </span>
+                Pure Veg
+              </button>
+              <button
+                onClick={() => setFoodFilter("non_veg")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition-all ${
+                  foodFilter === "non_veg" ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "bg-slate-900 text-red-400 border border-red-500/30 hover:bg-red-500/10"
+                }`}
+              >
+                <span className="flex h-2.5 w-2.5 items-center justify-center rounded border border-red-500 p-0.5">
+                  <span className="h-1 w-1 rounded-full bg-red-500" />
+                </span>
+                Non-Veg
+              </button>
+              <button
+                onClick={() => setFoodFilter("bestseller")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 transition-all ${
+                  foodFilter === "bestseller" ? "bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20" : "bg-slate-900 text-amber-300 border border-amber-500/30 hover:bg-amber-500/10"
+                }`}
+              >
+                🔥 Bestsellers
+              </button>
+            </div>
+          </div>
+
+          {/* Category Horizontal Scroll Bar (Mobile/Tablet only) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none lg:hidden">
             <button
-              key={c.id}
-              onClick={() => setSelectedCategory(c.id)}
+              onClick={() => setSelectedCategory("all")}
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
-                selectedCategory === c.id
+                selectedCategory === "all"
                   ? "bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-sm"
                   : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
               }`}
             >
-              {c.name}
+              All
             </button>
-          ))}
+            {menuData.categories.map((c: any) => {
+              const hasProducts = menuData.products.some((p: any) => p.category_id === c.id);
+              if (!hasProducts) return null;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedCategory(c.id)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
+                    selectedCategory === c.id
+                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-sm"
+                      : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                  }`}
+                >
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Grouped & Segregated Menu List */}
+          <div className="space-y-8">
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12 text-slate-500 bg-slate-900/60 rounded-2xl border border-slate-800 p-6">
+                <Utensils className="h-10 w-10 mx-auto mb-2 text-slate-600" />
+                <p className="text-sm font-semibold text-white">No items found</p>
+                <p className="text-xs">Try selecting another category or clear search.</p>
+              </div>
+            ) : (
+              <>
+                {/* Render categories with active items */}
+                {categoriesToRender.map((cat: any) => {
+                  const items = groupedProducts[cat.id] || [];
+                  return (
+                    <div key={cat.id} className="space-y-3">
+                      <h2 className="text-sm font-bold text-amber-400 uppercase tracking-widest border-b border-slate-900 pb-2 pl-1 flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        {cat.name}
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {items.map((p: any) => {
+                          const tag = p.food_tags?.[0] || "veg";
+                          const pVariants = menuData.variants.filter((v: any) => v.product_id === p.id);
+                          const inCartQty = cartItems
+                            .filter((ci) => ci.productId === p.id)
+                            .reduce((a, b) => a + b.quantity, 0);
+
+                          return (
+                            <Card key={p.id} className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between">
+                              <CardContent className="p-4 flex flex-col justify-between h-full gap-3">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-1.5">
+                                    {tag === "veg" && (
+                                      <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-emerald-500 p-0.5 shrink-0">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                      </span>
+                                    )}
+                                    {tag === "non_veg" && (
+                                      <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-red-500 p-0.5 shrink-0">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                                      </span>
+                                    )}
+                                    <h3 className="font-bold text-sm text-white leading-snug">{p.name}</h3>
+                                  </div>
+
+                                  {p.description && (
+                                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{p.description}</p>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between pt-1 border-t border-slate-900">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-extrabold text-amber-400">
+                                      {currencySymbol}{Number(p.base_price).toFixed(2)}
+                                    </span>
+                                    <span className="text-[10px] text-slate-500 flex items-center gap-0.5">
+                                      <Clock className="h-2.5 w-2.5" /> {p.prep_time_minutes}m
+                                    </span>
+                                  </div>
+
+                                  {/* Add Button */}
+                                  <div className="flex flex-col items-end">
+                                    <Button
+                                      onClick={() => handleAddToCartClick(p)}
+                                      size="sm"
+                                      className="bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold text-xs px-3 h-8 rounded-xl shadow-md"
+                                    >
+                                      + ADD {inCartQty > 0 ? `(${inCartQty})` : ""}
+                                    </Button>
+                                    {pVariants.length > 0 ? (
+                                      <span className="text-[9px] text-slate-500 mt-1">Customizable</span>
+                                    ) : inCartQty > 0 ? (
+                                      <span className="text-[9px] text-amber-400 font-semibold mt-1">{inCartQty} in cart</span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Render uncategorized items */}
+                {showOtherCategory && (
+                  <div className="space-y-3">
+                    <h2 className="text-sm font-bold text-amber-400 uppercase tracking-widest border-b border-slate-900 pb-2 pl-1 flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                      Other Specialties
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {groupedProducts["other"].map((p: any) => {
+                        const tag = p.food_tags?.[0] || "veg";
+                        const pVariants = menuData.variants.filter((v: any) => v.product_id === p.id);
+                        const inCartQty = cartItems
+                          .filter((ci) => ci.productId === p.id)
+                          .reduce((a, b) => a + b.quantity, 0);
+
+                        return (
+                          <Card key={p.id} className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between">
+                            <CardContent className="p-4 flex flex-col justify-between h-full gap-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5">
+                                  {tag === "veg" && (
+                                    <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-emerald-500 p-0.5 shrink-0">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                    </span>
+                                  )}
+                                  {tag === "non_veg" && (
+                                    <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-red-500 p-0.5 shrink-0">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                                    </span>
+                                  )}
+                                  <h3 className="font-bold text-sm text-white leading-snug">{p.name}</h3>
+                                </div>
+
+                                {p.description && (
+                                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{p.description}</p>
+                                )}
+                              </div>
+
+                              <div className="flex items-center justify-between pt-1 border-t border-slate-900">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-extrabold text-amber-400">
+                                    {currencySymbol}{Number(p.base_price).toFixed(2)}
+                                  </span>
+                                  <span className="text-[10px] text-slate-500 flex items-center gap-0.5">
+                                    <Clock className="h-2.5 w-2.5" /> {p.prep_time_minutes}m
+                                  </span>
+                                </div>
+
+                                {/* Add Button */}
+                                <div className="flex flex-col items-end">
+                                  <Button
+                                    onClick={() => handleAddToCartClick(p)}
+                                    size="sm"
+                                    className="bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold text-xs px-3 h-8 rounded-xl shadow-md"
+                                  >
+                                    + ADD {inCartQty > 0 ? `(${inCartQty})` : ""}
+                                  </Button>
+                                  {pVariants.length > 0 ? (
+                                    <span className="text-[9px] text-slate-500 mt-1">Customizable</span>
+                                  ) : inCartQty > 0 ? (
+                                    <span className="text-[9px] text-amber-400 font-semibold mt-1">{inCartQty} in cart</span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Food Items List */}
-        <div className="space-y-3">
-          {filteredProducts.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 bg-slate-900/60 rounded-2xl border border-slate-800 p-6">
-              <Utensils className="h-10 w-10 mx-auto mb-2 text-slate-600" />
-              <p className="text-sm font-semibold text-white">No items found</p>
-              <p className="text-xs">Try selecting another category or clear search.</p>
+        {/* Right Sidebar Persistent Cart & Checkout (Desktop only) */}
+        <aside className="lg:col-span-3 hidden lg:block sticky top-20 self-start bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-4 space-y-4 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-none shadow-2xl">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <h3 className="text-xs font-bold text-white flex items-center gap-2 uppercase tracking-wider">
+              <ShoppingBag className="h-4 w-4 text-amber-500" />
+              <span>Your Cart</span>
+            </h3>
+            <span className="text-amber-400 font-extrabold text-sm">{currencySymbol}{cartSubtotal.toFixed(2)}</span>
+          </div>
+
+          {cartItems.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              <ShoppingBag className="h-8 w-8 mx-auto mb-2 text-slate-700" />
+              <p className="text-xs font-semibold text-slate-400">Your cart is empty</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Select delicious dishes to add them here.</p>
             </div>
           ) : (
-            filteredProducts.map((p: any) => {
-              const tag = p.food_tags?.[0] || "veg";
-              const pVariants = menuData.variants.filter((v: any) => v.product_id === p.id);
-              const inCartQty = cartItems
-                .filter((ci) => ci.productId === p.id)
-                .reduce((a, b) => a + b.quantity, 0);
+            <div className="space-y-4">
+              {/* Cart Items List */}
+              <div className="space-y-2 max-h-[35vh] overflow-y-auto pr-1 scrollbar-none">
+                {cartItems.map((item, idx) => {
+                  const itemPrice = item.variantId ? item.variantPrice : item.basePrice;
+                  const addonsTotal = item.addonsList.reduce((a: number, b: any) => a + Number(b.price), 0);
+                  const linePrice = (itemPrice + addonsTotal) * item.quantity;
 
-              return (
-                <Card key={p.id} className="border-slate-800 bg-slate-900/80 backdrop-blur text-slate-100 overflow-hidden shadow-md hover:border-slate-700 hover:-translate-y-0.5 transition-all">
-                  <CardContent className="p-4 flex items-center justify-between gap-3">
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center gap-2">
-                        {tag === "veg" && (
-                          <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-emerald-500 p-0.5 shrink-0">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                          </span>
+                  return (
+                    <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-950/60 rounded-xl border border-slate-850">
+                      <div className="space-y-0.5 flex-1 pr-2">
+                        <h4 className="font-bold text-xs text-white leading-tight">{item.productName}</h4>
+                        {item.variantName && (
+                          <p className="text-[9px] text-slate-500">Variant: {item.variantName}</p>
                         )}
-                        {tag === "non_veg" && (
-                          <span className="flex h-3.5 w-3.5 items-center justify-center rounded border border-red-500 p-0.5 shrink-0">
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                          </span>
+                        {item.specialInstructions && (
+                          <p className="text-[9px] text-amber-400 leading-tight">"{item.specialInstructions}"</p>
                         )}
-                        <h3 className="font-bold text-base text-white leading-snug">{p.name}</h3>
+                        <p className="text-[11px] text-amber-400 font-semibold">{currencySymbol}{linePrice.toFixed(2)}</p>
                       </div>
 
-                      {p.description && (
-                        <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{p.description}</p>
-                      )}
-
-                      <div className="flex items-center gap-3 pt-1">
-                        <span className="text-base font-extrabold text-amber-400">
-                          {currencySymbol}{Number(p.base_price).toFixed(2)}
-                        </span>
-                        <span className="text-[11px] text-slate-500 flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> {p.prep_time_minutes}m
-                        </span>
+                      <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 px-1 py-0.5 rounded-lg shrink-0">
+                        <button onClick={() => updateQuantity(idx, -1)} className="text-slate-400 hover:text-white p-0.5">
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="font-bold text-[10px] text-white w-4 text-center">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(idx, 1)} className="text-slate-400 hover:text-white p-0.5">
+                          <Plus className="h-3 w-3" />
+                        </button>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
 
-                    {/* Add Button */}
-                    <div className="shrink-0 flex flex-col items-center">
-                      <Button
-                        onClick={() => handleAddToCartClick(p)}
-                        size="sm"
-                        className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md h-9 px-4 rounded-xl"
-                      >
-                        + ADD {inCartQty > 0 ? `(${inCartQty})` : ""}
-                      </Button>
-                      {pVariants.length > 0 ? (
-                        <span className="text-[10px] text-slate-500 mt-1">Customizable</span>
-                      ) : inCartQty > 0 ? (
-                        <span className="text-[10px] text-amber-400 font-semibold mt-1">{inCartQty} in cart</span>
-                      ) : null}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })
+              {/* Customer details */}
+              <div className="space-y-3 pt-3 border-t border-slate-800">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer Details (Optional)</h4>
+                <div className="space-y-2">
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-slate-400">Name</Label>
+                    <Input
+                      placeholder="e.g. Harshith"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="bg-slate-950 border-slate-850 text-white h-8 text-xs placeholder:text-slate-700 focus-visible:ring-amber-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-slate-400">Mobile #</Label>
+                    <Input
+                      placeholder="9876543210"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      className="bg-slate-950 border-slate-850 text-white h-8 text-xs placeholder:text-slate-700 focus-visible:ring-amber-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Place Order Button */}
+              <Button
+                onClick={handlePlaceOrder}
+                disabled={submittingOrder}
+                className="w-full h-11 mt-1 bg-gradient-to-r from-amber-500 to-amber-600 font-extrabold text-slate-950 text-xs hover:from-amber-400 hover:to-amber-500 rounded-xl shadow-xl flex items-center justify-center gap-1.5"
+              >
+                {submittingOrder ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending to Kitchen...
+                  </>
+                ) : (
+                  <>
+                    Place Order ({currencySymbol}{cartSubtotal.toFixed(2)})
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
           )}
-        </div>
+        </aside>
       </main>
 
-      {/* Sticky Bottom Cart Bar */}
+      {/* Sticky Bottom Cart Bar (Mobile only) */}
       {cartItems.length > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-40 p-4 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent">
+        <div className="fixed bottom-0 inset-x-0 z-40 p-4 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent lg:hidden">
           <div className="mx-auto max-w-lg">
             <Button
               onClick={() => setCartDrawerOpen(true)}

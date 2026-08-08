@@ -189,6 +189,7 @@ export async function seedCurryCourtyard() {
         name: c.name,
         sort_order: c.sort_order,
         is_active: true,
+        state: "published",
       })
       .select("id, name")
       .single();

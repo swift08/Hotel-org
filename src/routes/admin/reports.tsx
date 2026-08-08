@@ -11,19 +11,38 @@ import {
   Calendar, 
   RefreshCw,
   Loader2,
-  PieChart
+  PieChart,
+  DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
 
 export const Route = createFileRoute("/admin/reports")({
   component: ReportsAndAnalytics,
 });
 
+const PIE_COLORS = ["#f59e0b", "#10b981", "#6366f1", "#06b6d4", "#ec4899", "#8b5cf6"];
+
 function ReportsAndAnalytics() {
   const [loading, setLoading] = useState(true);
   const [context, setContext] = useState<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const [reportData, setReportData] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -32,6 +51,14 @@ function ReportsAndAnalytics() {
     totalDiscounts: 0,
   });
 
+  const [dailySales, setDailySales] = useState<any[]>([]);
+  const [channelData, setChannelData] = useState<any[]>([]);
+  const [topDishData, setTopDishData] = useState<any[]>([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const fetchReportsData = async () => {
     setLoading(true);
     try {
@@ -39,10 +66,19 @@ function ReportsAndAnalytics() {
       setContext(ctx);
 
       if (ctx?.membership?.business_id) {
+        const businessId = ctx.membership.business_id;
+
+        // Fetch Orders with created_at and channel
         const { data: orders } = await supabase
           .from("orders")
-          .select("id, grand_total, subtotal, tax_total, discount_total, status, payment_status")
-          .eq("business_id", ctx.membership.business_id);
+          .select("id, grand_total, subtotal, tax_total, discount_total, status, payment_status, created_at, channel")
+          .eq("business_id", businessId);
+
+        // Fetch Order Items for Top Dishes
+        const { data: orderItems } = await supabase
+          .from("order_items")
+          .select("product_name, quantity, line_total")
+          .eq("business_id", businessId);
 
         if (orders) {
           const completedPaid = orders.filter(
@@ -62,6 +98,67 @@ function ReportsAndAnalytics() {
             totalTaxCollected: tax,
             totalDiscounts: discount,
           });
+
+          // 1. Compute Sales Trend (Last 14 days)
+          const dateDailyMap: Record<string, number> = {};
+          const sortedOrders = [...completedPaid].sort(
+            (a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+          );
+
+          sortedOrders.forEach((o) => {
+            if (!o.created_at) return;
+            const dateKey = o.created_at.split("T")[0]; // YYYY-MM-DD
+            dateDailyMap[dateKey] = (dateDailyMap[dateKey] || 0) + Number(o.grand_total || 0);
+          });
+
+          const dailyTrend = Object.entries(dateDailyMap)
+            .map(([date, amount]) => ({
+              date: new Date(date).toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
+              amount: Math.round(amount),
+            }))
+            .slice(-14);
+
+          setDailySales(dailyTrend);
+
+          // 2. Compute Channels Distribution
+          const channelMap: Record<string, number> = {};
+          orders.forEach((o) => {
+            const ch = o.channel === "qr" ? "QR Ordering" : o.channel === "waiter" ? "Waiter App" : "POS Desktop";
+            channelMap[ch] = (channelMap[ch] || 0) + 1;
+          });
+
+          const channelStats = Object.entries(channelMap).map(([name, value]) => ({
+            name,
+            value,
+          }));
+
+          setChannelData(channelStats);
+        }
+
+        // 3. Compute Top Selling Products
+        if (orderItems) {
+          const productMap: Record<string, { quantity: number; sales: number }> = {};
+          orderItems.forEach((item) => {
+            const name = item.product_name || "Unknown Item";
+            const qty = Number(item.quantity || 0);
+            const total = Number(item.line_total || 0);
+            if (!productMap[name]) {
+              productMap[name] = { quantity: 0, sales: 0 };
+            }
+            productMap[name].quantity += qty;
+            productMap[name].sales += total;
+          });
+
+          const topDishes = Object.entries(productMap)
+            .map(([name, data]) => ({
+              name: name.replace("Curry Courtyard ", ""), // Shorten product names for layout
+              quantity: data.quantity,
+              sales: Math.round(data.sales),
+            }))
+            .sort((a, b) => b.quantity - a.quantity)
+            .slice(0, 5);
+
+          setTopDishData(topDishes);
         }
       }
     } catch (err: any) {
@@ -101,7 +198,7 @@ function ReportsAndAnalytics() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
             Financial Reports & Analytics
@@ -133,7 +230,7 @@ function ReportsAndAnalytics() {
 
       {/* Financial Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl text-slate-100">
+        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Net Revenue</span>
             <div className="mt-3 text-3xl font-extrabold text-white">
@@ -142,14 +239,14 @@ function ReportsAndAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl text-slate-100">
+        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Completed Orders</span>
             <div className="mt-3 text-3xl font-extrabold text-white">{reportData.totalOrders}</div>
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl text-slate-100">
+        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">GST Tax Collected</span>
             <div className="mt-3 text-3xl font-extrabold text-amber-400">
@@ -158,12 +255,169 @@ function ReportsAndAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl text-slate-100">
+        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Discounts Issued</span>
             <div className="mt-3 text-3xl font-extrabold text-emerald-400">
               {currencySymbol}{reportData.totalDiscounts.toFixed(2)}
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Chart Visualizations Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Card 1: Revenue Trend (takes 2 cols on lg) */}
+        <Card className="lg:col-span-2 border-slate-800/80 bg-slate-900/40 backdrop-blur-md text-slate-100 shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-lg font-bold flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-amber-500" /> Daily Revenue Trend
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Total completed/paid sales volumes over the past 14 days.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="h-80 pr-4">
+            {loading ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+              </div>
+            ) : isMounted && dailySales.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={dailySales} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `${currencySymbol}${val}`} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(15, 23, 42, 0.95)",
+                      borderColor: "#334155",
+                      borderRadius: "12px",
+                      color: "#fff",
+                      fontSize: "12px",
+                    }}
+                    formatter={(value) => [`${currencySymbol}${value}`, "Revenue"]}
+                  />
+                  <Area type="monotone" dataKey="amount" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+                No revenue history available
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Card 2: Channels Pie Chart */}
+        <Card className="border-slate-800/80 bg-slate-900/40 backdrop-blur-md text-slate-100 shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-lg font-bold flex items-center gap-2">
+              <PieChart className="h-5 w-5 text-amber-500" /> Order Channels
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Distribution of orders by placement source.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="h-80 flex flex-col items-center justify-center">
+            {loading ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+              </div>
+            ) : isMounted && channelData.length > 0 ? (
+              <div className="relative w-full h-full">
+                <ResponsiveContainer width="100%" height="80%">
+                  <RechartsPieChart>
+                    <Pie
+                      data={channelData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {channelData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(15, 23, 42, 0.95)",
+                        borderColor: "#334155",
+                        borderRadius: "12px",
+                        color: "#fff",
+                        fontSize: "12px",
+                      }}
+                    />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+                {/* Custom Legend */}
+                <div className="absolute bottom-2 inset-x-0 flex justify-center gap-4 flex-wrap text-[11px] text-slate-400 px-4">
+                  {channelData.map((entry, index) => (
+                    <div key={entry.name} className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }} />
+                      <span>{entry.name} ({entry.value})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+                No channel analytics available
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Card 3: Top Selling Dishes (takes full width) */}
+        <Card className="lg:col-span-3 border-slate-800/80 bg-slate-900/40 backdrop-blur-md text-slate-100 shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-lg font-bold flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-amber-500" /> Top Selling Dishes
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Top 5 best selling menu items ranked by quantity ordered.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="h-80 pr-4 pb-6">
+            {loading ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+              </div>
+            ) : isMounted && topDishData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topDishData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                  <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(15, 23, 42, 0.95)",
+                      borderColor: "#334155",
+                      borderRadius: "12px",
+                      color: "#fff",
+                      fontSize: "12px",
+                    }}
+                    cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
+                  />
+                  <Bar dataKey="quantity" fill="#f59e0b" radius={[4, 4, 0, 0]} maxBarSize={50}>
+                    {topDishData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+                No menu item sales data available
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
