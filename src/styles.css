@@ -375,4 +375,40 @@ img {
   backface-visibility: hidden;
 }
 
+/* Breathing Glow Animations for Request Demo CTA Buttons */
+@keyframes breathe-glow-amber {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.45), 0 0 28px rgba(245, 158, 11, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.9), 0 0 50px rgba(245, 158, 11, 0.55), 0 0 75px rgba(245, 158, 11, 0.35);
+    transform: scale(1.045);
+  }
+}
+
+.breathe-glow-amber {
+  animation: breathe-glow-amber 2.4s ease-in-out infinite;
+  display: inline-block;
+  border-radius: 9999px;
+}
+
+@keyframes breathe-glow-blue {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(2, 132, 199, 0.45), 0 0 28px rgba(2, 132, 199, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.9), 0 0 50px rgba(2, 132, 199, 0.6), 0 0 75px rgba(2, 132, 199, 0.35);
+    transform: scale(1.045);
+  }
+}
+
+.breathe-glow-blue {
+  animation: breathe-glow-blue 2.4s ease-in-out infinite;
+  display: inline-block;
+  border-radius: 12px;
+}
+
+
 
