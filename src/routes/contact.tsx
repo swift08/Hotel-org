@@ -295,7 +295,9 @@ function ContactPage() {
                         </label>
                         <input
                           type="text"
+                          id="fullName"
                           name="fullName"
+                          autoComplete="name"
                           value={formData.fullName}
                           onChange={handleChange}
                           placeholder="e.g. Rahul Sharma"
@@ -310,7 +312,9 @@ function ContactPage() {
                         </label>
                         <input
                           type="text"
+                          id="businessName"
                           name="businessName"
+                          autoComplete="organization"
                           value={formData.businessName}
                           onChange={handleChange}
                           placeholder="e.g. Royal Spice Hospitality"
@@ -327,7 +331,9 @@ function ContactPage() {
                         </label>
                         <input
                           type="email"
+                          id="workEmail"
                           name="workEmail"
+                          autoComplete="email"
                           value={formData.workEmail}
                           onChange={handleChange}
                           placeholder="rahul@royalspice.com"
@@ -342,13 +348,16 @@ function ContactPage() {
                         </label>
                         <input
                           type="tel"
+                          id="phoneNumber"
                           name="phoneNumber"
+                          autoComplete="tel"
                           value={formData.phoneNumber}
                           onChange={handleChange}
                           placeholder="+91 98765 43210"
                           required
                           className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
                         />
+
                       </div>
                     </div>
 

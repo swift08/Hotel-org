@@ -164,8 +164,11 @@ function Onboarding() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-300">Business Name *</Label>
+                  <Label htmlFor="businessName" className="text-xs font-semibold text-slate-300">Business Name *</Label>
                   <Input
+                    id="businessName"
+                    name="businessName"
+                    autoComplete="organization"
                     placeholder="e.g. Royal Spice Bistro"
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
@@ -175,8 +178,12 @@ function Onboarding() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-300">Phone Number</Label>
+                  <Label htmlFor="phone" className="text-xs font-semibold text-slate-300">Phone Number</Label>
                   <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
                     placeholder="+91 98765 43210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -184,6 +191,7 @@ function Onboarding() {
                   />
                 </div>
               </div>
+
 
               {/* Business Type Grid */}
               <div className="space-y-2 pt-2">
@@ -229,8 +237,11 @@ function Onboarding() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-300">Branch Name *</Label>
+                  <Label htmlFor="branchName" className="text-xs font-semibold text-slate-300">Branch Name *</Label>
                   <Input
+                    id="branchName"
+                    name="branchName"
+                    autoComplete="off"
                     placeholder="e.g. Indiranagar Branch"
                     value={branchName}
                     onChange={(e) => setBranchName(e.target.value)}
@@ -240,8 +251,11 @@ function Onboarding() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-300">City</Label>
+                  <Label htmlFor="city" className="text-xs font-semibold text-slate-300">City</Label>
                   <Input
+                    id="city"
+                    name="city"
+                    autoComplete="address-level2"
                     placeholder="e.g. Bangalore"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
@@ -252,8 +266,10 @@ function Onboarding() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-300">Initial Table Count</Label>
+                  <Label htmlFor="tableCount" className="text-xs font-semibold text-slate-300">Initial Table Count</Label>
                   <Input
+                    id="tableCount"
+                    name="tableCount"
                     type="number"
                     min={0}
                     max={100}
@@ -265,8 +281,11 @@ function Onboarding() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-300">GSTIN / Tax ID (Optional)</Label>
+                  <Label htmlFor="gstin" className="text-xs font-semibold text-slate-300">GSTIN / Tax ID (Optional)</Label>
                   <Input
+                    id="gstin"
+                    name="gstin"
+                    autoComplete="off"
                     placeholder="29AAAAA0000A1Z5"
                     value={gstin}
                     onChange={(e) => setGstin(e.target.value)}
@@ -274,6 +293,7 @@ function Onboarding() {
                   />
                 </div>
               </div>
+
             </CardContent>
           </Card>
 

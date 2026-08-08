@@ -951,8 +951,11 @@ function CustomerMenuScreen() {
                 <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer Details (Optional)</h4>
                 <div className="space-y-2">
                   <div className="space-y-1">
-                    <Label className="text-[10px] text-slate-400">Name</Label>
+                    <Label htmlFor="customerNameMini" className="text-[10px] text-slate-400">Name</Label>
                     <Input
+                      id="customerNameMini"
+                      name="customerName"
+                      autoComplete="name"
                       placeholder="e.g. Harshith"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
@@ -960,8 +963,12 @@ function CustomerMenuScreen() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[10px] text-slate-400">Mobile #</Label>
+                    <Label htmlFor="customerPhoneMini" className="text-[10px] text-slate-400">Mobile #</Label>
                     <Input
+                      id="customerPhoneMini"
+                      name="customerPhone"
+                      type="tel"
+                      autoComplete="tel"
                       placeholder="9876543210"
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
@@ -1155,8 +1162,11 @@ function CustomerMenuScreen() {
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Customer Details (Optional)</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs text-slate-300">Name</Label>
+                  <Label htmlFor="customerName" className="text-xs text-slate-300">Name</Label>
                   <Input
+                    id="customerName"
+                    name="customerName"
+                    autoComplete="name"
                     placeholder="e.g. Harshith"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
@@ -1164,8 +1174,12 @@ function CustomerMenuScreen() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs text-slate-300">Mobile #</Label>
+                  <Label htmlFor="customerPhone" className="text-xs text-slate-300">Mobile #</Label>
                   <Input
+                    id="customerPhone"
+                    name="customerPhone"
+                    type="tel"
+                    autoComplete="tel"
                     placeholder="9876543210"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}

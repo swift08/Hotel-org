@@ -102,7 +102,9 @@ function Signup() {
                   <User className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                   <Input
                     id="name"
+                    name="name"
                     type="text"
+                    autoComplete="name"
                     placeholder="Harshith Kumar"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
@@ -120,7 +122,9 @@ function Signup() {
                   <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                   <Input
                     id="phone"
+                    name="phone"
                     type="tel"
+                    autoComplete="tel"
                     placeholder="+91 98765 43210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -137,7 +141,9 @@ function Signup() {
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                   <Input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     placeholder="owner@restaurant.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -155,7 +161,9 @@ function Signup() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     placeholder="At least 6 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -163,6 +171,7 @@ function Signup() {
                     minLength={6}
                     className="pl-9 pr-10 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-amber-500 focus:ring-amber-500"
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
