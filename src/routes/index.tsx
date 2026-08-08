@@ -40,8 +40,10 @@ import {
   CreditCard,
   MessageSquare,
   Menu,
-  X
+  X,
+  Instagram
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/")(
   { component: Index },
@@ -305,26 +307,16 @@ function Index() {
           <div className="row align-items-center g-5">
             {/* Hero Left Content */}
             <div className="col-12 col-lg-6">
-              {/* Highlight 1: Hero Pricing Highlight Badge */}
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "8px 18px",
-                  borderRadius: "30px",
-                  background: "linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(14, 165, 233, 0.12))",
-                  border: "1px solid rgba(245, 158, 11, 0.3)",
-                  marginBottom: "20px",
-                  boxShadow: "0 4px 15px rgba(245, 158, 11, 0.1)",
-                }}
-              >
-                <span style={{ fontSize: "13px", fontWeight: 800, color: "#d97706", letterSpacing: "0.05em" }}>TRANSPARENT PRICING:</span>
-
-                <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0f172a" }}>
-                  One-Time Setup: <strong style={{ color: "#d97706" }}>₹5,000</strong> &nbsp;|&nbsp; Monthly: <strong style={{ color: "#0ea5e9" }}>₹1,000</strong>
+              {/* Highlight 1: Hero Pricing Text (Clean without container box) */}
+              <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
+                <span style={{ fontSize: "12.5px", fontWeight: 800, color: "#d97706", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  TRANSPARENT PRICING:
+                </span>
+                <span style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b" }}>
+                  One-Time Setup: <strong style={{ color: "#d97706", fontWeight: 800 }}>₹5,000</strong> &nbsp;|&nbsp; Monthly: <strong style={{ color: "#0284c7", fontWeight: 800 }}>₹1,000</strong>
                 </span>
               </div>
+
 
               <h1
 
@@ -1055,13 +1047,45 @@ function Index() {
 
           {/* Bottom Copyright Block */}
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-center pt-4" style={{ marginTop: "24px" }}>
-            <p style={{ fontSize: 13, color: "#64748b", margin: 0, textAlign: "center" }}>
-              © 2026 <a href="https://www.admarkdigitals.com/" target="_blank" rel="noopener noreferrer" style={{ color: "#f59e0b", textDecoration: "none", fontWeight: 600 }}>ADMARK DIGITALS</a>. All rights reserved.
-            </p>
+            <div className="d-flex flex-wrap align-items-center gap-3">
+              <p style={{ fontSize: 13, color: "#64748b", margin: 0, textAlign: "center" }}>
+                © 2026 <a href="https://www.admarkdigitals.com/" target="_blank" rel="noopener noreferrer" style={{ color: "#f59e0b", textDecoration: "none", fontWeight: 600 }}>ADMARK DIGITALS</a>. All rights reserved.
+              </p>
+              <a
+                href="https://www.instagram.com/admarkdigitals?igsh=MWVhZmxzbDg1ZzBpZg=="
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  color: "#e1306c",
+                  background: "rgba(225, 48, 108, 0.1)",
+                  border: "1px solid rgba(225, 48, 108, 0.3)",
+                  padding: "4px 12px",
+                  borderRadius: "20px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  transition: "all 0.2s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(225, 48, 108, 0.2)";
+                  e.currentTarget.style.transform = "scale(1.05)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(225, 48, 108, 0.1)";
+                  e.currentTarget.style.transform = "scale(1)";
+                }}
+              >
+                <Instagram size={14} /> @admarkdigitals
+              </a>
+            </div>
             <p style={{ fontSize: 13, color: "#475569", margin: "8px 0 0", textAlign: "center" }}>
               The Operating System for Modern HORECA. Designed & Engineered by ADMARK DIGITALS.
             </p>
           </div>
+
         </div>
       </footer>
     </div>
