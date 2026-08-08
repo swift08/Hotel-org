@@ -107,7 +107,7 @@ function ReportsAndAnalytics() {
 
           sortedOrders.forEach((o) => {
             if (!o.created_at) return;
-            const dateKey = o.created_at.split("T")[0]; // YYYY-MM-DD
+            const dateKey = o.created_at.split("T")[0] || "";
             dateDailyMap[dateKey] = (dateDailyMap[dateKey] || 0) + Number(o.grand_total || 0);
           });
 

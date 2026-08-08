@@ -72,7 +72,7 @@ function Signup() {
         {/* Branding */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center justify-center">
-            <img src="/images/logo.png" alt="Rasoi Logo" className="h-16 w-auto object-contain drop-shadow-lg" />
+            <img src="/images/logo.webp" alt="Rasoi Logo" className="h-16 w-auto object-contain drop-shadow-lg" />
           </Link>
           <h1 className="mt-4 text-xl font-bold text-white">Register Business Account</h1>
           <p className="mt-1 text-sm text-slate-400">Start managing your restaurant, cafe or hotel</p>

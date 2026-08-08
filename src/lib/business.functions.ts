@@ -264,7 +264,7 @@ export const updateStaffRole = createServerFn({ method: "POST" })
     const { data: after, error } = await supabase
       .from("memberships")
       .update({
-        role: data.role,
+        role: data.role as any,
         branch_id: data.branchId ?? null,
         ...(data.isActive === undefined ? {} : { is_active: data.isActive }),
       })
@@ -325,13 +325,13 @@ export const updateStaffMemberDetails = createServerFn({ method: "POST" })
     }
 
     const patch: Record<string, any> = {};
-    if (data.role) patch.role = data.role;
-    if (data.isActive !== undefined) patch.is_active = data.isActive;
+    if (data.role) patch['role'] = data.role;
+    if (data.isActive !== undefined) patch['is_active'] = data.isActive;
 
     if (Object.keys(patch).length > 0) {
       await supabase
         .from("memberships")
-        .update(patch)
+        .update(patch as any)
         .eq("id", data.membershipId);
     }
 
@@ -406,7 +406,7 @@ export const createStaffMember = createServerFn({ method: "POST" })
         business_id: data.businessId,
         user_id: staffUser.id,
         branch_id: branchId,
-        role: data.role,
+        role: data.role as any,
         is_active: true,
       })
       .select("id, role")

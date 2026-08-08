@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as KdsRouteImport } from './routes/kds'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SecurityTestRouteImport } from './routes/security-test'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
@@ -36,9 +40,29 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KdsRoute = KdsRouteImport.update({
   id: '/kds',
   path: '/kds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityTestRoute = SecurityTestRouteImport.update({
+  id: '/security-test',
+  path: '/security-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -110,7 +134,11 @@ const QSlugRoute = QSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/contact': typeof ContactRoute
   '/kds': typeof KdsRoute
+  '/privacy': typeof PrivacyRoute
+  '/security-test': typeof SecurityTestRoute
+  '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/menu': typeof AdminMenuRoute
@@ -127,7 +155,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/kds': typeof KdsRoute
+  '/privacy': typeof PrivacyRoute
+  '/security-test': typeof SecurityTestRoute
+  '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/menu': typeof AdminMenuRoute
@@ -146,7 +178,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/contact': typeof ContactRoute
   '/kds': typeof KdsRoute
+  '/privacy': typeof PrivacyRoute
+  '/security-test': typeof SecurityTestRoute
+  '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/menu': typeof AdminMenuRoute
@@ -166,7 +202,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/contact'
     | '/kds'
+    | '/privacy'
+    | '/security-test'
+    | '/terms'
     | '/admin/audit'
     | '/admin/dashboard'
     | '/admin/menu'
@@ -183,7 +223,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/contact'
     | '/kds'
+    | '/privacy'
+    | '/security-test'
+    | '/terms'
     | '/admin/audit'
     | '/admin/dashboard'
     | '/admin/menu'
@@ -201,7 +245,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/contact'
     | '/kds'
+    | '/privacy'
+    | '/security-test'
+    | '/terms'
     | '/admin/audit'
     | '/admin/dashboard'
     | '/admin/menu'
@@ -220,7 +268,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  ContactRoute: typeof ContactRoute
   KdsRoute: typeof KdsRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SecurityTestRoute: typeof SecurityTestRoute
+  TermsRoute: typeof TermsRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   QSlugRoute: typeof QSlugRoute
@@ -243,11 +295,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/kds': {
       id: '/kds'
       path: '/kds'
       fullPath: '/kds'
       preLoaderRoute: typeof KdsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security-test': {
+      id: '/security-test'
+      path: '/security-test'
+      fullPath: '/security-test'
+      preLoaderRoute: typeof SecurityTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -373,7 +453,11 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  ContactRoute: ContactRoute,
   KdsRoute: KdsRoute,
+  PrivacyRoute: PrivacyRoute,
+  SecurityTestRoute: SecurityTestRoute,
+  TermsRoute: TermsRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   QSlugRoute: QSlugRoute,

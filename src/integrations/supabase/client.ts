@@ -35,13 +35,13 @@ function createSupabaseClient() {
   // Vite statically replaces import.meta.env.VITE_* at build time.
   // Do NOT use dynamic access like (import.meta as any).env?.['VITE_...'] — Vite won't replace those.
   const SUPABASE_URL =
-    import.meta.env.VITE_SUPABASE_URL ||
+    import.meta.env['VITE_SUPABASE_URL'] ||
     process.env['SUPABASE_URL'] ||
-    'https://pzyiffaaeqrpbzwymbmv.supabase.co';
+    '';
   const SUPABASE_PUBLISHABLE_KEY =
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ||
     process.env['SUPABASE_PUBLISHABLE_KEY'] ||
-    'sb_publishable_sbXhZMxPKTrB2y64IBGwbw_l1yuRH-o';
+    '';
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [

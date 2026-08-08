@@ -18,6 +18,7 @@ TRUNCATE TABLE public.discount_requests CASCADE;
 TRUNCATE TABLE public.order_events CASCADE;
 TRUNCATE TABLE public.order_items CASCADE;
 TRUNCATE TABLE public.orders CASCADE;
+TRUNCATE TABLE public.dining_sessions CASCADE;
 TRUNCATE TABLE public.carts CASCADE;
 TRUNCATE TABLE public.price_history CASCADE;
 TRUNCATE TABLE public.addons CASCADE;
@@ -47,7 +48,7 @@ SELECT 'restaurant_tables', count(*) FROM public.restaurant_tables
 UNION ALL
 SELECT 'products', count(*) FROM public.products;
 
--- 5. Enable Realtime for restaurant_tables safely
+-- 5. Enable Realtime for restaurant_tables and dining_sessions safely
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -57,5 +58,14 @@ BEGIN
       AND tablename = 'restaurant_tables'
   ) THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.restaurant_tables;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+      AND schemaname = 'public' 
+      AND tablename = 'dining_sessions'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.dining_sessions;
   END IF;
 END $$;

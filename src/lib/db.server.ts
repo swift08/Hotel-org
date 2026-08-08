@@ -98,11 +98,147 @@ export function assertPerm(perms: string[], key: string) {
   if (!perms.includes(key)) throw new Error("You do not have permission to do this.");
 }
 
+/**
+ * Validate that a staff member's discount does not exceed their configured authority.
+ * Returns { allowed, requiresApproval } for the calling code to decide next steps.
+ */
+export async function validateDiscountAuthority(
+  db: Db,
+  businessId: string,
+  role: Database["public"]["Enums"]["staff_role"],
+  discountPercent: number,
+): Promise<{ allowed: boolean; requiresApproval: boolean; maxPercent: number | null }> {
+  if (role === "owner") return { allowed: true, requiresApproval: false, maxPercent: null };
+
+  const { data: authority } = await db
+    .from("discount_authorities")
+    .select("max_percent, unlimited, approval_required")
+    .eq("business_id", businessId)
+    .eq("role", role)
+    .maybeSingle();
+
+  if (!authority) {
+    // No authority configured = no discount allowed
+    return { allowed: false, requiresApproval: true, maxPercent: 0 };
+  }
+
+  if (authority.unlimited) {
+    return { allowed: true, requiresApproval: authority.approval_required, maxPercent: null };
+  }
+
+  const maxPercent = Number(authority.max_percent ?? 0);
+  const allowed = discountPercent <= maxPercent;
+
+  return {
+    allowed,
+    requiresApproval: !allowed || authority.approval_required,
+    maxPercent,
+  };
+}
+
+/**
+ * Generate a unique order number using an atomic approach.
+ * Format: YYMMDD-NNNN where NNNN is a daily sequence.
+ *
+ * Uses MAX(order_number) to find the last sequence for today's prefix,
+ * then increments. The UNIQUE(business_id, order_number) constraint
+ * provides the final safety net against duplicates.
+ */
 export async function nextOrderNumber(db: Db, businessId: string) {
-  const { count } = await db
+  const prefix = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+
+  // Find the highest sequence number for today's prefix
+  const { data: latest } = await db
     .from("orders")
-    .select("id", { count: "exact", head: true })
-    .eq("business_id", businessId);
-  const seq = (count ?? 0) + 1;
-  return `${new Date().toISOString().slice(2, 10).replace(/-/g, "")}-${String(seq).padStart(4, "0")}`;
+    .select("order_number")
+    .eq("business_id", businessId)
+    .like("order_number", `${prefix}-%`)
+    .order("order_number", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  let seq = 1;
+  if (latest?.order_number) {
+    const parts = latest.order_number.split("-");
+    const lastSeq = parseInt(parts[parts.length - 1] ?? "0", 10);
+    if (Number.isFinite(lastSeq)) seq = lastSeq + 1;
+  }
+
+  return `${prefix}-${String(seq).padStart(4, "0")}`;
+}
+
+/**
+ * Valid order status transitions.
+ * Any transition not listed here is invalid and will be rejected.
+ */
+export const VALID_ORDER_TRANSITIONS: Record<string, string[]> = {
+  pending:     ["accepted", "cancelled", "rejected"],
+  accepted:    ["preparing", "cancelled"],
+  preparing:   ["ready", "cancelled"],
+  ready:       ["served", "cancelled"],
+  served:      ["completed"],
+  completed:   ["refunded"],
+  cancelled:   [],                     // terminal
+  rejected:    [],                     // terminal
+  refunded:    [],                     // terminal
+  payment_failed: ["pending", "cancelled"],
+};
+
+/**
+ * Transition an order's status with state machine validation and optimistic locking.
+ * Records an order_event for the audit trail.
+ */
+export async function transitionOrderStatus(
+  db: Db,
+  opts: {
+    businessId: string;
+    orderId: string;
+    toStatus: string;
+    actorId?: string | null;
+    actorRole?: string | null;
+    actorLabel?: string | null;
+    reason?: string | null;
+    metadata?: Record<string, unknown>;
+  },
+) {
+  // 1. Fetch current order (with version for optimistic lock)
+  const { data: order, error: fetchErr } = await db
+    .from("orders")
+    .select("id, status, version")
+    .eq("id", opts.orderId)
+    .eq("business_id", opts.businessId)
+    .maybeSingle();
+  if (fetchErr || !order) throw new Error("Order not found.");
+
+  // 2. Validate transition
+  const allowed = VALID_ORDER_TRANSITIONS[order.status];
+  if (!allowed || !allowed.includes(opts.toStatus)) {
+    throw new Error(`Invalid order transition: ${order.status} → ${opts.toStatus}`);
+  }
+
+  // 3. Update with optimistic lock (version must match)
+  const { data: updated, error: updateErr } = await db
+    .from("orders")
+    .update({ status: opts.toStatus as never, version: order.version + 1 })
+    .eq("id", opts.orderId)
+    .eq("version", order.version) // optimistic lock
+    .select("id, status, version")
+    .maybeSingle();
+
+  if (updateErr) throw new Error(updateErr.message);
+  if (!updated) throw new Error("Order was modified by another user. Please refresh and try again.");
+
+  // 4. Record order event
+  await db.from("order_events").insert({
+    business_id: opts.businessId,
+    order_id: opts.orderId,
+    event: `order.${opts.toStatus}`,
+    from_status: order.status as never,
+    to_status: opts.toStatus as never,
+    actor_id: opts.actorId ?? null,
+    actor_label: opts.actorLabel ?? null,
+    metadata: (opts.metadata ?? null) as never,
+  });
+
+  return updated;
 }

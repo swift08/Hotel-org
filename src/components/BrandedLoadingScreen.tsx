@@ -10,7 +10,7 @@ interface BrandedLoadingScreenProps {
 export const BrandedLoadingScreen: React.FC<BrandedLoadingScreenProps> = ({
   restaurantName = "RASOI",
   subtitle = "Preparing live digital menu...",
-  logoUrl = "/images/logo.png",
+  logoUrl = "/images/logo.webp",
 }) => {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4 text-center text-slate-100 overflow-hidden font-sans selection:bg-amber-500 selection:text-slate-950">

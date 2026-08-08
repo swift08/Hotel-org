@@ -103,14 +103,10 @@ function Index() {
             {/* Menu Links */}
             <div className="col d-none d-xl-flex justify-content-center" style={{ gap: 32 }}>
               <Link to="/" style={{ color: "#0f172a", fontWeight: 600, fontSize: 15, textDecoration: "none" }}>Home</Link>
-              <div className="dropdown" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 4, color: "#475569", fontWeight: 500, fontSize: 15 }}>
-                Products <ChevronDown size={14} />
-              </div>
-              <Link to="/auth/login" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Customers</Link>
-              <Link to="/auth/signup" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Partners</Link>
-              <div className="dropdown" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 4, color: "#475569", fontWeight: 500, fontSize: 15 }}>
-                Contact Us <ChevronDown size={14} />
-              </div>
+              <a href="#features" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Products</a>
+              <a href="#features" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Customers</a>
+              <a href="#features" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Partners</a>
+              <Link to="/contact" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Contact Us</Link>
             </div>
 
             {/* Action Buttons */}
@@ -326,7 +322,7 @@ function Index() {
                 }}
               >
                 <img
-                  src="/images/rasoi_hero_devices.png"
+                  src="/images/rasoi_hero_devices.webp"
                   alt="Rasoi Digital Menu Ordering, QR Scanner & Kitchen KDS Display System Mockup"
                   width={600}
                   height={450}
@@ -598,7 +594,7 @@ function Index() {
 
                   <div className="col-12 col-lg-5 text-center">
                     <img
-                      src="/images/rasoi_qr_ordering.png"
+                      src="/images/rasoi_qr_ordering.webp"
                       alt="Rasoi QR Code Ordering customer smartphone experience"
                       width={440}
                       height={320}
@@ -646,7 +642,7 @@ function Index() {
                 onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
               >
                 <img
-                  src="/images/rasoi_kds_tablet.png"
+                  src="/images/rasoi_kds_tablet.webp"
                   alt="Rasoi Kitchen Display System (KDS) tablet device layout"
                   width={560}
                   height={400}
@@ -778,49 +774,49 @@ function Index() {
                 icon: <Clock size={22} />,
                 title: "Seamless Order Tracking",
                 desc: "Live order states tracked from placement to preparation status updates pushed directly back to the guest's browser.",
-                img: "/images/rasoi_feature_tracking.png",
+                img: "/images/rasoi_feature_tracking.webp",
               },
               {
                 icon: <Utensils size={22} />,
                 title: "Easy-to-use Order Management",
                 desc: "Central command panel that handles incoming room service tickets, counter billing, bar tickets, and delivery states.",
-                img: "/images/rasoi_feature_mgmt.png",
+                img: "/images/rasoi_feature_mgmt.webp",
               },
               {
                 icon: <ChefHat size={22} />,
                 title: "Multiple Kitchen Management",
                 desc: "Route tickets automatically to different stations (Main Kitchen, Pastry Station, Lobby Bar) based on menu item tags.",
-                img: "/images/rasoi_feature_kitchen.png",
+                img: "/images/rasoi_feature_kitchen.webp",
               },
               {
                 icon: <Monitor size={22} />,
                 title: "User-Friendly Interface",
                 desc: "Glanceable touch interfaces requiring zero training for line chefs, receptionists, and waiting staff.",
-                img: "/images/rasoi_feature_interface.png",
+                img: "/images/rasoi_feature_interface.webp",
               },
               {
                 icon: <Layers size={22} />,
                 title: "Integrated PMS/POS",
                 desc: "Syncs directly with hotel property management systems (PMS) for automated check-in verification and room folio charge posting.",
-                img: "/images/rasoi_feature_pms_pos.png",
+                img: "/images/rasoi_feature_pms_pos.webp",
               },
               {
                 icon: <Building2 size={22} />,
                 title: "Flexible Setup & Customization",
                 desc: "Fully customizable branding options, currency support, tax templates (GST/VAT), service fees, and menu hour templates.",
-                img: "/images/rasoi_feature_setup.png",
+                img: "/images/rasoi_feature_setup.webp",
               },
               {
                 icon: <TrendingUp size={22} />,
                 title: "Live Reporting & Analytics",
                 desc: "Detailed breakdowns of daily revenue, peak operating hours, top-selling items, and feedback ratings.",
-                img: "/images/rasoi_feature_analytics.png",
+                img: "/images/rasoi_feature_analytics.webp",
               },
               {
                 icon: <ThumbsUp size={22} />,
                 title: "Guest Reviews & Ratings",
                 desc: "Collect real-time satisfaction surveys automatically after billing to monitor and elevate service delivery standards.",
-                img: "/images/rasoi_feature_reviews.png",
+                img: "/images/rasoi_feature_reviews.webp",
               },
             ].map((gridItem, i) => (
               <div key={i} className="col-12 col-md-6 col-lg-3">
@@ -898,82 +894,125 @@ function Index() {
       {/* ═══════ 7. BOTTOM CTA SECTION ═══════ */}
       <section
         style={{
-          padding: "80px 0",
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+          padding: "100px 0",
+          background: "radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 60%), radial-gradient(circle at 10% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 60%), #030712",
           color: "#ffffff",
-          textAlign: "center",
           position: "relative",
+          overflow: "hidden",
+          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
         }}
       >
-        <div className="container">
+        {/* Decorative Grid Overlay */}
+        <div 
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+            opacity: 0.8,
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
+
+        {/* Moody Restaurant Background Photo */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: 'url("/images/cta_bg_restaurant.webp")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: 0.12,
+            mixBlendMode: "luminosity",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+
+        <div className="container relative z-10">
           <div className="row justify-content-center">
-            <div className="col-12 col-lg-8">
-              <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)", fontWeight: 800, color: "#ffffff", marginBottom: 16 }}>
-                Ready to Upgrade Your Hotel Operations?
-              </h2>
-              <p style={{ fontSize: 16, color: "#94a3b8", marginBottom: 36, maxWidth: "560px", margin: "0 auto 36px" }}>
-                Improve guest satisfaction, speed up kitchen operations, and drive incremental room service revenue with Rasoi today.
-              </p>
+            <div className="col-12 col-xl-10">
+              {/* Glassmorphic CTA Card using Tailwind CSS */}
+              <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/40 backdrop-blur-xl px-6 py-16 md:py-24 text-center shadow-2xl">
+                {/* Subtle Inner Glows */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/5 h-2/5 bg-radial from-amber-500/10 to-transparent pointer-events-none" />
 
-              <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center" style={{ gap: 16 }}>
-                <Link to="/auth/signup" style={{ textDecoration: "none" }}>
-                  <button
-                    style={{
-                      background: "#f59e0b",
-                      color: "#ffffff",
-                      fontWeight: 800,
-                      fontSize: 16,
-                      padding: "14px 36px",
-                      borderRadius: 24,
-                      border: "none",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      boxShadow: "0 6px 20px rgba(245,158,11,0.35)",
-                      transition: "all 0.3s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#d97706";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "#f59e0b";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                  >
-                    Start Free Trial Now <ArrowRight size={18} />
-                  </button>
-                </Link>
+                <div className="mx-auto max-w-[680px] space-y-6">
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-none bg-gradient-to-r from-white via-white to-amber-400 bg-clip-text text-transparent">
+                    Ready to Upgrade Your Operations?
+                  </h2>
+                  <p className="text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed max-w-xl mx-auto">
+                    Improve guest satisfaction, speed up kitchen operations, and drive incremental service revenue with Rasoi today.
+                  </p>
 
-                <Link to="/auth/login" style={{ textDecoration: "none" }}>
-                  <button
-                    style={{
-                      background: "rgba(255, 255, 255, 0.08)",
-                      color: "#ffffff",
-                      fontWeight: 600,
-                      fontSize: 15,
-                      padding: "14px 32px",
-                      borderRadius: 24,
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      transition: "all 0.3s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
-                      e.currentTarget.style.transform = "translateY(-1px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                  >
-                    Request a Demo
-                  </button>
-                </Link>
+                  <div className="pt-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
+                    <Link to="/auth/signup" style={{ textDecoration: "none", width: "100%", maxWidth: "240px" }}>
+                      <button
+                        style={{
+                          width: "100%",
+                          background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                          color: "#030712",
+                          fontWeight: 800,
+                          fontSize: 16,
+                          padding: "16px 36px",
+                          borderRadius: "16px",
+                          border: "none",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 10,
+                          boxShadow: "0 10px 25px rgba(245,158,11,0.25)",
+                          transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "translateY(-3px)";
+                          e.currentTarget.style.boxShadow = "0 15px 35px rgba(245,158,11,0.35)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow = "0 10px 25px rgba(245,158,11,0.25)";
+                        }}
+                      >
+                        Start Free Trial Now <ArrowRight size={18} />
+                      </button>
+                    </Link>
+
+                    <Link to="/auth/login" style={{ textDecoration: "none", width: "100%", maxWidth: "240px" }}>
+                      <button
+                        style={{
+                          width: "100%",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          color: "#ffffff",
+                          fontWeight: 700,
+                          fontSize: 16,
+                          padding: "15px 32px",
+                          borderRadius: "16px",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 10,
+                          transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                          e.currentTarget.style.border = "1px solid rgba(255, 255, 255, 0.2)";
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                          e.currentTarget.style.border = "1px solid rgba(255, 255, 255, 0.1)";
+                          e.currentTarget.style.transform = "translateY(0)";
+                        }}
+                      >
+                        Request a Demo
+                      </button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -983,41 +1022,77 @@ function Index() {
       {/* ═══════ FOOTER ═══════ */}
       <footer
         style={{
-          padding: "60px 0 30px",
-          background: "#0b0f19",
+          padding: "80px 0 40px",
+          background: "#030712",
           color: "#94a3b8",
-          borderTop: "1px solid #1e293b",
+          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+          position: "relative",
         }}
       >
         <div className="container">
-          <div className="row g-4 align-items-center">
-            {/* Logo Left */}
-            <div className="col-12 col-md-4 text-center text-md-start">
-              <img
-                src="/images/logo.png"
-                alt="Rasoi Logo"
-                width={120}
-                height={36}
-                style={{ height: 36, width: "auto", objectFit: "contain", opacity: 0.9 }}
-              />
-            </div>
-
-            {/* Links Center */}
-            <div className="col-12 col-md-4 text-center">
-              <div className="d-flex justify-content-center" style={{ gap: 24 }}>
-                <Link to="/auth/login" style={{ color: "#64748b", fontSize: 13, fontWeight: 500, textDecoration: "none", transition: "color 0.3s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Sign In</Link>
-                <Link to="/auth/signup" style={{ color: "#64748b", fontSize: 13, fontWeight: 500, textDecoration: "none", transition: "color 0.3s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Register</Link>
-                <a href="#" style={{ color: "#64748b", fontSize: 13, fontWeight: 500, textDecoration: "none", transition: "color 0.3s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Privacy Policy</a>
+          {/* Footer Grid */}
+          <div className="row g-5 pb-5 border-b border-slate-800/40" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}>
+            {/* Column 1: Brand details */}
+            <div className="col-12 col-lg-5">
+              <div className="space-y-4">
+                <img
+                  src="/images/logo.webp"
+                  alt="Rasoi Logo"
+                  width={130}
+                  height={38}
+                  style={{ height: 38, width: "auto", objectFit: "contain", opacity: 0.95 }}
+                />
+                <p style={{ fontSize: 14, color: "#64748b", lineHeight: "1.6", maxWidth: "340px", marginTop: "16px" }}>
+                  The complete HORECA & restaurant operating system. Streamlining tables, QR ordering, KDS, staff roles, and payments.
+                </p>
               </div>
             </div>
 
-            {/* Copyright Right */}
-            <div className="col-12 col-md-4 text-center text-md-end">
-              <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>
-                © {new Date().getFullYear()} Rasoi Platform. <br />
-                The Operating System for Modern Restaurants.
-              </p>
+            {/* Column 2: Operations */}
+            <div className="col-6 col-md-4 col-lg-2">
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
+                Operations
+              </h4>
+              <div className="d-flex flex-column" style={{ gap: 12 }}>
+                <a href="#features" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Live Orders</a>
+                <a href="#features" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Kitchen KDS</a>
+                <a href="#features" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Tables & QRs</a>
+              </div>
             </div>
+
+            {/* Column 3: Platform */}
+            <div className="col-6 col-md-4 col-lg-2">
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
+                Workspace
+              </h4>
+              <div className="d-flex flex-column" style={{ gap: 12 }}>
+                <Link to="/auth/login" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Sign In</Link>
+                <Link to="/auth/signup" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Sign Up</Link>
+                <a href="#" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Platform Status</a>
+              </div>
+            </div>
+
+            {/* Column 4: Legal & Policy */}
+            <div className="col-12 col-md-4 col-lg-3">
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
+                Resources
+              </h4>
+              <div className="d-flex flex-column" style={{ gap: 12 }}>
+                <Link to="/privacy" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Privacy Policy</Link>
+                <Link to="/terms" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Terms of Service</Link>
+                <Link to="/contact" style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")} onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}>Support Center</Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Copyright Block */}
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-center pt-4" style={{ marginTop: "24px" }}>
+            <p style={{ fontSize: 13, color: "#64748b", margin: 0, textAlign: "center" }}>
+              © 2026 <a href="https://www.admarkdigitals.com/" target="_blank" rel="noopener noreferrer" style={{ color: "#f59e0b", textDecoration: "none", fontWeight: 600 }}>ADMARK DIGITALS</a>. All rights reserved.
+            </p>
+            <p style={{ fontSize: 13, color: "#475569", margin: "8px 0 0", textAlign: "center" }}>
+              The Operating System for Modern HORECA. Designed & Engineered by ADMARK DIGITALS.
+            </p>
           </div>
         </div>
       </footer>

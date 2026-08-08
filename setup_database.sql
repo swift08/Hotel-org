@@ -9,27 +9,6 @@
 
 -- 1. DROP ALL EXISTING TRIGGERS & ATTACHMENTS (CASCADE)
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users CASCADE;
-DROP TRIGGER IF EXISTS businesses_updated ON public.businesses CASCADE;
-DROP TRIGGER IF EXISTS business_settings_updated ON public.business_settings CASCADE;
-DROP TRIGGER IF EXISTS branches_updated ON public.branches CASCADE;
-DROP TRIGGER IF EXISTS outlets_updated ON public.outlets CASCADE;
-DROP TRIGGER IF EXISTS profiles_updated ON public.profiles CASCADE;
-DROP TRIGGER IF EXISTS memberships_updated ON public.memberships CASCADE;
-DROP TRIGGER IF EXISTS audit_logs_no_update ON public.audit_logs CASCADE;
-DROP TRIGGER IF EXISTS tables_updated ON public.restaurant_tables CASCADE;
-DROP TRIGGER IF EXISTS menu_categories_updated ON public.menu_categories CASCADE;
-DROP TRIGGER IF EXISTS products_updated ON public.products CASCADE;
-DROP TRIGGER IF EXISTS variants_updated ON public.product_variants CASCADE;
-DROP TRIGGER IF EXISTS carts_updated ON public.carts CASCADE;
-DROP TRIGGER IF EXISTS orders_updated ON public.orders CASCADE;
-DROP TRIGGER IF EXISTS payments_updated ON public.payments CASCADE;
-DROP TRIGGER IF EXISTS print_jobs_updated ON public.print_jobs CASCADE;
-DROP TRIGGER IF EXISTS products_price_history ON public.products CASCADE;
-DROP TRIGGER IF EXISTS variants_price_history ON public.product_variants CASCADE;
-DROP TRIGGER IF EXISTS order_items_immutable ON public.order_items CASCADE;
-DROP TRIGGER IF EXISTS invoices_immutable ON public.invoices CASCADE;
-DROP TRIGGER IF EXISTS order_events_immutable ON public.order_events CASCADE;
-DROP TRIGGER IF EXISTS businesses_seed_defaults ON public.businesses CASCADE;
 
 -- 2. DROP ALL EXISTING TABLES (CASCADE)
 DROP TABLE IF EXISTS public.print_jobs CASCADE;
@@ -41,6 +20,7 @@ DROP TABLE IF EXISTS public.discount_requests CASCADE;
 DROP TABLE IF EXISTS public.order_events CASCADE;
 DROP TABLE IF EXISTS public.order_items CASCADE;
 DROP TABLE IF EXISTS public.orders CASCADE;
+DROP TABLE IF EXISTS public.dining_sessions CASCADE;
 DROP TABLE IF EXISTS public.carts CASCADE;
 DROP TABLE IF EXISTS public.price_history CASCADE;
 DROP TABLE IF EXISTS public.addons CASCADE;
@@ -368,6 +348,20 @@ CREATE TABLE public.price_history (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- ============ DINING SESSIONS ============
+CREATE TABLE public.dining_sessions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id uuid NOT NULL REFERENCES public.businesses(id) ON DELETE CASCADE,
+  branch_id uuid NOT NULL REFERENCES public.branches(id) ON DELETE CASCADE,
+  table_id uuid NOT NULL REFERENCES public.restaurant_tables(id) ON DELETE CASCADE,
+  session_token text,
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  completed_at timestamptz,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX dining_sessions_table_idx ON public.dining_sessions(table_id, status);
+
 -- ============ CARTS ============
 CREATE TABLE public.carts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -385,6 +379,7 @@ CREATE TABLE public.orders (
   business_id uuid NOT NULL REFERENCES public.businesses(id) ON DELETE CASCADE,
   branch_id uuid NOT NULL REFERENCES public.branches(id) ON DELETE CASCADE,
   table_id uuid REFERENCES public.restaurant_tables(id) ON DELETE SET NULL,
+  dining_session_id uuid REFERENCES public.dining_sessions(id) ON DELETE SET NULL,
   table_label text,
   order_number text NOT NULL,
   channel public.order_channel NOT NULL DEFAULT 'qr',
@@ -409,6 +404,7 @@ CREATE TABLE public.orders (
 );
 CREATE INDEX orders_branch_status_idx ON public.orders(branch_id, status, created_at DESC);
 CREATE INDEX orders_session_idx ON public.orders(session_token);
+CREATE INDEX orders_dining_session_idx ON public.orders(dining_session_id);
 
 CREATE TABLE public.order_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -585,9 +581,30 @@ CREATE TRIGGER menu_categories_updated BEFORE UPDATE ON public.menu_categories F
 CREATE TRIGGER products_updated BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER variants_updated BEFORE UPDATE ON public.product_variants FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER carts_updated BEFORE UPDATE ON public.carts FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE TRIGGER dining_sessions_updated BEFORE UPDATE ON public.dining_sessions FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER orders_updated BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER payments_updated BEFORE UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER print_jobs_updated BEFORE UPDATE ON public.print_jobs FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE OR REPLACE FUNCTION public.enforce_order_status_transition()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF OLD.status IS DISTINCT FROM NEW.status THEN
+    IF NOT (
+      (OLD.status = 'pending' AND NEW.status IN ('accepted', 'cancelled', 'rejected')) OR
+      (OLD.status = 'accepted' AND NEW.status IN ('preparing', 'cancelled')) OR
+      (OLD.status = 'preparing' AND NEW.status IN ('ready', 'cancelled')) OR
+      (OLD.status = 'ready' AND NEW.status IN ('served', 'cancelled')) OR
+      (OLD.status = 'served' AND NEW.status IN ('completed')) OR
+      (OLD.status = 'completed' AND NEW.status IN ('refunded')) OR
+      (OLD.status = 'payment_failed' AND NEW.status IN ('pending', 'cancelled'))
+    ) THEN
+      RAISE EXCEPTION 'Invalid order status transition from % to %', OLD.status, NEW.status;
+    END IF;
+  END IF;
+  RETURN NEW;
+END; $$;
+CREATE TRIGGER enforce_order_transitions BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION public.enforce_order_status_transition();
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
@@ -641,10 +658,10 @@ GRANT SELECT ON public.role_default_permissions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.role_permissions TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.discount_authorities TO authenticated;
 GRANT SELECT, INSERT ON public.audit_logs TO authenticated;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.restaurant_tables, public.menu_categories, public.products, public.product_variants, public.addon_groups, public.addons, public.orders, public.order_items, public.discount_requests, public.payments, public.refunds, public.print_jobs, public.carts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.restaurant_tables, public.menu_categories, public.products, public.product_variants, public.addon_groups, public.addons, public.orders, public.order_items, public.discount_requests, public.payments, public.refunds, public.print_jobs, public.carts, public.dining_sessions TO authenticated;
 GRANT SELECT, INSERT ON public.order_events, public.qr_slug_history, public.price_history, public.invoices TO authenticated;
 GRANT ALL ON public.businesses, public.business_settings, public.branches, public.outlets, public.profiles, public.memberships, public.platform_admins, public.permissions, public.role_default_permissions, public.role_permissions, public.discount_authorities, public.audit_logs TO service_role;
-GRANT ALL ON public.restaurant_tables, public.qr_slug_history, public.menu_categories, public.products, public.product_variants, public.addon_groups, public.addons, public.price_history, public.carts, public.orders, public.order_items, public.order_events, public.discount_requests, public.payments, public.refunds, public.webhook_events, public.invoices, public.print_jobs TO service_role;
+GRANT ALL ON public.restaurant_tables, public.qr_slug_history, public.menu_categories, public.products, public.product_variants, public.addon_groups, public.addons, public.price_history, public.carts, public.orders, public.order_items, public.order_events, public.discount_requests, public.payments, public.refunds, public.webhook_events, public.invoices, public.print_jobs, public.dining_sessions TO service_role;
 
 -- ============ RLS ============
 ALTER TABLE public.businesses ENABLE ROW LEVEL SECURITY;
@@ -677,6 +694,10 @@ ALTER TABLE public.refunds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.webhook_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.print_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dining_sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "staff read dining sessions" ON public.dining_sessions FOR SELECT TO authenticated USING (public.is_member(business_id));
+CREATE POLICY "staff manage dining sessions" ON public.dining_sessions FOR ALL TO authenticated USING (public.is_member(business_id)) WITH CHECK (public.is_member(business_id));
 
 CREATE POLICY "members read own business" ON public.businesses FOR SELECT TO authenticated
   USING (public.is_member(id) OR public.is_platform_admin(auth.uid()));
@@ -919,5 +940,15 @@ BEGIN
       AND tablename = 'restaurant_tables'
   ) THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.restaurant_tables;
+  END IF;
+
+  -- Add public.dining_sessions if not already present
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+      AND schemaname = 'public' 
+      AND tablename = 'dining_sessions'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.dining_sessions;
   END IF;
 END $$;

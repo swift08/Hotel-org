@@ -185,41 +185,43 @@ export const clearTableAndCompleteOrders = createServerFn({ method: "POST" })
     const { requireMembership, logAudit } = await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
 
-    const { data: table } = await supabase
-      .from("restaurant_tables")
-      .select("id, label")
-      .eq("id", data.tableId)
-      .eq("business_id", data.businessId)
-      .maybeSingle();
-
-    if (!table) throw new Error("Table not found.");
-
-    // 1. Set table state to available
+    // 1. Optimistic lock: only clear if table is NOT already available
     const { data: updatedTable, error: tErr } = await supabase
       .from("restaurant_tables")
       .update({ state: "available" })
       .eq("id", data.tableId)
+      .eq("business_id", data.businessId)
+      .neq("state", "available") // optimistic lock — prevents double-clear
       .select("id, label, state")
-      .single();
+      .maybeSingle();
 
     if (tErr) throw new Error(tErr.message);
+    if (!updatedTable) throw new Error("Table is already available or was cleared by another staff member.");
 
     // 2. Mark active orders for this table as completed and paid
+    const activeStatuses = ["pending", "accepted", "preparing", "ready", "served"] as const;
     await supabase
       .from("orders")
       .update({ payment_status: "paid", status: "completed" })
       .eq("business_id", data.businessId)
       .eq("table_id", data.tableId)
-      .neq("status", "cancelled");
+      .in("status", activeStatuses);
 
-    if (table.label) {
+    if (updatedTable.label) {
       await supabase
         .from("orders")
         .update({ payment_status: "paid", status: "completed" })
         .eq("business_id", data.businessId)
-        .eq("table_label", table.label)
-        .neq("status", "cancelled");
+        .eq("table_label", updatedTable.label)
+        .in("status", activeStatuses);
     }
+
+    // 3. Mark dining session as completed
+    await supabase
+      .from("dining_sessions" as any)
+      .update({ status: "completed", completed_at: new Date().toISOString() })
+      .eq("table_id", data.tableId)
+      .eq("status", "active");
 
     await logAudit(supabase, {
       business_id: data.businessId,

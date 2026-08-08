@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { resolveTable, getPublicMenu, placeOrder } from "@/lib/public.functions";
+import { resolveTable, getPublicMenu, placeOrder, getPublicDiningSession } from "@/lib/public.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandedLoadingScreen } from "@/components/BrandedLoadingScreen";
 import { 
@@ -78,9 +78,11 @@ function CustomerMenuScreen() {
   const [customerPhone, setCustomerPhone] = useState("");
   const [submittingOrder, setSubmittingOrder] = useState(false);
 
-  // Active placed order tracking
-  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+  // Active placed dining session tracking
+  const [activeDiningSessionId, setActiveDiningSessionId] = useState<string | null>(null);
+  const [sessionOrders, setSessionOrders] = useState<any[]>([]);
 
+  // Load table data and menu
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -93,6 +95,10 @@ function CustomerMenuScreen() {
         }
 
         setTableContext(res);
+        if (res.diningSessionId) {
+          localStorage.setItem(`servio_active_session_${slug}`, res.diningSessionId);
+          setActiveDiningSessionId(res.diningSessionId);
+        }
         const menu = await getPublicMenu({ data: { slug } });
         setMenuData(menu);
       } catch (err) {
@@ -105,34 +111,61 @@ function CustomerMenuScreen() {
     loadData();
   }, [slug]);
 
-  // Real-time tracking of active customer order status
-  const [activeOrderStatus, setActiveOrderStatus] = useState<string>("pending");
+  // Fetch dining session orders list
+  const fetchSessionOrders = async () => {
+    if (!activeDiningSessionId) return;
+    try {
+      const res = await getPublicDiningSession({
+        data: {
+          diningSessionId: activeDiningSessionId,
+        }
+      });
+      setSessionOrders(res.orders || []);
+      
+      // If the session status is completed, clear active session
+      if (res.sessionStatus === "completed") {
+        localStorage.removeItem(`servio_active_session_${slug}`);
+        setActiveDiningSessionId(null);
+        setSessionOrders([]);
+      }
+    } catch (err) {
+      console.error("Failed to load dining session orders:", err);
+    }
+  };
 
   useEffect(() => {
-    if (!activeOrderId) return;
+    fetchSessionOrders();
+  }, [activeDiningSessionId]);
+
+  // Real-time tracking of active dining session orders
+  useEffect(() => {
+    if (!activeDiningSessionId) return;
 
     const channel = supabase
-      .channel(`customer_order_${activeOrderId}`)
+      .channel(`customer_session_${activeDiningSessionId}`)
       .on(
         "postgres_changes",
         {
-          event: "UPDATE",
+          event: "*",
           schema: "public",
           table: "orders",
-          filter: `id=eq.${activeOrderId}`,
+          filter: `dining_session_id=eq.${activeDiningSessionId}`,
         },
         (payload: any) => {
-          const nextStatus = payload.new?.status;
-          setActiveOrderStatus(nextStatus);
-          if (nextStatus === "preparing") {
-            toast.info("🍳 The kitchen is preparing your meal!");
-          } else if (nextStatus === "ready") {
-            toast.success("🔔 Your order is READY! Serving to your table.");
-          } else if (nextStatus === "served") {
-            toast.success("✨ Served! Enjoy your food.");
-          } else if (nextStatus === "completed") {
-            toast.success("🙌 Thank you for dining with us!");
+          if (payload.eventType === "UPDATE") {
+            const nextStatus = payload.new?.status;
+            const orderNum = payload.new?.order_number;
+            if (nextStatus === "preparing") {
+              toast.info(`🍳 Order #${orderNum} is now being prepared!`);
+            } else if (nextStatus === "ready") {
+              toast.success(`🔔 Order #${orderNum} is ready! Serving to your table.`);
+            } else if (nextStatus === "served") {
+              toast.success(`✨ Order #${orderNum} has been served! Enjoy.`);
+            } else if (nextStatus === "completed") {
+              toast.success(`🙌 Payment settled! Thank you for dining with us.`);
+            }
           }
+          fetchSessionOrders();
         }
       )
       .subscribe();
@@ -140,14 +173,14 @@ function CustomerMenuScreen() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [activeOrderId]);
+  }, [activeDiningSessionId]);
 
   if (loading) {
     return (
       <BrandedLoadingScreen
         restaurantName={tableContext?.business?.name || "RASOI"}
         subtitle={`Preparing digital menu for ${tableContext?.table?.label || "your table"}...`}
-        logoUrl={isLogoUrl(tableContext?.settings?.address_line2) ? tableContext.settings.address_line2 : "/images/logo.png"}
+        logoUrl={isLogoUrl(tableContext?.settings?.address_line2) ? tableContext.settings.address_line2 : "/images/logo.webp"}
       />
     );
   }
@@ -325,13 +358,6 @@ function CustomerMenuScreen() {
     setSubmittingOrder(true);
 
     try {
-      // Get or create session token
-      let sessionToken = localStorage.getItem("servio_session_token");
-      if (!sessionToken) {
-        sessionToken = "sess_" + Math.random().toString(36).substring(2, 15);
-        localStorage.setItem("servio_session_token", sessionToken);
-      }
-
       // Unique idempotency key per place order submit
       const idempotencyKey = "ord_" + Math.random().toString(36).substring(2, 15) + Date.now();
 
@@ -346,7 +372,6 @@ function CustomerMenuScreen() {
       const res = await placeOrder({
         data: {
           slug,
-          sessionToken,
           idempotencyKey,
           customerName: customerName || undefined,
           customerPhone: customerPhone || undefined,
@@ -357,7 +382,11 @@ function CustomerMenuScreen() {
       toast.success(`Order #${res.orderNumber} placed successfully!`);
       setCartItems([]);
       setCartDrawerOpen(false);
-      setActiveOrderId(res.orderId);
+      
+      if (res.diningSessionId) {
+        localStorage.setItem(`servio_active_session_${slug}`, res.diningSessionId);
+        setActiveDiningSessionId(res.diningSessionId);
+      }
     } catch (err: any) {
       console.error(err);
       toast.error(err?.message || "Failed to place order. Please try again.");
@@ -428,10 +457,10 @@ function CustomerMenuScreen() {
   });
 
   const categoriesToRender = selectedCategory === "all"
-    ? menuData.categories.filter((c: any) => groupedProducts[c.id]?.length > 0)
-    : menuData.categories.filter((c: any) => c.id === selectedCategory && groupedProducts[c.id]?.length > 0);
+    ? menuData.categories.filter((c: any) => (groupedProducts[c.id]?.length || 0) > 0)
+    : menuData.categories.filter((c: any) => c.id === selectedCategory && (groupedProducts[c.id]?.length || 0) > 0);
 
-  const showOtherCategory = selectedCategory === "all" && groupedProducts["other"]?.length > 0;
+  const showOtherCategory = selectedCategory === "all" && (groupedProducts["other"]?.length || 0) > 0;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-28 selection:bg-amber-500 selection:text-slate-950">
@@ -516,19 +545,85 @@ function CustomerMenuScreen() {
 
         {/* Central Food Items Section */}
         <div className="lg:col-span-6 col-span-12 space-y-4">
-          {/* Active Order Banner if placed */}
-          {activeOrderId && (
-            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-slate-100 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2 font-bold text-emerald-400">
-                  <CheckCircle2 className="h-5 w-5" />
-                  <span>Order Placed!</span>
+          {/* Active Dining Session Tracker */}
+          {activeDiningSessionId && sessionOrders.length > 0 && (
+            <div className="rounded-2xl border border-amber-500/20 bg-slate-900/60 backdrop-blur-md p-4 text-slate-100 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div>
+                  <h3 className="font-bold text-xs text-amber-400 flex items-center gap-2 tracking-wide uppercase">
+                    <Utensils className="h-4 w-4" /> Live Dining Session
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Table: {tableContext?.table?.label}</p>
                 </div>
-                <p className="text-xs text-slate-300 mt-0.5">Your kitchen ticket is active.</p>
+                <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold px-2.5 py-0.5 text-[10px]">
+                  {sessionOrders.length} Order{sessionOrders.length > 1 ? "s" : ""} Active
+                </Badge>
               </div>
-              <Badge className="bg-emerald-500 text-slate-950 font-bold px-3 py-1">
-                Active
-              </Badge>
+
+              {/* List of Orders */}
+              <div className="space-y-4 max-h-56 overflow-y-auto scrollbar-none pr-1">
+                {sessionOrders.map((o) => {
+                  const STEPS = ["pending", "accepted", "preparing", "ready", "served"];
+                  const currentIdx = STEPS.indexOf(o.status);
+
+                  return (
+                    <div key={o.id} className="space-y-2.5 border-b border-slate-800/40 pb-3.5 last:border-b-0 last:pb-0">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-slate-200">Order #{o.order_number}</span>
+                        <span className="capitalize font-bold text-amber-400 text-[10px] bg-amber-500/10 px-2 py-0.5 rounded-md">
+                          {o.status === "pending" ? "Waiting for Kitchen" : o.status}
+                        </span>
+                      </div>
+
+                      {/* Stepper bar */}
+                      <div className="flex items-center justify-between gap-1 pt-1.5 px-1">
+                        {STEPS.map((s, idx) => {
+                          const reached = currentIdx >= idx;
+                          const isCurrent = currentIdx === idx;
+                          return (
+                            <div key={s} className="flex-1 flex flex-col items-center gap-1.5 relative">
+                              {/* Dot */}
+                              <div
+                                className={`h-2.5 w-2.5 rounded-full border transition-all ${
+                                  isCurrent
+                                    ? "bg-amber-500 border-amber-500 ring-4 ring-amber-500/25"
+                                    : reached
+                                    ? "bg-emerald-500 border-emerald-500"
+                                    : "bg-slate-800 border-slate-700"
+                                }`}
+                              />
+                              <span className={`text-[8px] font-medium capitalize select-none ${
+                                isCurrent ? "text-amber-400 font-bold" : reached ? "text-emerald-400" : "text-slate-500"
+                              }`}>
+                                {s === "pending" ? "Placed" : s}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Call Waiter / Settle Bill Button */}
+              <div className="flex gap-2 pt-1">
+                <Button
+                  onClick={() => toast.info("🔔 Waiter called! Someone will assist you shortly.")}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-slate-800 bg-slate-950 text-xs text-slate-300 font-semibold hover:bg-slate-800 h-9 rounded-xl"
+                >
+                  Call Waiter
+                </Button>
+                <Button
+                  onClick={() => toast.success("💸 Bill requested! Waiter is bringing the tax invoice.")}
+                  size="sm"
+                  className="flex-1 bg-amber-500 text-slate-950 text-xs font-bold hover:bg-amber-400 h-9 rounded-xl shadow-lg shadow-amber-500/10"
+                >
+                  Request Bill
+                </Button>
+              </div>
             </div>
           )}
 
@@ -721,7 +816,7 @@ function CustomerMenuScreen() {
                       Other Specialties
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {groupedProducts["other"].map((p: any) => {
+                      {(groupedProducts["other"] || []).map((p: any) => {
                         const tag = p.food_tags?.[0] || "veg";
                         const pVariants = menuData.variants.filter((v: any) => v.product_id === p.id);
                         const inCartQty = cartItems

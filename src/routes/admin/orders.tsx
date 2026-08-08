@@ -54,6 +54,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { collectPayment, generateInvoice, updateOrderStatus } from "@/lib/order.functions";
 
 export const Route = createFileRoute("/admin/orders")({
   component: AdminOrdersManager,
@@ -128,6 +129,8 @@ function AdminOrdersManager() {
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [payModalOpen, setPayModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string>("cash");
+  const [invoice, setInvoice] = useState<any>(null);
+  const [generatingInvoice, setGeneratingInvoice] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -191,13 +194,15 @@ function AdminOrdersManager() {
   }, [statusFilter, context?.membership?.business_id]);
 
   const handleUpdateOrderStatus = async (orderId: string, nextStatus: string) => {
+    if (!context?.membership?.business_id) return;
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: nextStatus as any })
-        .eq("id", orderId);
-
-      if (error) throw error;
+      await updateOrderStatus({
+        data: {
+          businessId: context.membership.business_id,
+          orderId,
+          toStatus: nextStatus,
+        }
+      });
 
       // Automatically set table to occupied when order is accepted
       if (nextStatus === "accepted") {
@@ -207,7 +212,7 @@ function AdminOrdersManager() {
             .from("restaurant_tables")
             .update({ state: "occupied" })
             .eq("id", targetOrder.table_id);
-        } else if (targetOrder?.table_label && context?.membership?.business_id) {
+        } else if (targetOrder?.table_label) {
           await supabase
             .from("restaurant_tables")
             .update({ state: "occupied" })
@@ -224,7 +229,7 @@ function AdminOrdersManager() {
             .from("restaurant_tables")
             .update({ state: "available" })
             .eq("id", targetOrder.table_id);
-        } else if (targetOrder?.table_label && context?.membership?.business_id) {
+        } else if (targetOrder?.table_label) {
           await supabase
             .from("restaurant_tables")
             .update({ state: "available" })
@@ -244,16 +249,14 @@ function AdminOrdersManager() {
   const handleProcessPayment = async () => {
     if (!selectedOrder || !context?.membership?.business_id) return;
     try {
-      const { error: payErr } = await supabase.from("payments").insert({
-        business_id: context.membership.business_id,
-        order_id: selectedOrder.id,
-        provider: "manual",
-        method: paymentMethod as any,
-        status: "paid",
-        amount: selectedOrder.grand_total,
+      await collectPayment({
+        data: {
+          businessId: context.membership.business_id,
+          orderId: selectedOrder.id,
+          method: paymentMethod as any,
+          amount: Number(selectedOrder.grand_total),
+        }
       });
-
-      if (payErr) throw payErr;
 
       await supabase
         .from("orders")
@@ -274,12 +277,39 @@ function AdminOrdersManager() {
           .eq("label", selectedOrder.table_label);
       }
 
+      // Complete the dining session
+      await supabase
+        .from("dining_sessions" as any)
+        .update({ status: "completed", completed_at: new Date().toISOString() })
+        .eq("table_id", selectedOrder.table_id || "")
+        .eq("status", "active");
+
       toast.success(`Payment collected! Order completed & Table ${selectedOrder.table_label || ""} freed (Available).`);
       setPayModalOpen(false);
       setDrawerOpen(false);
       fetchOrders();
     } catch (err: any) {
       toast.error(err?.message || "Failed to process payment");
+    }
+  };
+
+  const handleOpenBillModal = async () => {
+    if (!selectedOrder || !context?.membership?.business_id) return;
+    setGeneratingInvoice(true);
+    setBillModalOpen(true);
+    setInvoice(null);
+    try {
+      const inv = await generateInvoice({
+        data: {
+          businessId: context.membership.business_id,
+          orderId: selectedOrder.id,
+        }
+      });
+      setInvoice(inv);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to generate tax invoice");
+    } finally {
+      setGeneratingInvoice(false);
     }
   };
 
@@ -568,7 +598,7 @@ function AdminOrdersManager() {
                       {idx < arr.length - 1 && (
                         <div
                           className={`flex-1 h-0.5 mx-0.5 -mt-4 ${
-                            statusOrder.indexOf(arr[idx + 1]) <= currentIdx
+                            statusOrder.indexOf(arr[idx + 1]!) <= currentIdx
                               ? "bg-slate-600"
                               : "bg-slate-800"
                           }`}
@@ -685,7 +715,7 @@ function AdminOrdersManager() {
             <div className="flex flex-col gap-2 pt-2">
               <Button
                 id="print-gst-bill"
-                onClick={() => setBillModalOpen(true)}
+                onClick={handleOpenBillModal}
                 variant="outline"
                 className="border-slate-700 bg-slate-950/80 text-slate-200 hover:bg-slate-800 w-full"
               >
@@ -773,14 +803,17 @@ function AdminOrdersManager() {
           </DialogHeader>
 
           <div className="space-y-3 py-2 text-xs">
-            <div className="flex justify-between text-gray-600">
-              <span>Order #{selectedOrder?.order_number}</span>
+            <div className="flex justify-between text-gray-600 font-semibold">
+              <span>Invoice: {generatingInvoice ? "Generating..." : invoice?.invoice_number || "Draft"}</span>
               <span>Table: {selectedOrder?.table_label || "Counter"}</span>
             </div>
-            <div className="text-[11px] text-gray-400">
-              {selectedOrder?.created_at
-                ? new Date(selectedOrder.created_at).toLocaleString()
-                : ""}
+            <div className="flex justify-between text-[11px] text-gray-400">
+              <span>Order ID: #{selectedOrder?.order_number}</span>
+              <span>
+                {selectedOrder?.created_at
+                  ? new Date(selectedOrder.created_at).toLocaleString()
+                  : ""}
+              </span>
             </div>
 
             <div className="border-t border-b border-gray-200 py-2 space-y-1.5 font-mono">

@@ -129,7 +129,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         rel: "preload",
-        href: "/images/rasoi_hero_devices.png",
+        href: "/images/rasoi_hero_devices.webp",
         as: "image",
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

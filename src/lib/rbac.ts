@@ -252,35 +252,16 @@ export const ROLE_DISPLAY: Record<StaffRole, { label: string; color: string; des
 };
 
 /**
- * Get dynamic permission based on Owner's custom RBAC matrix settings
+ * Client-side permission check for **UI/nav filtering only**.
+ * This is purely cosmetic — all real authorization is enforced server-side
+ * via assertPerm() in server functions and has_perm() in RLS policies.
+ *
+ * SECURITY: Do NOT use this to gate sensitive operations.
  */
-export const getCustomPermission = (role: string, permissionKey: string, businessId?: string): boolean => {
+export const getCustomPermission = (role: string, permissionKey: string, _businessId?: string): boolean => {
   // Owner & Business Admin always have full access to everything
   if (role === "owner" || role === "business_admin") return true;
 
-  if (typeof window !== "undefined" && businessId) {
-    const saved = localStorage.getItem(`rbac_custom_permissions_${businessId}`);
-    if (saved) {
-      try {
-        const matrix = JSON.parse(saved);
-        // Normalize role key as matrix columns map to main categories (owner, manager, waiter, cashier, chef)
-        let matrixRole = role;
-        if (role === "general_manager" || role === "branch_manager" || role === "floor_manager") {
-          matrixRole = "manager";
-        } else if (role === "kitchen_staff" || role === "bar_staff") {
-          matrixRole = "chef";
-        }
-        
-        if (matrix[permissionKey] && typeof matrix[permissionKey][matrixRole] === "boolean") {
-          return matrix[permissionKey][matrixRole];
-        }
-      } catch (e) {
-        console.error("Error parsing custom permissions from localStorage:", e);
-      }
-    }
-  }
-
-  // Fallback defaults if not customized
   const DEFAULT_MATRIX: Record<string, Record<string, boolean>> = {
     "orders.view": { manager: true, waiter: true, cashier: true, chef: true },
     "orders.create": { manager: true, waiter: true, cashier: true, chef: false },

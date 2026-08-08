@@ -6,13 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Utensils,
   LayoutDashboard,
-  MenuSquare,
   QrCode,
   ShoppingBag,
   ChefHat,
-  Users,
+  UsersRound,
   BarChart3,
-  ShieldAlert,
+  ShieldCheck,
   Settings,
   LogOut,
   Store,
@@ -46,10 +45,10 @@ const ICON_MAP: Record<string, any> = {
   "shopping-bag": ShoppingBag,
   "chef-hat": ChefHat,
   "qr-code": QrCode,
-  "menu-square": MenuSquare,
-  users: Users,
+  "menu-square": Utensils,
+  users: UsersRound,
   "bar-chart": BarChart3,
-  shield: ShieldAlert,
+  shield: ShieldCheck,
   settings: Settings,
   store: Store,
   dollar: DollarSign,
@@ -121,7 +120,7 @@ function AdminLayout() {
       <BrandedLoadingScreen
         restaurantName={context?.business?.name || "RASOI"}
         subtitle="Loading workspace & live floor state..."
-        logoUrl={isLogoUrl(context?.settings?.address_line2) ? context.settings.address_line2 : "/images/logo.png"}
+        logoUrl={isLogoUrl(context?.settings?.address_line2) ? context.settings.address_line2 : "/images/logo.webp"}
       />
     );
   }
@@ -137,7 +136,7 @@ function AdminLayout() {
   const rawLogo = context?.settings?.address_line2;
   const businessLogo = isLogoUrl(rawLogo)
     ? rawLogo!.trim()
-    : "/images/logo.png";
+    : "/images/logo.webp";
 
   // ── Sidebar component (shared between mobile + desktop)
   const SidebarContent = () => (
@@ -149,7 +148,7 @@ function AdminLayout() {
             src={businessLogo}
             alt={businessName || "Rasoi Logo"}
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = "/images/logo.png";
+              (e.currentTarget as HTMLImageElement).src = "/images/logo.webp";
             }}
             className="h-11 w-auto max-w-[150px] object-contain shrink-0 drop-shadow-sm"
           />

@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { updateOrderStatus } from "@/lib/order.functions";
 
 export const Route = createFileRoute("/kds")({
   component: KitchenDisplaySystem,
@@ -141,13 +142,15 @@ function KitchenDisplaySystem() {
   };
 
   const handleUpdateStatus = async (orderId: string, nextStatus: string) => {
+    if (!context?.membership?.business_id) return;
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: nextStatus as any })
-        .eq("id", orderId);
-
-      if (error) throw error;
+      await updateOrderStatus({
+        data: {
+          businessId: context.membership.business_id,
+          orderId,
+          toStatus: nextStatus,
+        }
+      });
 
       // Automatically set table state to occupied when the order is accepted
       const targetOrder = orders.find((o) => o.id === orderId);
@@ -157,17 +160,6 @@ function KitchenDisplaySystem() {
           .update({ state: "occupied" })
           .eq("id", targetOrder.table_id);
         if (tblErr) console.error("Failed to set table occupied:", tblErr.message);
-      }
-
-      // Log event
-      if (context?.membership?.business_id) {
-        await supabase.from("order_events").insert({
-          business_id: context.membership.business_id,
-          order_id: orderId,
-          event: `kds_status_${nextStatus}`,
-          to_status: nextStatus as any,
-          actor_label: context?.profile?.display_name || "Kitchen Staff",
-        });
       }
 
       toast.success(`Order status set to ${nextStatus.toUpperCase()}`);
@@ -196,7 +188,7 @@ function KitchenDisplaySystem() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <img src="/images/logo.png" alt="Rasoi Logo" className="h-12 w-auto object-contain shrink-0 drop-shadow-md" />
+            <img src="/images/logo.webp" alt="Rasoi Logo" className="h-12 w-auto object-contain shrink-0 drop-shadow-md" />
             <div>
               <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
                 RASOI KDS
@@ -239,7 +231,7 @@ function KitchenDisplaySystem() {
             <BrandedLoadingScreen
               restaurantName={context?.business?.name || "RASOI"}
               subtitle="Loading Kitchen Display System..."
-              logoUrl="/images/logo.png"
+              logoUrl="/images/logo.webp"
             />
           </div>
         ) : orders.length === 0 ? (

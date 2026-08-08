@@ -41,6 +41,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ROLE_CAN, ROLE_DISPLAY, type StaffRole } from "@/lib/rbac";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: Dashboard,
@@ -94,7 +95,7 @@ function Dashboard() {
           const occupied = tbls
             ? tbls.filter((t: any) => t.state === "occupied" || t.state === "payment_pending").length
             : 0;
-          const pendingCount = orders.filter((o) => o.status === "pending" || o.status === "new").length;
+          const pendingCount = orders.filter((o) => o.status === "pending").length;
           const preparingCount = orders.filter((o) => o.status === "preparing").length;
           const paidCount = orders.filter((o) => o.payment_status === "paid").length;
           const unpaidCount = orders.filter((o) => o.payment_status !== "paid" && o.status !== "cancelled").length;
