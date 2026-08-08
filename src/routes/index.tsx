@@ -32,7 +32,9 @@ import {
   Bell,
   User,
   CreditCard,
-  MessageSquare
+  MessageSquare,
+  Menu,
+  X
 } from "lucide-react";
 
 export const Route = createFileRoute("/")(
@@ -43,6 +45,7 @@ function Index() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userContext, setUserContext] = useState<any>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function checkUser() {
@@ -107,76 +110,13 @@ function Index() {
               <Link to="/contact" style={{ color: "#475569", fontWeight: 600, fontSize: 15, textDecoration: "none", transition: "color 0.2s" }}>Contact Us</Link>
             </div>
 
-            {/* Action Buttons with Glowing Animations */}
-            <div className="col d-flex justify-content-end align-items-center" style={{ gap: 14 }}>
-              {userContext?.onboarded ? (
-                <button
-                  onClick={() => navigate({ to: "/admin/dashboard" })}
-                  style={{
-                    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                    color: "#ffffff",
-                    fontWeight: 700,
-                    fontSize: 14,
-                    padding: "10px 24px",
-                    borderRadius: 24,
-                    border: "none",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    boxShadow: "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)",
-                    transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
-                    e.currentTarget.style.boxShadow = "0 0 25px rgba(245, 158, 11, 0.7), 0 8px 22px rgba(245,158,11,0.5)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0) scale(1)";
-                    e.currentTarget.style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)";
-                  }}
-                >
-                  Go to Dashboard <ArrowRight size={16} />
-                </button>
-              ) : (
-                <>
-                  <Link
-                    to="/auth/login"
-                    style={{
-                      color: "#0f172a",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      textDecoration: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                      border: "1.5px solid #cbd5e1",
-                      padding: "9px 22px",
-                      borderRadius: 24,
-                      background: "#ffffff",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-                      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#f8fafc";
-                      e.currentTarget.style.borderColor = "#0284c7";
-                      e.currentTarget.style.color = "#0284c7";
-                      e.currentTarget.style.transform = "translateY(-2px) scale(1.03)";
-                      e.currentTarget.style.boxShadow = "0 0 18px rgba(2, 132, 199, 0.35), 0 4px 12px rgba(0,0,0,0.05)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "#ffffff";
-                      e.currentTarget.style.borderColor = "#cbd5e1";
-                      e.currentTarget.style.color = "#0f172a";
-                      e.currentTarget.style.transform = "translateY(0) scale(1)";
-                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
-                    }}
-                  >
-                    <User size={15} /> Login
-                  </Link>
-
-                  <Link
-                    to="/auth/signup"
+            {/* Action Buttons with Glowing Animations & Mobile Hamburger Toggle */}
+            <div className="col d-flex justify-content-end align-items-center" style={{ gap: 12 }}>
+              {/* Desktop Buttons */}
+              <div className="d-none d-md-flex align-items-center" style={{ gap: 12 }}>
+                {userContext?.onboarded ? (
+                  <button
+                    onClick={() => navigate({ to: "/admin/dashboard" })}
                     style={{
                       background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
                       color: "#ffffff",
@@ -184,21 +124,170 @@ function Index() {
                       fontSize: 14,
                       padding: "10px 24px",
                       borderRadius: 24,
-                      textDecoration: "none",
+                      border: "none",
+                      cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 6,
-                      boxShadow: "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)",
+                      gap: 8,
+                      boxShadow: "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)",
                       transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
-                      e.currentTarget.style.boxShadow = "0 0 28px rgba(245, 158, 11, 0.8), 0 8px 22px rgba(245,158,11,0.5)";
+                      e.currentTarget.style.boxShadow = "0 0 25px rgba(245, 158, 11, 0.7), 0 8px 22px rgba(245,158,11,0.5)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = "translateY(0) scale(1)";
-                      e.currentTarget.style.boxShadow = "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)";
+                      e.currentTarget.style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)";
                     }}
+                  >
+                    Go to Dashboard <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <>
+                    <Link
+                      to="/auth/login"
+                      style={{
+                        color: "#0f172a",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        border: "1.5px solid #cbd5e1",
+                        padding: "9px 22px",
+                        borderRadius: 24,
+                        background: "#ffffff",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                        transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#f8fafc";
+                        e.currentTarget.style.borderColor = "#0284c7";
+                        e.currentTarget.style.color = "#0284c7";
+                        e.currentTarget.style.transform = "translateY(-2px) scale(1.03)";
+                        e.currentTarget.style.boxShadow = "0 0 18px rgba(2, 132, 199, 0.35), 0 4px 12px rgba(0,0,0,0.05)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#ffffff";
+                        e.currentTarget.style.borderColor = "#cbd5e1";
+                        e.currentTarget.style.color = "#0f172a";
+                        e.currentTarget.style.transform = "translateY(0) scale(1)";
+                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
+                      }}
+                    >
+                      <User size={15} /> Login
+                    </Link>
+
+                    <Link
+                      to="/auth/signup"
+                      style={{
+                        background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                        color: "#ffffff",
+                        fontWeight: 700,
+                        fontSize: 14,
+                        padding: "10px 24px",
+                        borderRadius: 24,
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        boxShadow: "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)",
+                        transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
+                        e.currentTarget.style.boxShadow = "0 0 28px rgba(245, 158, 11, 0.8), 0 8px 22px rgba(245,158,11,0.5)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0) scale(1)";
+                        e.currentTarget.style.boxShadow = "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)";
+                      }}
+                    >
+                      Request Demo
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              {/* Mobile Hamburger Toggle Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="d-xl-none border border-slate-300 rounded-xl p-2.5 bg-white text-slate-900 hover:bg-slate-100 transition-all flex items-center justify-center"
+                aria-label="Toggle navigation menu"
+              >
+                {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="d-xl-none border-t border-slate-200 bg-white/98 backdrop-blur-xl px-6 py-6 space-y-4 shadow-2xl animate-in slide-in-from-top-4 duration-300">
+            <nav className="flex flex-col space-y-3 font-semibold text-slate-800 text-base">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-500 transition-colors py-2 border-b border-slate-100"
+              >
+                Home
+              </Link>
+              <a
+                href="#features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-500 transition-colors py-2 border-b border-slate-100"
+              >
+                Features & Operations
+              </a>
+              <Link
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-500 transition-colors py-2 border-b border-slate-100"
+              >
+                Contact Us
+              </Link>
+              <Link
+                to="/privacy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-500 transition-colors py-2 border-b border-slate-100"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                to="/terms"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-500 transition-colors py-2 border-b border-slate-100"
+              >
+                Terms of Service
+              </Link>
+            </nav>
+
+            <div className="pt-2 flex flex-col gap-3">
+              {userContext?.onboarded ? (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate({ to: "/admin/dashboard" });
+                  }}
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2"
+                >
+                  Go to Dashboard <ArrowRight size={18} />
+                </button>
+              ) : (
+                <>
+                  <Link
+                    to="/auth/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full text-center border border-slate-300 bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-50 transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/auth/signup"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full text-center bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold py-3 rounded-xl shadow-lg hover:from-amber-400 hover:to-amber-500 transition-colors"
                   >
                     Request Demo
                   </Link>
@@ -206,7 +295,7 @@ function Index() {
               )}
             </div>
           </div>
-        </div>
+        )}
       </header>
 
       {/* ═══════ 2. HERO SECTION (With Padding Top for Fixed Header) ═══════ */}

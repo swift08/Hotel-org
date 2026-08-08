@@ -17,6 +17,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +40,7 @@ function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -106,22 +109,84 @@ function ContactPage() {
 
             <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
               <Link to="/" className="text-slate-300 hover:text-white transition-colors">Home</Link>
-              <a href="/#features" className="text-slate-300 hover:text-white transition-colors">Products</a>
+              <a href="/#features" className="text-slate-300 hover:text-white transition-colors">Features & Operations</a>
               <Link to="/privacy" className="text-slate-300 hover:text-white transition-colors">Privacy</Link>
               <Link to="/terms" className="text-slate-300 hover:text-white transition-colors">Terms</Link>
               <Link to="/contact" className="text-amber-400 font-bold">Contact Us</Link>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-full transition-all"
+                className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-full transition-all"
               >
                 <ArrowLeft size={14} /> Back to Platform
               </Link>
+
+              {/* Mobile Hamburger Toggle */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden border border-slate-800 rounded-xl p-2.5 bg-slate-900 text-slate-100 hover:bg-slate-800 transition-all flex items-center justify-center"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-800 bg-slate-950/98 backdrop-blur-2xl px-6 py-6 space-y-4 shadow-2xl animate-in slide-in-from-top-4 duration-300">
+            <nav className="flex flex-col space-y-3 font-semibold text-slate-200 text-base">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-400 transition-colors py-2 border-b border-slate-900 flex items-center gap-2"
+              >
+                <ArrowLeft size={16} /> Home
+              </Link>
+              <a
+                href="/#features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-400 transition-colors py-2 border-b border-slate-900"
+              >
+                Features & Operations
+              </a>
+              <Link
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-amber-400 font-bold py-2 border-b border-slate-900"
+              >
+                Contact Us
+              </Link>
+              <Link
+                to="/privacy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-400 transition-colors py-2 border-b border-slate-900"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                to="/terms"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-amber-400 transition-colors py-2 border-b border-slate-900"
+              >
+                Terms of Service
+              </Link>
+            </nav>
+
+            <div className="pt-2">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-extrabold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm"
+              >
+                <ArrowLeft size={16} /> Back to Main Platform
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ═══════ 2. HERO SECTION ═══════ */}
