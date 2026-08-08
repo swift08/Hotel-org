@@ -305,7 +305,28 @@ function Index() {
           <div className="row align-items-center g-5">
             {/* Hero Left Content */}
             <div className="col-12 col-lg-6">
+              {/* Highlight 1: Hero Pricing Highlight Badge */}
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "8px 18px",
+                  borderRadius: "30px",
+                  background: "linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(14, 165, 233, 0.12))",
+                  border: "1px solid rgba(245, 158, 11, 0.3)",
+                  marginBottom: "20px",
+                  boxShadow: "0 4px 15px rgba(245, 158, 11, 0.1)",
+                }}
+              >
+                <span style={{ fontSize: "13px", fontWeight: 800, color: "#d97706", letterSpacing: "0.05em" }}>⚡ TRANSPARENT PRICING:</span>
+                <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0f172a" }}>
+                  One-Time Setup: <strong style={{ color: "#d97706" }}>₹5,000</strong> &nbsp;|&nbsp; Monthly: <strong style={{ color: "#0ea5e9" }}>₹1,000</strong>
+                </span>
+              </div>
+
               <h1
+
                 style={{
                   fontSize: "clamp(2.2rem, 4vw, 3.4rem)",
                   fontWeight: 800,
@@ -898,6 +919,34 @@ function Index() {
                   <p className="text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed max-w-xl mx-auto">
                     Improve guest satisfaction, speed up kitchen operations, and drive incremental service revenue with Rasoi today.
                   </p>
+
+                  {/* Highlight 2: CTA Section Pricing Highlight */}
+                  <div className="pt-2">
+                    <div
+                      className="mx-auto"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                        gap: "12px",
+                        padding: "10px 24px",
+                        borderRadius: "50px",
+                        background: "rgba(15, 23, 42, 0.85)",
+                        border: "1px solid rgba(245, 158, 11, 0.4)",
+                        boxShadow: "0 0 25px rgba(245, 158, 11, 0.15)",
+                      }}
+                    >
+                      <span style={{ fontSize: "14px", fontWeight: 700, color: "#fbbf24" }}>
+                        💰 Setup Cost: <strong style={{ color: "#ffffff" }}>₹5,000 (One-Time)</strong>
+                      </span>
+                      <span style={{ color: "#64748b" }}>•</span>
+                      <span style={{ fontSize: "14px", fontWeight: 700, color: "#38bdf8" }}>
+                        Monthly Subscription: <strong style={{ color: "#ffffff" }}>₹1,000 / Month</strong>
+                      </span>
+                    </div>
+                  </div>
+
 
                   <div className="pt-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
                     <Link to="/auth/signup" style={{ textDecoration: "none" }}>
