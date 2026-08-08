@@ -172,37 +172,37 @@ function Dashboard() {
   const getTableStatusStyle = (state: string) => {
     switch (state) {
       case "occupied":
-        return { border: "border-amber-500/40", bg: "bg-amber-500/8", dot: "bg-amber-400", text: "text-white" };
+        return { border: "border-amber-500/40", bg: "bg-amber-500/5 dark:bg-amber-500/10", dot: "bg-amber-500 dark:bg-amber-400", text: "text-slate-800 dark:text-white" };
       case "payment_pending":
-        return { border: "border-red-500/40", bg: "bg-red-500/8", dot: "bg-red-400", text: "text-white" };
+        return { border: "border-red-500/40", bg: "bg-red-500/5 dark:bg-red-500/10", dot: "bg-red-500 dark:bg-red-400", text: "text-slate-800 dark:text-white" };
       case "available":
       default:
-        return { border: "border-slate-800", bg: "bg-slate-900/30", dot: "bg-emerald-400", text: "text-slate-300" };
+        return { border: "border-slate-200 dark:border-slate-800", bg: "bg-white dark:bg-slate-900/30", dot: "bg-emerald-500 dark:bg-emerald-400", text: "text-slate-600 dark:text-slate-300" };
     }
   };
 
   const getOrderStatusBadge = (status: string) => {
     const map: Record<string, string> = {
-      pending: "bg-orange-500/15 text-orange-300 border-orange-500/25",
-      new: "bg-orange-500/15 text-orange-300 border-orange-500/25",
-      preparing: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-      ready: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
-      served: "bg-purple-500/15 text-purple-300 border-purple-500/25",
-      completed: "bg-slate-700 text-slate-400",
-      cancelled: "bg-red-500/15 text-red-400 border-red-500/25",
+      pending: "bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/25",
+      new: "bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/25",
+      preparing: "bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/25",
+      ready: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/25",
+      served: "bg-purple-500/15 text-purple-650 dark:text-purple-300 border-purple-500/25",
+      completed: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600",
+      cancelled: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/25",
     };
-    return map[status] || "bg-slate-700 text-slate-400";
+    return map[status] || "bg-slate-100 dark:bg-slate-700 text-slate-650 dark:text-slate-400";
   };
 
   // Render role header banner
   const HeaderBanner = ({ title, subtitle }: { title: string; subtitle: string }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
       <div>
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
             {title}
-            <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-semibold text-xs">
-              <Circle className="h-2 w-2 fill-emerald-400 mr-1" />
+            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-semibold text-xs">
+              <Circle className="h-2 w-2 fill-emerald-500 dark:fill-emerald-400 mr-1" />
               Live
             </Badge>
           </h1>
@@ -210,8 +210,8 @@ function Dashboard() {
             {roleInfo.label}
           </Badge>
         </div>
-        <p className="text-sm text-slate-400 mt-1">
-          {subtitle} <span className="text-slate-300 font-medium">{context?.business?.name}</span>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          {subtitle} <span className="text-slate-800 dark:text-slate-350 font-bold">{context?.business?.name}</span>
         </p>
       </div>
 
@@ -221,7 +221,7 @@ function Dashboard() {
           variant="outline"
           size="sm"
           disabled={loading}
-          className="border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white"
+          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
         >
           <RefreshCw className={`mr-2 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -231,7 +231,7 @@ function Dashboard() {
           <Link to="/kds">
             <Button
               size="sm"
-              className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
+              className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20 border border-amber-600/35"
             >
               <ChefHat className="mr-2 h-4 w-4" />
               Open KDS
@@ -640,7 +640,7 @@ function Dashboard() {
           return (
             <Card
               key={card.label}
-              className={`border bg-slate-900/80 backdrop-blur text-slate-100 shadow-lg transition-transform hover:-translate-y-0.5 ${
+              className={`border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur text-slate-800 dark:text-slate-100 shadow-md dark:shadow-lg transition-transform hover:-translate-y-0.5 ${
                 card.urgent ? "ring-1 ring-orange-500/30" : ""
               }`}
             >
@@ -653,16 +653,16 @@ function Dashboard() {
                     <IconComp className={`h-3.5 w-3.5 ${card.color}`} />
                   </div>
                 </div>
-                <span className="text-xl sm:text-2xl font-extrabold text-white block leading-none">
+                <span className="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-white block leading-none">
                   {loading ? (
-                    <span className="inline-block h-6 w-16 rounded bg-slate-800 animate-pulse" />
+                    <span className="inline-block h-6 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
                   ) : (
                     card.value
                   )}
                 </span>
-                <p className="text-[10px] sm:text-xs text-slate-600 mt-1.5 leading-snug">{card.sub}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-snug">{card.sub}</p>
                 {card.urgent && (
-                  <Badge className="mt-2 bg-orange-500/15 text-orange-400 border-orange-500/25 text-[9px] font-bold px-1.5 py-0.5">
+                  <Badge className="mt-2 bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/25 text-[9px] font-bold px-1.5 py-0.5">
                     ⚡ Needs attention
                   </Badge>
                 )}
@@ -680,36 +680,36 @@ function Dashboard() {
             icon: Utensils,
             label: "Manage Menu CMS",
             sub: "Categories, items, add-ons & variants",
-            iconBg: "bg-amber-500/10 text-amber-400",
+            iconBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
             hoverBg: "group-hover:bg-amber-500 group-hover:text-slate-950",
-            hoverText: "group-hover:text-amber-400",
-            arrowColor: "group-hover:text-amber-400",
+            hoverText: "group-hover:text-amber-650 dark:group-hover:text-amber-400",
+            arrowColor: "group-hover:text-amber-650 dark:group-hover:text-amber-400",
           },
           {
             to: "/admin/tables",
             icon: QrCode,
             label: "Tables & QR Codes",
             sub: "Download PNG/PDF, bulk print, floor view",
-            iconBg: "bg-blue-500/10 text-blue-400",
+            iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
             hoverBg: "group-hover:bg-blue-500 group-hover:text-white",
-            hoverText: "group-hover:text-blue-400",
-            arrowColor: "group-hover:text-blue-400",
+            hoverText: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
+            arrowColor: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
           },
           {
             to: "/admin/staff",
             icon: Users,
             label: "Staff & Permissions",
             sub: "Manage team roles & RBAC matrix",
-            iconBg: "bg-purple-500/10 text-purple-400",
+            iconBg: "bg-purple-500/10 text-purple-650 dark:text-purple-400",
             hoverBg: "group-hover:bg-purple-500 group-hover:text-white",
-            hoverText: "group-hover:text-purple-400",
-            arrowColor: "group-hover:text-purple-400",
+            hoverText: "group-hover:text-purple-600 dark:group-hover:text-purple-400",
+            arrowColor: "group-hover:text-purple-600 dark:group-hover:text-purple-400",
           },
         ].map((action) => {
           const IconComp = action.icon;
           return (
             <Link key={action.to} to={action.to}>
-              <Card className="border-slate-800 bg-slate-900/60 hover:bg-slate-900 transition-all cursor-pointer group shadow-md hover:shadow-lg hover:-translate-y-0.5">
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer group shadow-md hover:shadow-lg hover:-translate-y-0.5">
                 <CardContent className="p-4 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
@@ -718,14 +718,14 @@ function Dashboard() {
                       <IconComp className="h-4.5 w-4.5" style={{ width: "18px", height: "18px" }} />
                     </div>
                     <div className="min-w-0">
-                      <h4 className={`font-bold text-white text-sm transition-colors ${action.hoverText}`}>
+                      <h4 className={`font-bold text-slate-800 dark:text-white text-sm transition-colors ${action.hoverText}`}>
                         {action.label}
                       </h4>
                       <p className="text-[11px] text-slate-500 truncate">{action.sub}</p>
                     </div>
                   </div>
                   <ArrowRight
-                    className={`h-4 w-4 text-slate-600 shrink-0 transition-all ${action.arrowColor} group-hover:translate-x-1`}
+                    className={`h-4 w-4 text-slate-400 dark:text-slate-600 shrink-0 transition-all ${action.arrowColor} group-hover:translate-x-1`}
                   />
                 </CardContent>
               </Card>
@@ -737,16 +737,16 @@ function Dashboard() {
       {/* ── World-Class Visual Analytics & Hourly Revenue Curve ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Hourly Revenue Curve (2/3 Width) */}
-        <Card className="lg:col-span-2 border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+        <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800/80 pb-4">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
             <div>
-              <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-amber-400" /> Hourly Dining Revenue Trend
+              <CardTitle className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-amber-500 dark:text-amber-400" /> Hourly Dining Revenue Trend
               </CardTitle>
-              <CardDescription className="text-xs text-slate-400">Live peak hours breakdown & sales velocity curve</CardDescription>
+              <CardDescription className="text-xs text-slate-500 dark:text-slate-400">Live peak hours breakdown & sales velocity curve</CardDescription>
             </div>
-            <Badge className="bg-amber-500/10 text-amber-300 border-amber-500/20 font-bold text-xs">
+            <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20 font-bold text-xs">
               Peak: 8 PM - 10 PM
             </Badge>
           </CardHeader>
@@ -767,10 +767,10 @@ function Dashboard() {
                 </defs>
 
                 {/* SVG Grid Lines */}
-                <line x1="0" y1="30" x2="500" y2="30" stroke="#334155" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="75" x2="500" y2="75" stroke="#334155" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="120" x2="500" y2="120" stroke="#334155" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="165" x2="500" y2="165" stroke="#334155" strokeWidth="0.5" strokeDasharray="4 4" />
+                <line x1="0" y1="30" x2="500" y2="30" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
+                <line x1="0" y1="75" x2="500" y2="75" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
+                <line x1="0" y1="120" x2="500" y2="120" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
+                <line x1="0" y1="165" x2="500" y2="165" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
 
                 {/* Smooth Gradient Area Fill */}
                 <path
@@ -795,42 +795,42 @@ function Dashboard() {
               </svg>
 
               {/* Peak Tooltip */}
-              <div className="absolute top-3 left-[66%] -translate-x-1/2 bg-slate-950/90 border border-amber-500/40 px-2.5 py-1 rounded-lg shadow-lg text-[10px] text-amber-300 font-bold backdrop-blur">
+              <div className="absolute top-3 left-[66%] -translate-x-1/2 bg-white dark:bg-slate-950/90 border border-slate-250 dark:border-amber-500/40 px-2.5 py-1 rounded-lg shadow-lg text-[10px] text-amber-600 dark:text-amber-300 font-bold backdrop-blur">
                 Dinner Peak: ₹14,250
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 border-t border-slate-800/80 pt-3">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-3">
               <span>12 PM (Lunch)</span>
               <span>3 PM</span>
               <span>6 PM</span>
-              <span className="text-amber-400 font-extrabold">9 PM (Dinner Rush)</span>
+              <span className="text-amber-600 dark:text-amber-400 font-extrabold">9 PM (Dinner Rush)</span>
               <span>11 PM</span>
             </div>
           </CardContent>
         </Card>
 
         {/* Category Revenue Breakdown (1/3 Width) */}
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl flex flex-col justify-between">
-          <CardHeader className="border-b border-slate-800/80 pb-4">
-            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-emerald-400" /> Category Revenue Share
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur-xl shadow-2xl flex flex-col justify-between">
+          <CardHeader className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
+            <CardTitle className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-emerald-500 dark:text-emerald-400" /> Category Revenue Share
             </CardTitle>
-            <CardDescription className="text-xs text-slate-400">Sales split across culinary categories</CardDescription>
+            <CardDescription className="text-xs text-slate-500 dark:text-slate-400">Sales split across culinary categories</CardDescription>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
             {[
               { cat: "Biryani & Rice Specialties", pct: 42, color: "bg-amber-500", val: "₹18,480" },
-              { cat: "Tandoor & Starters", pct: 28, color: "bg-orange-500", val: "₹12,320" },
-              { cat: "Rich Curries & Breads", pct: 18, color: "bg-emerald-500", val: "₹7,920" },
-              { cat: "Beverages & Desserts", pct: 12, color: "bg-purple-500", val: "₹5,280" },
-            ].map((item) => (
+              { cat: "Tandoor & Starters", pct: 28, color: "bg-orange-500", val: "bg-orange-500", val2: "₹12,320" },
+              { cat: "Rich Curries & Breads", pct: 18, color: "bg-emerald-500", val2: "₹7,920" },
+              { cat: "Beverages & Desserts", pct: 12, color: "bg-purple-500", val2: "₹5,280" },
+            ].map((item: any) => (
               <div key={item.cat} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-slate-200">{item.cat}</span>
-                  <span className="text-amber-300 font-extrabold">{item.val} ({item.pct}%)</span>
+                  <span className="text-slate-700 dark:text-slate-200">{item.cat}</span>
+                  <span className="text-amber-600 dark:text-amber-300 font-extrabold">{item.val2 || item.val} ({item.pct}%)</span>
                 </div>
-                <div className="h-2.5 w-full bg-slate-950 rounded-full overflow-hidden border border-slate-800/60">
+                <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800/60">
                   <div
                     className={`h-full ${item.color} rounded-full transition-all duration-500`}
                     style={{ width: `${item.pct}%` }}
@@ -845,19 +845,19 @@ function Dashboard() {
       {/* Bottom Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
         {/* Live Floor View (3/5 width) */}
-        <Card className="lg:col-span-3 border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800 pb-4">
+        <Card className="lg:col-span-3 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-xl">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
             <div>
-              <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+              <CardTitle className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 Live Floor View
-                <span className="flex h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/30 animate-pulse" />
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 ring-2 ring-emerald-450/30 animate-pulse" />
               </CardTitle>
-              <CardDescription className="text-slate-500 text-xs mt-0.5">
+              <CardDescription className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
                 Current state of all tables — click Tables & QRs to manage.
               </CardDescription>
             </div>
             <Link to="/admin/tables">
-              <Button size="sm" variant="outline" className="border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 text-xs">
+              <Button size="sm" variant="outline" className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
                 Manage Tables
               </Button>
             </Link>
@@ -866,14 +866,14 @@ function Dashboard() {
             {loading ? (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-16 rounded-xl bg-slate-800 animate-pulse" />
+                  <div key={i} className="h-16 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
                 ))}
               </div>
             ) : tables.length === 0 ? (
-              <div className="text-center py-10 text-slate-500">
-                <QrCode className="h-10 w-10 mx-auto mb-3 text-slate-700" />
-                <p className="text-sm font-medium text-slate-400">No tables configured</p>
-                <p className="text-xs text-slate-600 mt-1">Set up your floor plan to see live status</p>
+               <div className="text-center py-10 text-slate-500">
+                <QrCode className="h-10 w-10 mx-auto mb-3 text-slate-400 dark:text-slate-700" />
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-400">No tables configured</p>
+                <p className="text-xs text-slate-500 dark:text-slate-650 mt-1">Set up your floor plan to see live status</p>
                 <Link to="/admin/tables" className="mt-3 inline-block">
                   <Button size="sm" className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
                     <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Tables
@@ -882,11 +882,11 @@ function Dashboard() {
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-4 mb-4 text-[11px] text-slate-500">
+                <div className="flex items-center gap-4 mb-4 text-[11px] text-slate-500 dark:text-slate-400">
                   {[
-                    { dot: "bg-emerald-400", label: "Available" },
-                    { dot: "bg-amber-400", label: "Occupied" },
-                    { dot: "bg-red-400", label: "Payment Due" },
+                    { dot: "bg-emerald-500 dark:bg-emerald-400", label: "Available" },
+                    { dot: "bg-amber-500 dark:bg-amber-400", label: "Occupied" },
+                    { dot: "bg-red-500 dark:bg-red-400", label: "Payment Due" },
                   ].map((l) => (
                     <div key={l.label} className="flex items-center gap-1.5">
                       <div className={`h-2 w-2 rounded-full ${l.dot}`} />
@@ -906,7 +906,7 @@ function Dashboard() {
                           <span className={`font-bold text-xs leading-tight ${s.text}`}>{tbl.label}</span>
                           <div className={`h-2 w-2 rounded-full shrink-0 mt-0.5 ${s.dot}`} />
                         </div>
-                        <div className="text-[10px] text-slate-600">{tbl.seats} seats</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-600">{tbl.seats} seats</div>
                       </div>
                     );
                   })}
@@ -917,16 +917,16 @@ function Dashboard() {
         </Card>
 
         {/* Recent Orders (2/5 width) */}
-        <Card className="lg:col-span-2 border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800 pb-4">
+        <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-xl">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
             <div>
-              <CardTitle className="text-base font-bold text-white">Recent Orders</CardTitle>
-              <CardDescription className="text-slate-500 text-xs mt-0.5">
+              <CardTitle className="text-base font-bold text-slate-800 dark:text-white">Recent Orders</CardTitle>
+              <CardDescription className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
                 Latest tickets from today's service.
               </CardDescription>
             </div>
             <Link to="/admin/orders">
-              <Button size="sm" variant="outline" className="border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 text-xs">
+              <Button size="sm" variant="outline" className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
                 All Orders
               </Button>
             </Link>
@@ -934,24 +934,24 @@ function Dashboard() {
           <CardContent className="pt-4 space-y-2">
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-10 rounded-lg bg-slate-800 animate-pulse" />
+                <div key={i} className="h-10 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse" />
               ))
             ) : recentOrders.length === 0 ? (
               <div className="text-center py-8 text-slate-500">
-                <ShoppingBag className="h-8 w-8 mx-auto mb-2 text-slate-700" />
+                <ShoppingBag className="h-8 w-8 mx-auto mb-2 text-slate-400 dark:text-slate-700" />
                 <p className="text-xs">No orders today yet</p>
               </div>
             ) : (
               recentOrders.map((order) => (
                 <div
                   key={order.id}
-                  className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 bg-slate-950/60 border border-slate-800 hover:border-slate-700 transition-colors"
+                  className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 bg-slate-50/50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-slate-200 truncate">
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                       {order.table_label || "Counter"}
                     </p>
-                    <p className="text-[10px] text-slate-600">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-650">
                       {new Date(order.created_at).toLocaleTimeString("en-IN", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -959,7 +959,7 @@ function Dashboard() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-xs font-bold text-white">
+                    <span className="text-xs font-bold text-slate-850 dark:text-white">
                       {currencySymbol}{Number(order.grand_total || 0).toFixed(0)}
                     </span>
                     <Badge

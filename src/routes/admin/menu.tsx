@@ -331,10 +331,10 @@ function MenuCMS() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Filter className="h-4 w-4 text-slate-500 shrink-0" />
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full sm:w-48 bg-slate-950 border-slate-800 text-white">
+            <SelectTrigger className="w-full sm:w-48 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+            <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
               <SelectItem value="all">All Categories ({products.length})</SelectItem>
               {categories.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
@@ -352,14 +352,14 @@ function MenuCMS() {
           onClick={() => setSelectedCategory("all")}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border ${
             selectedCategory === "all"
-              ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
-              : "border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+              ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+              : "border-transparent text-slate-500 hover:text-slate-850 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850/50"
           }`}
         >
           All Items
           <span
             className={`rounded-full px-1.5 text-[10px] font-bold min-w-[18px] text-center ${
-              selectedCategory === "all" ? "bg-amber-500/20 text-amber-400" : "bg-slate-800 text-slate-500"
+              selectedCategory === "all" ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
             }`}
           >
             {products.length}
@@ -373,14 +373,14 @@ function MenuCMS() {
               onClick={() => setSelectedCategory(c.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border ${
                 selectedCategory === c.id
-                  ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
-                  : "border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+                  : "border-transparent text-slate-500 hover:text-slate-850 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850/50"
               }`}
             >
               {c.name}
               <span
                 className={`rounded-full px-1.5 text-[10px] font-bold min-w-[18px] text-center ${
-                  selectedCategory === c.id ? "bg-amber-500/20 text-amber-400" : "bg-slate-800 text-slate-500"
+                  selectedCategory === c.id ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
                 }`}
               >
                 {count}
@@ -394,13 +394,13 @@ function MenuCMS() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-44 rounded-xl border border-slate-800 bg-slate-900 animate-pulse" />
+            <div key={i} className="h-44 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 animate-pulse" />
           ))}
         </div>
       ) : filteredProducts.length === 0 ? (
-        <Card className="border-slate-800 bg-slate-900/60 p-12 text-center text-slate-400">
-          <MenuSquare className="h-12 w-12 mx-auto mb-3 text-slate-600" />
-          <h3 className="text-lg font-bold text-white mb-1">No Menu Items Found</h3>
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-550 dark:text-slate-400">
+          <MenuSquare className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-600" />
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Menu Items Found</h3>
           <p className="text-xs">Add your first menu item or change search query.</p>
         </Card>
       ) : (
@@ -410,14 +410,14 @@ function MenuCMS() {
             const tag = p.food_tags?.[0] || "veg";
 
             return (
-              <Card key={p.id} className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-lg text-slate-100 flex flex-col justify-between hover:border-slate-700 hover:-translate-y-0.5 transition-all overflow-hidden">
+              <Card key={p.id} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-lg text-slate-800 dark:text-slate-100 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5 transition-all overflow-hidden">
                 {p.images?.[0] ? (
                   <div className="h-36 w-full overflow-hidden relative">
                     <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 dark:from-slate-900 dark:via-slate-900/30 to-transparent" />
                   </div>
                 ) : (
-                  <div className="h-32 w-full bg-gradient-to-br from-slate-900 to-slate-950 flex items-center justify-center text-slate-750 relative border-b border-slate-900/40">
+                  <div className="h-32 w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 flex items-center justify-center text-slate-400 dark:text-slate-750 relative border-b border-slate-200 dark:border-slate-900/40">
                     <Utensils className="h-8 w-8 opacity-20" />
                   </div>
                 )}
@@ -438,13 +438,13 @@ function MenuCMS() {
                           </span>
                         )}
                         {tag === "vegan" && (
-                          <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px]">
+                          <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]">
                             VEGAN
                           </Badge>
                         )}
-                        <h3 className="font-bold text-base text-white">{p.name}</h3>
+                        <h3 className="font-bold text-base text-slate-800 dark:text-white">{p.name}</h3>
                       </div>
-                      <p className="text-xs text-slate-400 line-clamp-2">{p.description || "No description."}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{p.description || "No description."}</p>
                     </div>
 
                     <div className="flex flex-col items-end gap-1 shrink-0">
@@ -452,19 +452,19 @@ function MenuCMS() {
                         checked={p.is_available}
                         onCheckedChange={() => handleToggleStock(p.id, p.is_available)}
                       />
-                      <span className={`text-[10px] font-bold ${p.is_available ? "text-emerald-400" : "text-red-400"}`}>
+                      <span className={`text-[10px] font-bold ${p.is_available ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>
                         {p.is_available ? "In Stock" : "Out of Stock"}
                       </span>
                     </div>
                   </div>
 
                   {/* Pricing & Prep Time */}
-                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
-                    <span className="text-lg font-extrabold text-amber-400">
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">
                       {currencySymbol}{Number(p.base_price).toFixed(2)}
                     </span>
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-slate-500" />
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5 text-slate-400 dark:text-slate-550" />
                       {p.prep_time_minutes} mins prep
                     </span>
                   </div>
@@ -472,10 +472,10 @@ function MenuCMS() {
                   {/* Variants List */}
                   {itemVariants.length > 0 && (
                     <div className="space-y-1.5 pt-2">
-                      <span className="text-[11px] font-semibold text-slate-400">Variants ({itemVariants.length}):</span>
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Variants ({itemVariants.length}):</span>
                       <div className="flex flex-wrap gap-1.5">
                         {itemVariants.map((v) => (
-                          <Badge key={v.id} variant="outline" className="border-slate-800 bg-slate-950 text-slate-300 text-[10px]">
+                          <Badge key={v.id} variant="outline" className="border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 text-[10px]">
                             {v.name}: {currencySymbol}{Number(v.price).toFixed(2)}
                           </Badge>
                         ))}
@@ -484,12 +484,12 @@ function MenuCMS() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-slate-800">
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <Button
                       onClick={() => openEditProduct(p)}
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-slate-800 bg-slate-950 text-slate-300 hover:bg-slate-800 hover:text-white h-8 text-xs"
+                      className="flex-1 border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white h-8 text-xs"
                     >
                       <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                     </Button>
@@ -501,7 +501,7 @@ function MenuCMS() {
                       }}
                       variant="outline"
                       size="sm"
-                      className="border-slate-800 bg-slate-950 text-amber-400 hover:bg-amber-500/10 h-8 text-xs"
+                      className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-950 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 h-8 text-xs"
                     >
                       + Variant
                     </Button>

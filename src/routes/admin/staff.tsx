@@ -241,12 +241,12 @@ function StaffManagement() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
             Staff & Permissions Matrix
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Manage team access, role assignments, and granular RBAC permission matrix.
           </p>
         </div>
@@ -260,7 +260,7 @@ function StaffManagement() {
       </div>
 
       <Tabs defaultValue="members" className="space-y-6">
-        <TabsList className="bg-slate-900 border border-slate-800 text-slate-400 p-1 rounded-xl">
+        <TabsList className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 p-1 rounded-xl shadow-sm">
           <TabsTrigger value="members" className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-lg text-xs">
             Team Members ({staffList.length})
           </TabsTrigger>
@@ -276,31 +276,31 @@ function StaffManagement() {
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
-            <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl">
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-xl">
               <CardHeader>
-                <CardTitle className="text-lg text-white font-bold">Active Staff Members</CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardTitle className="text-lg text-slate-800 dark:text-white font-bold">Active Staff Members</CardTitle>
+                <CardDescription className="text-slate-500 dark:text-slate-400">
                   Every user assigned to {context?.business?.name}.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="divide-y divide-slate-800">
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {staffList.map((m) => (
                     <div key={m.id} className="py-4 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-bold">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-amber-600 dark:text-amber-400 font-bold animate-fade-in">
                           <User className="h-5 w-5" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-white text-sm">
+                          <h4 className="font-bold text-slate-800 dark:text-white text-sm">
                             {m.profile?.display_name || "Unnamed User"}
                           </h4>
-                          <p className="text-xs text-slate-400">{m.profile?.phone || "No phone attached"}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{m.profile?.phone || "No phone attached"}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <Badge className="uppercase text-xs font-bold bg-amber-500/20 text-amber-300 border-amber-500/30">
+                        <Badge className="uppercase text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/35">
                           {m.role}
                         </Badge>
 
@@ -308,7 +308,7 @@ function StaffManagement() {
                           onClick={() => handleOpenEditStaff(m)}
                           variant="outline"
                           size="sm"
-                          className="border-slate-700 bg-slate-950 text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition-colors h-8 text-xs font-bold shadow-sm"
+                          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-950 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition-colors h-8 text-xs font-bold shadow-sm"
                         >
                           <Settings2 className="h-3.5 w-3.5 mr-1.5" /> Edit Staff
                         </Button>
@@ -323,17 +323,17 @@ function StaffManagement() {
 
         {/* Tab 2: Permission Matrix Table */}
         <TabsContent value="matrix">
-          <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl overflow-hidden">
+          <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-xl overflow-hidden">
             <CardHeader>
-              <CardTitle className="text-lg text-white font-bold">Role-Based Access Control (RBAC)</CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardTitle className="text-lg text-slate-800 dark:text-white font-bold">Role-Based Access Control (RBAC)</CardTitle>
+              <CardDescription className="text-slate-500 dark:text-slate-400">
                 Server-side enforced granular permission matrix evaluated on every request.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0 overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800 bg-slate-950 text-slate-300">
+                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300">
                     <th className="p-4 font-bold min-w-[200px]">Permission Key</th>
                     <th className="p-4 font-bold text-center">Owner</th>
                     <th className="p-4 font-bold text-center">Manager</th>
@@ -342,7 +342,7 @@ function StaffManagement() {
                     <th className="p-4 font-bold text-center">Chef</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                   {PERMISSION_KEYS.map((pk) => {
                     const renderCell = (roleKey: string) => {
                       const isAllowed = permissionsMatrix[pk.key]?.[roleKey] ?? false;

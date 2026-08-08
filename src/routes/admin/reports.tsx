@@ -198,12 +198,12 @@ function ReportsAndAnalytics() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
             Financial Reports & Analytics
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Audited financial breakdown reconciled against completed and paid order records.
           </p>
         </div>
@@ -213,7 +213,7 @@ function ReportsAndAnalytics() {
             onClick={fetchReportsData}
             variant="outline"
             size="sm"
-            className="border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800"
+            className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
           </Button>
@@ -221,7 +221,7 @@ function ReportsAndAnalytics() {
           <Button
             onClick={handleExportCSV}
             size="sm"
-            className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
+            className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20 border border-amber-600/30"
           >
             <Download className="mr-2 h-4 w-4" /> Export CSV
           </Button>
@@ -230,35 +230,35 @@ function ReportsAndAnalytics() {
 
       {/* Financial Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
+        <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Net Revenue</span>
-            <div className="mt-3 text-3xl font-extrabold text-white">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Net Revenue</span>
+            <div className="mt-3 text-3xl font-extrabold text-slate-800 dark:text-white">
               {currencySymbol}{reportData.totalRevenue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
+        <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Completed Orders</span>
-            <div className="mt-3 text-3xl font-extrabold text-white">{reportData.totalOrders}</div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Completed Orders</span>
+            <div className="mt-3 text-3xl font-extrabold text-slate-800 dark:text-white">{reportData.totalOrders}</div>
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
+        <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">GST Tax Collected</span>
-            <div className="mt-3 text-3xl font-extrabold text-amber-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">GST Tax Collected</span>
+            <div className="mt-3 text-3xl font-extrabold text-amber-600 dark:text-amber-400">
               {currencySymbol}{reportData.totalTaxCollected.toFixed(2)}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur-md shadow-xl text-slate-100 hover:border-slate-700/60 transition-all duration-300">
+        <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Discounts Issued</span>
-            <div className="mt-3 text-3xl font-extrabold text-emerald-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Discounts Issued</span>
+            <div className="mt-3 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
               {currencySymbol}{reportData.totalDiscounts.toFixed(2)}
             </div>
           </CardContent>
@@ -268,12 +268,12 @@ function ReportsAndAnalytics() {
       {/* Chart Visualizations Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Card 1: Revenue Trend (takes 2 cols on lg) */}
-        <Card className="lg:col-span-2 border-slate-800/80 bg-slate-900/40 backdrop-blur-md text-slate-100 shadow-2xl">
+        <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/40 backdrop-blur-md text-slate-800 dark:text-slate-100 shadow-md dark:shadow-2xl">
           <CardHeader>
             <CardTitle className="text-lg font-bold flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-amber-500" /> Daily Revenue Trend
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Total completed/paid sales volumes over the past 14 days.
             </CardDescription>
           </CardHeader>
@@ -291,7 +291,7 @@ function ReportsAndAnalytics() {
                       <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" vertical={false} />
                   <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `${currencySymbol}${val}`} />
                   <Tooltip
@@ -316,12 +316,12 @@ function ReportsAndAnalytics() {
         </Card>
 
         {/* Card 2: Channels Pie Chart */}
-        <Card className="border-slate-800/80 bg-slate-900/40 backdrop-blur-md text-slate-100 shadow-2xl">
+        <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/40 backdrop-blur-md text-slate-800 dark:text-slate-100 shadow-md dark:shadow-2xl">
           <CardHeader>
             <CardTitle className="text-lg font-bold flex items-center gap-2">
               <PieChart className="h-5 w-5 text-amber-500" /> Order Channels
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Distribution of orders by placement source.
             </CardDescription>
           </CardHeader>
@@ -359,7 +359,7 @@ function ReportsAndAnalytics() {
                   </RechartsPieChart>
                 </ResponsiveContainer>
                 {/* Custom Legend */}
-                <div className="absolute bottom-2 inset-x-0 flex justify-center gap-4 flex-wrap text-[11px] text-slate-400 px-4">
+                <div className="absolute bottom-2 inset-x-0 flex justify-center gap-4 flex-wrap text-[11px] text-slate-500 dark:text-slate-400 px-4">
                   {channelData.map((entry, index) => (
                     <div key={entry.name} className="flex items-center gap-1.5">
                       <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }} />
@@ -377,12 +377,12 @@ function ReportsAndAnalytics() {
         </Card>
 
         {/* Card 3: Top Selling Dishes (takes full width) */}
-        <Card className="lg:col-span-3 border-slate-800/80 bg-slate-900/40 backdrop-blur-md text-slate-100 shadow-2xl">
+        <Card className="lg:col-span-3 border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/40 backdrop-blur-md text-slate-800 dark:text-slate-100 shadow-md dark:shadow-2xl">
           <CardHeader>
             <CardTitle className="text-lg font-bold flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-amber-500" /> Top Selling Dishes
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Top 5 best selling menu items ranked by quantity ordered.
             </CardDescription>
           </CardHeader>

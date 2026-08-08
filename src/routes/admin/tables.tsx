@@ -301,12 +301,12 @@ function TablesManager() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
             Tables & QR Codes
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
             Permanent unique QR code resolution per table. Download PNG or print bulk table stand sheets.
           </p>
         </div>
@@ -316,7 +316,7 @@ function TablesManager() {
             onClick={() => setIsPrintView(!isPrintView)}
             variant="outline"
             size="sm"
-            className="border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+            className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <Printer className="mr-2 h-4 w-4" />
             {isPrintView ? "Exit Print Sheet" : "Bulk Print Sheet"}
@@ -326,7 +326,7 @@ function TablesManager() {
             onClick={() => setBulkModalOpen(true)}
             variant="outline"
             size="sm"
-            className="border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+            className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <Plus className="mr-1.5 h-4 w-4" /> Bulk Add Tables
           </Button>
@@ -334,7 +334,7 @@ function TablesManager() {
           <Button
             onClick={() => setCreateModalOpen(true)}
             size="sm"
-            className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
+            className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20 border border-amber-600/30"
           >
             <Plus className="mr-1.5 h-4 w-4" /> Single Table
           </Button>
@@ -343,7 +343,7 @@ function TablesManager() {
 
       {/* Print View Mode */}
       {isPrintView ? (
-        <div className="space-y-6 bg-white text-black p-8 rounded-2xl print:p-0">
+        <div className="space-y-6 bg-white text-black p-8 rounded-2xl print:p-0 border border-slate-200 shadow-md">
           <div className="flex items-center justify-between border-b pb-4 print:hidden">
             <div>
               <h2 className="text-xl font-bold">Printable QR Stand Sheet</h2>
@@ -378,13 +378,13 @@ function TablesManager() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-64 rounded-xl border border-slate-800 bg-slate-900 animate-pulse" />
+                <div key={i} className="h-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 animate-pulse" />
               ))}
             </div>
           ) : tables.length === 0 ? (
-            <Card className="border-slate-800 bg-slate-900/60 p-12 text-center text-slate-400">
-              <QrCode className="h-12 w-12 mx-auto mb-3 text-slate-600" />
-              <h3 className="text-lg font-bold text-white mb-1">No Tables Configured</h3>
+            <Card className="border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-550 dark:text-slate-400">
+              <QrCode className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-650" />
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Tables Configured</h3>
               <p className="text-xs mb-4">Create tables to generate unique QR codes for your customers.</p>
               <Button onClick={() => setBulkModalOpen(true)} className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
                 Bulk Create Tables
@@ -398,23 +398,23 @@ function TablesManager() {
                 const cardStyle = getTableCardStyle(t.state);
 
                 return (
-                  <Card key={t.id} className={`border ${cardStyle.border} bg-slate-900/80 backdrop-blur shadow-lg ${cardStyle.glow} text-slate-100 flex flex-col justify-between hover:shadow-xl transition-all`}>
+                  <Card key={t.id} className={`border ${cardStyle.border} bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-lg ${cardStyle.glow} text-slate-800 dark:text-slate-100 flex flex-col justify-between hover:shadow-lg dark:hover:shadow-xl transition-all`}>
                     <CardContent className="p-5 space-y-4">
                       {/* Top Header */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className={`h-2.5 w-2.5 rounded-full shrink-0 ring-2 ${cardStyle.dot} ${cardStyle.dotRing}`} />
-                          <h3 className="font-extrabold text-lg text-white">{t.label}</h3>
-                          <Badge className="bg-slate-800/80 text-slate-400 text-[10px] font-medium border border-slate-700">
+                          <h3 className="font-extrabold text-lg text-slate-800 dark:text-white">{t.label}</h3>
+                          <Badge className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-[10px] font-medium border border-slate-200 dark:border-slate-700">
                             {t.seats}p
                           </Badge>
                         </div>
 
                         <Select value={t.state} onValueChange={(val) => handleChangeState(t.id, val)}>
-                          <SelectTrigger className="h-7 w-28 text-[11px] bg-slate-950 border-slate-800 text-slate-200">
+                          <SelectTrigger className="h-7 w-28 text-[11px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
                             <SelectItem value="available">Available</SelectItem>
                             <SelectItem value="occupied">Occupied</SelectItem>
                             <SelectItem value="payment_pending">Payment Pending</SelectItem>
@@ -425,32 +425,32 @@ function TablesManager() {
                       </div>
 
                       {/* QR Thumbnail Preview */}
-                      <div className="flex items-center justify-center p-3 bg-slate-950 rounded-xl border border-slate-800/80">
+                      <div className="flex items-center justify-center p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-150 dark:border-slate-800/80">
                         {qrUrl ? (
-                          <img src={qrUrl} alt={t.label} className="h-28 w-28 rounded-lg border border-slate-800 bg-white p-1" />
+                          <img src={qrUrl} alt={t.label} className="h-28 w-28 rounded-lg border border-slate-200 bg-white p-1" />
                         ) : (
-                          <div className="h-28 w-28 flex items-center justify-center text-slate-600">
+                          <div className="h-28 w-28 flex items-center justify-center text-slate-400 dark:text-slate-650">
                             <QrCode className="h-8 w-8" />
                           </div>
                         )}
                       </div>
 
                       {/* Stats & Public Link */}
-                      <div className="space-y-1 text-xs text-slate-400">
+                      <div className="space-y-1 text-xs text-slate-500 dark:text-slate-400">
                         <div className="flex items-center justify-between">
                           <span>Total Customer Scans:</span>
-                          <span className="font-bold text-white">{t.scan_count || 0}</span>
+                          <span className="font-bold text-slate-800 dark:text-white">{t.scan_count || 0}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>QR Version:</span>
-                          <span className="font-bold text-amber-400">v{t.qr_version}</span>
+                          <span className="font-bold text-amber-600 dark:text-amber-400">v{t.qr_version}</span>
                         </div>
                         <div className="pt-1">
                           <a
                             href={publicScanUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[11px] text-amber-400 hover:underline flex items-center gap-1 truncate"
+                            className="text-[11px] text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 truncate"
                           >
                             <ExternalLink className="h-3 w-3 shrink-0" />
                             <span className="truncate">/q/{t.qr_slug}</span>
@@ -459,7 +459,7 @@ function TablesManager() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex flex-col gap-2 pt-2 border-t border-slate-800">
+                      <div className="flex flex-col gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                         {(t.state === "occupied" || t.state === "payment_pending") && (
                           <Button
                             onClick={() => handleClearTableAndPay(t)}
@@ -474,7 +474,7 @@ function TablesManager() {
                             onClick={() => handleViewQr(t)}
                             variant="outline"
                             size="sm"
-                            className="flex-1 border-slate-800 bg-slate-950 text-slate-300 hover:bg-slate-800 hover:text-white h-8 text-xs"
+                            className="flex-1 border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-650 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white h-8 text-xs"
                           >
                             <Eye className="mr-1.5 h-3.5 w-3.5" /> View & Print
                           </Button>

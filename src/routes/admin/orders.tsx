@@ -291,10 +291,10 @@ function AdminOrdersManager() {
   return (
     <div className="flex flex-col min-h-full">
       {/* ── Page Header ──────────────────────────────────── */}
-      <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Live Orders & Billing</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <h1 className="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">Live Orders & Billing</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Real-time counter tickets, order progression, and payment processing.
           </p>
         </div>
@@ -303,7 +303,7 @@ function AdminOrdersManager() {
           variant="outline"
           size="sm"
           disabled={loading}
-          className="border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white shrink-0"
+          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white shrink-0"
         >
           <RefreshCw className={`mr-2 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -323,15 +323,15 @@ function AdminOrdersManager() {
                 onClick={() => setStatusFilter(tab.value)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border ${
                   isActive
-                    ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
-                    : "border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                    ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+                    : "border-transparent text-slate-500 hover:text-slate-850 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50"
                 }`}
               >
                 {tab.label}
                 {count > 0 && (
                   <span
                     className={`rounded-full px-1.5 py-0 text-[10px] font-bold min-w-[18px] text-center ${
-                      isActive ? "bg-amber-500/20 text-amber-400" : "bg-slate-800 text-slate-500"
+                      isActive ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
                     }`}
                   >
                     {count}
@@ -351,12 +351,12 @@ function AdminOrdersManager() {
             placeholder="Search by order #, table, customer…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-3 bg-slate-900 border-slate-700 text-white placeholder:text-slate-600 focus:border-amber-500/60 h-9 text-sm"
+            className="pl-9 pr-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-850 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-amber-500/60 h-9 text-sm"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-650 hover:text-slate-750 dark:hover:text-slate-400"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -369,14 +369,14 @@ function AdminOrdersManager() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-40 rounded-xl bg-slate-900 border border-slate-800 animate-pulse" />
+              <div key={i} className="h-40 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
             ))}
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <ShoppingBag className="h-12 w-12 text-slate-700 mb-4" />
-            <h3 className="text-lg font-bold text-slate-300">No orders found</h3>
-            <p className="text-sm text-slate-600 mt-1">
+            <ShoppingBag className="h-12 w-12 text-slate-400 dark:text-slate-700 mb-4" />
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">No orders found</h3>
+            <p className="text-sm text-slate-550 dark:text-slate-600 mt-1">
               {searchQuery ? "Try a different search term." : "No orders match this status filter."}
             </p>
           </div>
@@ -390,21 +390,21 @@ function AdminOrdersManager() {
               return (
                 <Card
                   key={ord.id}
-                  className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-lg text-slate-100 flex flex-col justify-between hover:border-slate-700 transition-all hover:-translate-y-0.5"
+                  className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-lg text-slate-800 dark:text-slate-100 flex flex-col justify-between hover:border-slate-350 dark:hover:border-slate-700 transition-all hover:-translate-y-0.5"
                 >
                   <CardContent className="p-4 space-y-3">
                     {/* Order header */}
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-base font-black text-amber-400">
+                          <span className="text-base font-black text-amber-600 dark:text-amber-400">
                             {ord.table_label || "Counter"}
                           </span>
                           <span className="text-[11px] font-mono text-slate-500">
                             #{ord.order_number}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-600">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-650">
                           {new Date(ord.created_at).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -419,8 +419,8 @@ function AdminOrdersManager() {
                         <Badge
                           className={`text-[9px] font-bold px-1.5 py-0 ${
                             isPaid
-                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
-                              : "bg-slate-800 text-slate-500 border border-slate-700"
+                              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25"
+                              : "bg-slate-55 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700"
                           }`}
                         >
                           {isPaid ? "PAID" : "UNPAID"}
@@ -429,11 +429,11 @@ function AdminOrdersManager() {
                     </div>
 
                     {/* Items preview */}
-                    <div className="space-y-1 text-xs text-slate-400 border-y border-slate-800/80 py-2.5">
+                    <div className="space-y-1 text-xs text-slate-600 dark:text-slate-400 border-y border-slate-100 dark:border-slate-800/80 py-2.5">
                       {ord.order_items?.slice(0, 3).map((item: any) => (
                         <div key={item.id} className="flex justify-between items-center gap-2">
                           <span className="truncate">
-                            <span className="text-amber-400 font-bold">{item.quantity}×</span>{" "}
+                            <span className="text-amber-650 dark:text-amber-400 font-bold">{item.quantity}×</span>{" "}
                             {item.product_name}
                           </span>
                           <span className="font-semibold shrink-0">
@@ -442,6 +442,12 @@ function AdminOrdersManager() {
                         </div>
                       ))}
                       {itemCount > 3 && (
+                        <p className="text-[10px] text-slate-500 dark:text-slate-600 italic">+ {itemCount - 3} more items</p>
+                      )}
+                    </div>
+
+                    {/* Total + action */}
+                    <div className="flex items-center justify-between">                     {itemCount > 3 && (
                         <p className="text-[10px] text-slate-600 italic">+ {itemCount - 3} more items</p>
                       )}
                     </div>

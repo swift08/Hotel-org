@@ -67,12 +67,12 @@ function AuditLogsView() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
             Append-Only Audit Trail
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
             Tamper-proof audit logs recording all sensitive business mutations and access events.
           </p>
         </div>
@@ -81,7 +81,7 @@ function AuditLogsView() {
           onClick={fetchAuditLogs}
           variant="outline"
           size="sm"
-          className="border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800"
+          className="border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
         >
           <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh Logs
         </Button>
@@ -89,12 +89,12 @@ function AuditLogsView() {
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+        <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-550" />
         <Input
           placeholder="Filter logs by action, entity type, actor role..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-slate-900 border-slate-800 text-white placeholder:text-slate-500 rounded-xl"
+          className="pl-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-850 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
         />
       </div>
 
@@ -104,38 +104,38 @@ function AuditLogsView() {
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       ) : filteredLogs.length === 0 ? (
-        <Card className="border-slate-800 bg-slate-900/60 p-12 text-center text-slate-400">
-          <ShieldAlert className="h-12 w-12 mx-auto mb-3 text-slate-600" />
-          <h3 className="text-lg font-bold text-white mb-1">No Audit Records Found</h3>
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-550 dark:text-slate-400">
+          <ShieldAlert className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-600" />
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Audit Records Found</h3>
           <p className="text-xs">No audit events match your search query.</p>
         </Card>
       ) : (
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl overflow-hidden">
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-xl overflow-hidden">
           <CardContent className="p-0 overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-950 text-slate-300">
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300">
                   <th className="p-4 font-bold">Timestamp</th>
                   <th className="p-4 font-bold">Action</th>
                   <th className="p-4 font-bold">Entity</th>
                   <th className="p-4 font-bold">Actor Role</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-750 dark:text-slate-300">
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-4 font-mono text-slate-400">
+                  <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="p-4 font-mono text-slate-500 dark:text-slate-400">
                       {new Date(log.created_at).toLocaleString()}
                     </td>
-                    <td className="p-4 font-bold text-amber-400">{log.action}</td>
+                    <td className="p-4 font-bold text-amber-600 dark:text-amber-400">{log.action}</td>
                     <td className="p-4">
-                      <span className="font-mono text-white">{log.entity_type}</span>
+                      <span className="font-mono text-slate-850 dark:text-white">{log.entity_type}</span>
                       {log.entity_id && (
                         <span className="text-[10px] text-slate-500 ml-1">({log.entity_id.slice(0, 8)})</span>
                       )}
                     </td>
                     <td className="p-4">
-                      <Badge className="uppercase text-[9px] bg-slate-800 text-slate-300">
+                      <Badge className="uppercase text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-transparent">
                         {log.actor_role || "SYSTEM"}
                       </Badge>
                     </td>

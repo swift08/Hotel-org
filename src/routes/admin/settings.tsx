@@ -110,7 +110,7 @@ function BusinessSettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-amber-500">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 text-amber-500">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
@@ -119,12 +119,12 @@ function BusinessSettingsPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
             Business Settings
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
             Configure legal profile, GST tax calculations, receipt layout, and payment options.
           </p>
         </div>
@@ -132,65 +132,65 @@ function BusinessSettingsPage() {
 
       <form onSubmit={handleSaveSettings} className="space-y-6">
         {/* Profile & Tax ID */}
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl text-slate-100">
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100">
           <CardHeader>
-            <CardTitle className="text-lg text-white font-bold flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-amber-400" />
+            <CardTitle className="text-lg text-slate-800 dark:text-white font-bold flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-amber-500 dark:text-amber-400" />
               Legal Entity & Contact Profile
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Details printed on customer GST invoices.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Legal Business Name</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">Legal Business Name</Label>
                 <Input
                   placeholder="e.g. Royal Spice Hospitality Pvt Ltd"
                   value={legalName}
                   onChange={(e) => setLegalName(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">GSTIN / Tax ID</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">GSTIN / Tax ID</Label>
                 <Input
                   placeholder="29AAAAA0000A1Z5"
                   value={gstin}
                   onChange={(e) => setGstin(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs text-slate-300">Street Address</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">Street Address</Label>
                 <Input
                   placeholder="100 Feet Road, Indiranagar"
                   value={addressLine1}
                   onChange={(e) => setAddressLine1(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">City</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">City</Label>
                 <Input
                   placeholder="Bangalore"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Phone</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">Phone</Label>
                 <Input
                   placeholder="+91 98765 43210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white"
                 />
               </div>
             </div>
@@ -198,33 +198,33 @@ function BusinessSettingsPage() {
         </Card>
 
         {/* GST & Tax Engine Configuration */}
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-xl text-slate-100">
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100">
           <CardHeader>
-            <CardTitle className="text-lg text-white font-bold flex items-center gap-2">
-              <Percent className="h-5 w-5 text-amber-400" />
+            <CardTitle className="text-lg text-slate-800 dark:text-white font-bold flex items-center gap-2">
+              <Percent className="h-5 w-5 text-amber-500 dark:text-amber-400" />
               GST Tax & Pricing Engine
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Tax calculation rules strictly enforced by the server-side pricing engine.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Tax Mode</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">Tax Mode</Label>
                 <Select value={taxMode} onValueChange={(val: any) => setTaxMode(val)}>
-                  <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
+                  <SelectTrigger className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
                     <SelectItem value="exclusive">Tax Exclusive (Prices + GST added at checkout)</SelectItem>
-                    <SelectItem value="inclusive">Tax Inclusive (Prices include GST)</SelectItem>
+                    <SelectItem value="inclusive">Tax Exclusive (Prices + GST added at checkout)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Default Tax Rate (%)</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">Default Tax Rate (%)</Label>
                 <Input
                   type="number"
                   step="0.5"
@@ -232,16 +232,16 @@ function BusinessSettingsPage() {
                   max="40"
                   value={defaultTaxRate}
                   onChange={(e) => setDefaultTaxRate(Number(e.target.value))}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white"
                 />
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-800 space-y-4">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-sm text-white">Cash & Manual Counter Payments</div>
-                  <p className="text-xs text-slate-400">Allow customers and cashiers to settle bills via Cash or UPI at table.</p>
+                  <div className="font-bold text-sm text-slate-850 dark:text-white">Cash & Manual Counter Payments</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Allow customers and cashiers to settle bills via Cash or UPI at table.</p>
                 </div>
                 <Switch
                   checked={cashPaymentEnabled}
@@ -251,8 +251,8 @@ function BusinessSettingsPage() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-sm text-white">Razorpay Online Gateways</div>
-                  <p className="text-xs text-slate-400">Enable direct online payment via Razorpay on table QR checkout.</p>
+                  <div className="font-bold text-sm text-slate-850 dark:text-white">Razorpay Online Gateways</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Enable direct online payment via Razorpay on table QR checkout.</p>
                 </div>
                 <Switch
                   checked={onlinePaymentEnabled}
@@ -267,7 +267,7 @@ function BusinessSettingsPage() {
         <Button
           type="submit"
           disabled={saving}
-          className="w-full h-12 bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-xl text-base"
+          className="w-full h-12 bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-xl text-base border border-amber-600/35"
         >
           {saving ? (
             <>
