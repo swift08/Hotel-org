@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getMenu = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [categories, products, variants, groups, addons] = await Promise.all([
@@ -49,7 +49,7 @@ export const getMenu = createServerFn({ method: "GET" })
 
 export const saveCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -100,7 +100,7 @@ export const saveCategory = createServerFn({ method: "POST" })
 
 export const saveProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -177,7 +177,7 @@ export const saveProduct = createServerFn({ method: "POST" })
 
 export const setProductAvailability = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -216,7 +216,7 @@ export const setProductAvailability = createServerFn({ method: "POST" })
 
 export const setProductState = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -255,7 +255,7 @@ export const setProductState = createServerFn({ method: "POST" })
 
 export const archiveProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ businessId: z.string().uuid(), productId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -285,7 +285,7 @@ export const archiveProduct = createServerFn({ method: "POST" })
 
 export const saveVariant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -321,7 +321,7 @@ export const saveVariant = createServerFn({ method: "POST" })
 
 export const deleteVariant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ businessId: z.string().uuid(), variantId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -341,7 +341,7 @@ export const deleteVariant = createServerFn({ method: "POST" })
 
 export const saveAddonGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -379,7 +379,7 @@ export const saveAddonGroup = createServerFn({ method: "POST" })
 
 export const saveAddon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -413,7 +413,7 @@ export const saveAddon = createServerFn({ method: "POST" })
 
 export const deleteAddonEntity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),

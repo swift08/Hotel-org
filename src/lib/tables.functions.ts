@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const listTables = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ businessId: z.string().uuid(), branchId: z.string().uuid().optional() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -23,7 +23,7 @@ export const listTables = createServerFn({ method: "GET" })
 
 export const createTables = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -71,7 +71,7 @@ export const createTables = createServerFn({ method: "POST" })
 
 export const updateTable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -127,7 +127,7 @@ export const updateTable = createServerFn({ method: "POST" })
 
 export const regenerateTableQr = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ businessId: z.string().uuid(), tableId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -173,4 +173,63 @@ export const regenerateTableQr = createServerFn({ method: "POST" })
       after_state: { qr_version: after.qr_version },
     });
     return after;
+  });
+
+export const clearTableAndCompleteOrders = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z.object({ businessId: z.string().uuid(), tableId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { requireMembership, logAudit } = await import("@/lib/db.server");
+    const membership = await requireMembership(supabase, userId, data.businessId);
+
+    const { data: table } = await supabase
+      .from("restaurant_tables")
+      .select("id, label")
+      .eq("id", data.tableId)
+      .eq("business_id", data.businessId)
+      .maybeSingle();
+
+    if (!table) throw new Error("Table not found.");
+
+    // 1. Set table state to available
+    const { data: updatedTable, error: tErr } = await supabase
+      .from("restaurant_tables")
+      .update({ state: "available" })
+      .eq("id", data.tableId)
+      .select("id, label, state")
+      .single();
+
+    if (tErr) throw new Error(tErr.message);
+
+    // 2. Mark active orders for this table as completed and paid
+    await supabase
+      .from("orders")
+      .update({ payment_status: "paid", status: "completed" })
+      .eq("business_id", data.businessId)
+      .eq("table_id", data.tableId)
+      .neq("status", "cancelled");
+
+    if (table.label) {
+      await supabase
+        .from("orders")
+        .update({ payment_status: "paid", status: "completed" })
+        .eq("business_id", data.businessId)
+        .eq("table_label", table.label)
+        .neq("status", "cancelled");
+    }
+
+    await logAudit(supabase, {
+      business_id: data.businessId,
+      actor_id: userId,
+      actor_role: membership.role,
+      action: "tables.cleared_and_paid",
+      entity_type: "restaurant_table",
+      entity_id: data.tableId,
+      after_state: { state: "available" },
+    });
+
+    return updatedTable;
   });

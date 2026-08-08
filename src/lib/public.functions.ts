@@ -8,7 +8,7 @@ import { z } from "zod";
  */
 
 export const resolveTable = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ slug: z.string().min(6).max(24) }).parse(input))
+  .validator((input: unknown) => z.object({ slug: z.string().min(3).max(100) }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -50,7 +50,7 @@ export const resolveTable = createServerFn({ method: "POST" })
   });
 
 export const getPublicMenu = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ slug: z.string().min(6).max(24) }).parse(input))
+  .validator((input: unknown) => z.object({ slug: z.string().min(3).max(100) }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -124,10 +124,10 @@ export const getPublicMenu = createServerFn({ method: "POST" })
   });
 
 export const placeOrder = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
-        slug: z.string().min(6).max(24),
+        slug: z.string().min(3).max(100),
         sessionToken: z.string().min(8).max(64),
         idempotencyKey: z.string().min(8).max(64),
         customerName: z.string().trim().max(60).optional(),
@@ -315,7 +315,7 @@ export const placeOrder = createServerFn({ method: "POST" })
   });
 
 export const getPublicOrder = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         orderId: z.string().uuid(),

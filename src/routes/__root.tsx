@@ -39,9 +39,39 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    const msg = error?.message?.toLowerCase() || "";
+    if (msg.includes("unauthorized") || msg.includes("sign in") || msg.includes("no authorization")) {
+      if (typeof window !== "undefined") {
+        window.location.href = "/auth/login";
+      }
+    }
   }, [error]);
+
+  const msg = error?.message?.toLowerCase() || "";
+  const isAuthErr = msg.includes("unauthorized") || msg.includes("sign in") || msg.includes("no authorization");
+
+  if (isAuthErr) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100 font-sans">
+        <div className="max-w-md text-center space-y-4">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <span className="text-xl font-bold">🔒</span>
+          </div>
+          <h1 className="text-xl font-bold text-white">Authentication Required</h1>
+          <p className="text-sm text-slate-400">Please sign in to access your Rasoi restaurant management console.</p>
+          <a
+            href="/auth/login"
+            className="inline-flex items-center justify-center rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400 shadow-lg shadow-amber-500/20"
+          >
+            Sign In to Rasoi
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -79,16 +109,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Servio — QR ordering & restaurant operations" },
+      { title: "Rasoi — The Operating System for Modern Restaurants" },
       {
         name: "description",
         content:
-          "Servio runs QR table ordering, kitchen tickets, billing and staff permissions for restaurants, cafes and hotels.",
+          "Rasoi runs QR table ordering, kitchen KDS, instant GST billing, and multi-tenant operations for restaurants, cafes, and hotels.",
       },
-      { property: "og:title", content: "Servio — QR ordering & restaurant operations" },
+      { property: "og:title", content: "Rasoi — Operating System for Modern Restaurants" },
       {
         property: "og:description",
-        content: "QR table ordering, kitchen display, billing and reports in one operations platform.",
+        content: "Complete restaurant operating platform: Rasoi Admin, Rasoi KDS, Rasoi QR, Rasoi Pay, and Rasoi Reports.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -101,7 +131,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "shortcut icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,

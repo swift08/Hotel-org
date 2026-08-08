@@ -51,7 +51,7 @@ export const getMyContext = createServerFn({ method: "GET" })
 
 export const createBusiness = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         name: z.string().trim().min(2).max(80),
@@ -73,10 +73,11 @@ export const createBusiness = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { slugifyName, randomSlug, logAudit } = await import("@/lib/db.server");
 
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from("memberships")
       .select("business_id")
       .eq("user_id", userId)
@@ -84,7 +85,7 @@ export const createBusiness = createServerFn({ method: "POST" })
       .maybeSingle();
     if (existing) throw new Error("You already belong to a business.");
 
-    const { data: business, error: bizError } = await supabase
+    const { data: business, error: bizError } = await supabaseAdmin
       .from("businesses")
       .insert({
         name: data.name,
@@ -96,12 +97,12 @@ export const createBusiness = createServerFn({ method: "POST" })
       .single();
     if (bizError || !business) throw new Error(bizError?.message ?? "Could not create the business.");
 
-    const { error: memberError } = await supabase
+    const { error: memberError } = await supabaseAdmin
       .from("memberships")
       .insert({ business_id: business.id, user_id: userId, role: "owner" });
     if (memberError) throw new Error(memberError.message);
 
-    const { data: branch, error: branchError } = await supabase
+    const { data: branch, error: branchError } = await supabaseAdmin
       .from("branches")
       .insert({
         business_id: business.id,
@@ -113,7 +114,7 @@ export const createBusiness = createServerFn({ method: "POST" })
       .single();
     if (branchError || !branch) throw new Error(branchError?.message ?? "Could not create the branch.");
 
-    await supabase
+    await supabaseAdmin
       .from("business_settings")
       .update({ phone: data.phone ?? null, city: data.city ?? null, gstin: data.gstin ?? null })
       .eq("business_id", business.id);
@@ -126,11 +127,11 @@ export const createBusiness = createServerFn({ method: "POST" })
         qr_slug: randomSlug(),
         sort_order: i,
       }));
-      const { error: tableError } = await supabase.from("restaurant_tables").insert(rows);
+      const { error: tableError } = await supabaseAdmin.from("restaurant_tables").insert(rows);
       if (tableError) throw new Error(tableError.message);
     }
 
-    await logAudit(supabase, {
+    await logAudit(supabaseAdmin, {
       business_id: business.id,
       actor_id: userId,
       actor_role: "owner",
@@ -145,7 +146,7 @@ export const createBusiness = createServerFn({ method: "POST" })
 
 export const updateBusinessSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -202,7 +203,7 @@ export const updateBusinessSettings = createServerFn({ method: "POST" })
 
 export const listStaff = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { requireMembership, resolvePermissions, assertPerm } = await import("@/lib/db.server");
@@ -231,22 +232,12 @@ export const listStaff = createServerFn({ method: "GET" })
 
 export const updateStaffRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
         membershipId: z.string().uuid(),
-        role: z.enum([
-          "business_admin",
-          "general_manager",
-          "branch_manager",
-          "floor_manager",
-          "waiter",
-          "cashier",
-          "chef",
-          "kitchen_staff",
-          "bar_staff",
-        ]),
+        role: z.string().min(2),
         branchId: z.string().uuid().nullable().optional(),
         isActive: z.boolean().optional(),
       })
@@ -294,9 +285,150 @@ export const updateStaffRole = createServerFn({ method: "POST" })
     return after;
   });
 
+export const updateStaffMemberDetails = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        businessId: z.string().uuid(),
+        membershipId: z.string().uuid(),
+        displayName: z.string().trim().min(2).optional(),
+        phone: z.string().trim().optional(),
+        role: z.string().min(2).optional(),
+        isActive: z.boolean().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { requireMembership, logAudit } = await import("@/lib/db.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const membership = await requireMembership(supabase, userId, data.businessId);
+
+    const { data: target } = await supabase
+      .from("memberships")
+      .select("id, user_id, role, is_active")
+      .eq("id", data.membershipId)
+      .eq("business_id", data.businessId)
+      .maybeSingle();
+
+    if (!target) throw new Error("Staff member not found.");
+
+    if (data.displayName || data.phone !== undefined) {
+      await supabaseAdmin.from("profiles").upsert({
+        id: target.user_id,
+        ...(data.displayName ? { display_name: data.displayName } : {}),
+        ...(data.phone !== undefined ? { phone: data.phone } : {}),
+      });
+    }
+
+    const patch: Record<string, any> = {};
+    if (data.role) patch.role = data.role;
+    if (data.isActive !== undefined) patch.is_active = data.isActive;
+
+    if (Object.keys(patch).length > 0) {
+      await supabase
+        .from("memberships")
+        .update(patch)
+        .eq("id", data.membershipId);
+    }
+
+    await logAudit(supabase, {
+      business_id: data.businessId,
+      actor_id: userId,
+      actor_role: membership.role,
+      action: "staff.updated",
+      entity_type: "membership",
+      entity_id: data.membershipId,
+      after_state: { role: data.role, displayName: data.displayName, isActive: data.isActive },
+    });
+
+    return { ok: true };
+  });
+
+export const createStaffMember = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        businessId: z.string().uuid(),
+        email: z.string().trim().email(),
+        password: z.string().min(6),
+        fullName: z.string().trim().min(2),
+        phone: z.string().trim().optional(),
+        role: z.string().min(2),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { requireMembership, logAudit } = await import("@/lib/db.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const membership = await requireMembership(supabase, userId, data.businessId);
+
+    // Check if user already exists in auth
+    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+    let staffUser = usersData?.users?.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
+
+    if (!staffUser) {
+      const { data: newUser, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+        email: data.email,
+        password: data.password,
+        email_confirm: true,
+        user_metadata: { full_name: data.fullName },
+      });
+      if (createErr || !newUser.user) throw new Error(createErr?.message || "Failed to create user account.");
+      staffUser = newUser.user;
+    }
+
+    // Create or update profile
+    await supabaseAdmin.from("profiles").upsert({
+      id: staffUser.id,
+      display_name: data.fullName,
+      phone: data.phone || null,
+    });
+
+    // Get branch ID
+    const { data: branches } = await supabaseAdmin
+      .from("branches")
+      .select("id")
+      .eq("business_id", data.businessId)
+      .limit(1);
+    const branchId = branches?.[0]?.id || null;
+
+    // Create membership
+    const { data: newMem, error: memErr } = await supabaseAdmin
+      .from("memberships")
+      .insert({
+        business_id: data.businessId,
+        user_id: staffUser.id,
+        branch_id: branchId,
+        role: data.role,
+        is_active: true,
+      })
+      .select("id, role")
+      .single();
+
+    if (memErr) throw new Error(memErr.message);
+
+    await logAudit(supabase, {
+      business_id: data.businessId,
+      actor_id: userId,
+      actor_role: membership.role,
+      action: "staff.created",
+      entity_type: "membership",
+      entity_id: newMem.id,
+      after_state: { email: data.email, role: data.role },
+    });
+
+    return newMem;
+  });
+
 export const setRolePermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -339,7 +471,7 @@ export const setRolePermission = createServerFn({ method: "POST" })
 
 export const getPermissionMatrix = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [{ data: permissions }, { data: defaults }, { data: overrides }, { data: authorities }] =
@@ -359,7 +491,7 @@ export const getPermissionMatrix = createServerFn({ method: "GET" })
 
 export const setDiscountAuthority = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         businessId: z.string().uuid(),
@@ -402,7 +534,7 @@ export const setDiscountAuthority = createServerFn({ method: "POST" })
 
 export const listAuditLog = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase

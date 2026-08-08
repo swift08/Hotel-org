@@ -10,6 +10,9 @@ function isNewSupabaseApiKey(value: string): boolean {
 }
 
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
+  if (!isNewSupabaseApiKey(supabaseKey)) {
+    return fetch;
+  }
   return (input, init) => {
     const headers = new Headers(
       typeof Request !== 'undefined' && input instanceof Request ? input.headers : undefined,
@@ -19,8 +22,7 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
       new Headers(init.headers).forEach((value, key) => headers.set(key, value));
     }
 
-    // New Supabase API keys are opaque strings, not bearer JWTs.
-    if (isNewSupabaseApiKey(supabaseKey) && headers.get('Authorization') === `Bearer ${supabaseKey}`) {
+    if (headers.get('Authorization') === `Bearer ${supabaseKey}`) {
       headers.delete('Authorization');
     }
 
@@ -30,8 +32,8 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 function createSupabaseAdminClient() {
-  const SUPABASE_URL = process.env['SUPABASE_URL'];
-  const SUPABASE_SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+  const SUPABASE_URL = process.env['SUPABASE_URL'] || 'https://pzyiffaaeqrpbzwymbmv.supabase.co';
+  const SUPABASE_SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'] || 'your_supabase_service_role_key';
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [

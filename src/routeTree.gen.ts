@@ -10,33 +10,221 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as KdsRouteImport } from './routes/kds'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAuditRouteImport } from './routes/admin/audit'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminMenuRouteImport } from './routes/admin/menu'
+import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminStaffRouteImport } from './routes/admin/staff'
+import { Route as AdminTablesRouteImport } from './routes/admin/tables'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthSignupRouteImport } from './routes/auth/signup'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
+import { Route as QSlugRouteImport } from './routes/q/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KdsRoute = KdsRouteImport.update({
+  id: '/kds',
+  path: '/kds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMenuRoute = AdminMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOrdersRoute = AdminOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStaffRoute = AdminStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTablesRoute = AdminTablesRouteImport.update({
+  id: '/tables',
+  path: '/tables',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/auth/signup',
+  path: '/auth/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/onboarding/',
+  path: '/onboarding/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QSlugRoute = QSlugRouteImport.update({
+  id: '/q/$slug',
+  path: '/q/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/kds': typeof KdsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/orders': typeof AdminOrdersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/tables': typeof AdminTablesRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/q/$slug': typeof QSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/kds': typeof KdsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/orders': typeof AdminOrdersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/tables': typeof AdminTablesRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/q/$slug': typeof QSlugRoute
+  '/admin': typeof AdminIndexRoute
+  '/onboarding': typeof OnboardingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/kds': typeof KdsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/orders': typeof AdminOrdersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/tables': typeof AdminTablesRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/q/$slug': typeof QSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/kds'
+    | '/admin/audit'
+    | '/admin/dashboard'
+    | '/admin/menu'
+    | '/admin/orders'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/tables'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/q/$slug'
+    | '/admin/'
+    | '/onboarding/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/kds'
+    | '/admin/audit'
+    | '/admin/dashboard'
+    | '/admin/menu'
+    | '/admin/orders'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/tables'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/q/$slug'
+    | '/admin'
+    | '/onboarding'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/kds'
+    | '/admin/audit'
+    | '/admin/dashboard'
+    | '/admin/menu'
+    | '/admin/orders'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/tables'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/q/$slug'
+    | '/admin/'
+    | '/onboarding/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  KdsRoute: typeof KdsRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+  QSlugRoute: typeof QSlugRoute
+  OnboardingIndexRoute: typeof OnboardingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,12 +236,159 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kds': {
+      id: '/kds'
+      path: '/kds'
+      fullPath: '/kds'
+      preLoaderRoute: typeof KdsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/menu': {
+      id: '/admin/menu'
+      path: '/menu'
+      fullPath: '/admin/menu'
+      preLoaderRoute: typeof AdminMenuRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/staff': {
+      id: '/admin/staff'
+      path: '/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof AdminStaffRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/tables': {
+      id: '/admin/tables'
+      path: '/tables'
+      fullPath: '/admin/tables'
+      preLoaderRoute: typeof AdminTablesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/signup': {
+      id: '/auth/signup'
+      path: '/auth/signup'
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/onboarding'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/q/$slug': {
+      id: '/q/$slug'
+      path: '/q/$slug'
+      fullPath: '/q/$slug'
+      preLoaderRoute: typeof QSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminMenuRoute: typeof AdminMenuRoute
+  AdminOrdersRoute: typeof AdminOrdersRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminStaffRoute: typeof AdminStaffRoute
+  AdminTablesRoute: typeof AdminTablesRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditRoute: AdminAuditRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminMenuRoute: AdminMenuRoute,
+  AdminOrdersRoute: AdminOrdersRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminStaffRoute: AdminStaffRoute,
+  AdminTablesRoute: AdminTablesRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  KdsRoute: KdsRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthSignupRoute: AuthSignupRoute,
+  QSlugRoute: QSlugRoute,
+  OnboardingIndexRoute: OnboardingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
