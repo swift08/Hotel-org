@@ -101,58 +101,39 @@ function Index() {
             </div>
 
             {/* Menu Links */}
-            <div className="col d-none d-xl-flex justify-content-center" style={{ gap: 32 }}>
-              <Link to="/" style={{ color: "#0f172a", fontWeight: 600, fontSize: 15, textDecoration: "none" }}>Home</Link>
-              <a href="#features" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Products</a>
-              <a href="#features" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Customers</a>
-              <a href="#features" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Partners</a>
-              <Link to="/contact" style={{ color: "#475569", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>Contact Us</Link>
+            <div className="col d-none d-xl-flex justify-content-center" style={{ gap: 36 }}>
+              <Link to="/" style={{ color: "#0f172a", fontWeight: 700, fontSize: 15, textDecoration: "none" }}>Home</Link>
+              <a href="#features" style={{ color: "#475569", fontWeight: 600, fontSize: 15, textDecoration: "none", transition: "color 0.2s" }}>Features & Operations</a>
+              <Link to="/contact" style={{ color: "#475569", fontWeight: 600, fontSize: 15, textDecoration: "none", transition: "color 0.2s" }}>Contact Us</Link>
             </div>
 
-            {/* Action Buttons */}
-            <div className="col d-flex justify-content-end align-items-center" style={{ gap: 12 }}>
-              <button
-                className="d-none d-md-inline-flex align-items-center justify-content-center"
-                style={{
-                  background: "#0284c7",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: 24,
-                  padding: "8px 18px",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  gap: 6,
-                  cursor: "pointer",
-                }}
-              >
-                <Bell size={14} /> What's New
-              </button>
-
+            {/* Action Buttons with Glowing Animations */}
+            <div className="col d-flex justify-content-end align-items-center" style={{ gap: 14 }}>
               {userContext?.onboarded ? (
                 <button
                   onClick={() => navigate({ to: "/admin/dashboard" })}
                   style={{
-                    background: "#f59e0b",
+                    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
                     color: "#ffffff",
                     fontWeight: 700,
                     fontSize: 14,
-                    padding: "10px 22px",
+                    padding: "10px 24px",
                     borderRadius: 24,
                     border: "none",
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 8,
-                    boxShadow: "0 4px 14px rgba(245,158,11,0.3)",
-                    transition: "all 0.3s",
+                    boxShadow: "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)",
+                    transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.background = "#d97706";
+                    e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
+                    e.currentTarget.style.boxShadow = "0 0 25px rgba(245, 158, 11, 0.7), 0 8px 22px rgba(245,158,11,0.5)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.background = "#f59e0b";
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    e.currentTarget.style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(245,158,11,0.3)";
                   }}
                 >
                   Go to Dashboard <ArrowRight size={16} />
@@ -162,53 +143,61 @@ function Index() {
                   <Link
                     to="/auth/login"
                     style={{
-                      color: "#475569",
+                      color: "#0f172a",
                       fontSize: 14,
-                      fontWeight: 600,
+                      fontWeight: 700,
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 6,
-                      border: "1px solid #cbd5e1",
-                      padding: "8px 20px",
+                      border: "1.5px solid #cbd5e1",
+                      padding: "9px 22px",
                       borderRadius: 24,
-                      transition: "all 0.3s",
+                      background: "#ffffff",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = "#f8fafc";
-                      e.currentTarget.style.borderColor = "#94a3b8";
+                      e.currentTarget.style.borderColor = "#0284c7";
+                      e.currentTarget.style.color = "#0284c7";
+                      e.currentTarget.style.transform = "translateY(-2px) scale(1.03)";
+                      e.currentTarget.style.boxShadow = "0 0 18px rgba(2, 132, 199, 0.35), 0 4px 12px rgba(0,0,0,0.05)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.background = "#ffffff";
                       e.currentTarget.style.borderColor = "#cbd5e1";
+                      e.currentTarget.style.color = "#0f172a";
+                      e.currentTarget.style.transform = "translateY(0) scale(1)";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
                     }}
                   >
-                    <User size={14} /> Login
+                    <User size={15} /> Login
                   </Link>
 
                   <Link
                     to="/auth/signup"
                     style={{
-                      background: "#f59e0b",
+                      background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
                       color: "#ffffff",
                       fontWeight: 700,
                       fontSize: 14,
-                      padding: "10px 22px",
+                      padding: "10px 24px",
                       borderRadius: 24,
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 6,
-                      boxShadow: "0 4px 14px rgba(245,158,11,0.25)",
-                      transition: "all 0.3s",
+                      boxShadow: "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)",
+                      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-1px)";
-                      e.currentTarget.style.background = "#d97706";
+                      e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
+                      e.currentTarget.style.boxShadow = "0 0 28px rgba(245, 158, 11, 0.8), 0 8px 22px rgba(245,158,11,0.5)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.background = "#f59e0b";
+                      e.currentTarget.style.transform = "translateY(0) scale(1)";
+                      e.currentTarget.style.boxShadow = "0 0 18px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(245,158,11,0.3)";
                     }}
                   >
                     Request Demo
@@ -332,6 +321,16 @@ function Index() {
                     height: "auto",
                     display: "block",
                     filter: "drop-shadow(0 20px 40px rgba(15, 23, 42, 0.12))",
+                    transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-6px) scale(1.025)";
+                    e.currentTarget.style.filter = "drop-shadow(0 30px 60px rgba(245, 158, 11, 0.25))";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    e.currentTarget.style.filter = "drop-shadow(0 20px 40px rgba(15, 23, 42, 0.12))";
                   }}
                 />
               </div>
@@ -456,10 +455,22 @@ function Index() {
               <div
                 style={{
                   background: "#ffffff",
-                  border: "1px solid #e2e8f0",
+                  border: "1.5px solid #e2e8f0",
                   borderRadius: 16,
                   padding: "40px",
                   height: "100%",
+                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px) scale(1.01)";
+                  e.currentTarget.style.boxShadow = "0 20px 40px -10px rgba(2, 132, 199, 0.18)";
+                  e.currentTarget.style.borderColor = "rgba(2, 132, 199, 0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0) scale(1)";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = "#e2e8f0";
                 }}
               >
                 <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
@@ -494,10 +505,22 @@ function Index() {
               <div
                 style={{
                   background: "#ffffff",
-                  border: "1px solid #e2e8f0",
+                  border: "1.5px solid #e2e8f0",
                   borderRadius: 16,
                   padding: "40px",
                   height: "100%",
+                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px) scale(1.01)";
+                  e.currentTarget.style.boxShadow = "0 20px 40px -10px rgba(16, 185, 129, 0.18)";
+                  e.currentTarget.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0) scale(1)";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = "#e2e8f0";
                 }}
               >
                 <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
@@ -535,9 +558,21 @@ function Index() {
               <div
                 style={{
                   background: "#ffffff",
-                  border: "1px solid #e2e8f0",
+                  border: "1.5px solid #e2e8f0",
                   borderRadius: 16,
                   padding: "40px",
+                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow = "0 22px 45px -10px rgba(245, 158, 11, 0.2)";
+                  e.currentTarget.style.borderColor = "rgba(245, 158, 11, 0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = "#e2e8f0";
                 }}
               >
                 <div className="row align-items-center g-4">
@@ -823,42 +858,50 @@ function Index() {
                 <div
                   style={{
                     background: "#ffffff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: 12,
-                    padding: "28px 24px",
+                    border: "1.5px solid #e2e8f0",
+                    borderRadius: 16,
+                    padding: "28px 24px 20px",
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
-                    transition: "transform 0.3s, box-shadow 0.3s",
+                    transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                    cursor: "pointer",
                   }}
                   className="hover-card"
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow = "0 10px 24px rgba(0,0,0,0.04)";
+                    e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
+                    e.currentTarget.style.boxShadow = "0 22px 45px -10px rgba(245, 158, 11, 0.2), 0 12px 25px -5px rgba(15, 23, 42, 0.08)";
+                    e.currentTarget.style.borderColor = "rgba(245, 158, 11, 0.5)";
+                    const img = e.currentTarget.querySelector("img");
+                    if (img) img.style.transform = "scale(1.12)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
                     e.currentTarget.style.boxShadow = "none";
+                    e.currentTarget.style.borderColor = "#e2e8f0";
+                    const img = e.currentTarget.querySelector("img");
+                    if (img) img.style.transform = "scale(1)";
                   }}
                 >
                   <div>
                     <div
                       style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: "50%",
-                        background: "rgba(245, 158, 11, 0.08)",
-                        color: "#f59e0b",
+                        width: 44,
+                        height: 44,
+                        borderRadius: "12px",
+                        background: "rgba(245, 158, 11, 0.1)",
+                        color: "#d97706",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         marginBottom: 16,
+                        boxShadow: "0 2px 8px rgba(245, 158, 11, 0.15)",
                       }}
                     >
                       {gridItem.icon}
                     </div>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 10 }}>
+                    <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", marginBottom: 10, lineHeight: 1.3 }}>
                       {gridItem.title}
                     </h3>
                     <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6, marginBottom: 16 }}>
@@ -866,21 +909,24 @@ function Index() {
                     </p>
                   </div>
                   
-                  {/* Container Image */}
-                  <div style={{ marginTop: "auto", paddingTop: 16, textAlign: "center" }}>
+                  {/* Container Image (Enlarged and Animated) */}
+                  <div style={{ marginTop: "auto", paddingTop: 12, textAlign: "center", overflow: "hidden", borderRadius: 12 }}>
                     <img
                       src={gridItem.img}
                       alt={gridItem.title}
-                      width={220}
-                      height={120}
+                      width={300}
+                      height={190}
                       loading="lazy"
                       style={{
                         width: "100%",
-                        height: "120px",
+                        height: "190px",
+                        maxHeight: "200px",
                         objectFit: "contain",
-                        borderRadius: 8,
+                        borderRadius: 12,
                         display: "block",
-                        filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.03))",
+                        margin: "0 auto",
+                        filter: "drop-shadow(0 6px 14px rgba(15, 23, 42, 0.06))",
+                        transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
                       }}
                     />
                   </div>
