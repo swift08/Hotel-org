@@ -408,8 +408,8 @@ function Index() {
             {[
               {
                 icon: <CreditCard size={24} />,
-                title: "Low Monthly Price",
-                desc: "From $20/month base + $0.10 per order — no per-room charges.",
+                title: "Monthly Subscription",
+                desc: "Flat ₹1,000 / month — unlimited QR orders, KDS displays, & tables.",
                 color: "#0ea5e9",
                 bg: "rgba(14, 165, 233, 0.06)",
                 borderColor: "3px solid #0ea5e9",
@@ -417,15 +417,15 @@ function Index() {
               {
                 icon: <MessageSquare size={24} />,
                 title: "Free Help & Support",
-                desc: "24/7 in-app chat support included on every single plan.",
+                desc: "24/7 in-app chat & phone support included on every subscription.",
                 color: "#10b981",
                 bg: "rgba(16, 185, 129, 0.06)",
                 borderColor: "3px solid #10b981",
               },
               {
                 icon: <Zap size={24} />,
-                title: "No Setup Charges",
-                desc: "Free digital menu setup, PMS connection, and complete staff training.",
+                title: "One-Time Setup Fee",
+                desc: "₹5,000 one-time setup — full digital menu setup, PMS/POS sync & staff training.",
                 color: "#f59e0b",
                 bg: "rgba(245, 158, 11, 0.06)",
                 borderColor: "3px solid #f59e0b",
@@ -433,12 +433,13 @@ function Index() {
               {
                 icon: <Clock size={24} />,
                 title: "Free 30-Day Trial",
-                desc: "Full unrestricted access to every platform module. No credit card required.",
+                desc: "Full unrestricted access to all platform modules. No hidden charges.",
                 color: "#8b5cf6",
                 bg: "rgba(139, 92, 246, 0.06)",
                 borderColor: "3px solid #8b5cf6",
               },
             ].map((benefit, i) => (
+
               <div key={i} className="col-12 col-md-6 col-lg-3">
                 <BorderGlow
                   backgroundColor="#ffffff"
