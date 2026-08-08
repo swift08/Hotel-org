@@ -151,8 +151,9 @@ function Index() {
                       </SpecularButton>
                     </Link>
 
-                    <Link to="/auth/signup" className="breathe-glow-amber" style={{ textDecoration: "none" }}>
+                    <Link to="/auth/signup" style={{ textDecoration: "none" }}>
                       <SpecularButton
+                        className="breathe-glow-amber"
                         size="sm"
                         radius={24}
                         tint="#f59e0b"
@@ -164,6 +165,7 @@ function Index() {
                         Request Demo
                       </SpecularButton>
                     </Link>
+
 
                   </>
                 )}
@@ -329,8 +331,9 @@ function Index() {
               </p>
 
               <div className="d-flex align-items-center flex-wrap gap-3">
-                <Link to="/auth/signup" className="breathe-glow-blue" style={{ textDecoration: "none" }}>
+                <Link to="/auth/signup" style={{ textDecoration: "none" }}>
                   <SpecularButton
+                    className="breathe-glow-blue"
                     size="lg"
                     radius={12}
                     tint="#0284c7"
@@ -343,6 +346,7 @@ function Index() {
                     <Monitor size={18} /> Request for Demo
                   </SpecularButton>
                 </Link>
+
 
               </div>
 

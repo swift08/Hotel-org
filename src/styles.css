@@ -378,37 +378,34 @@ img {
 /* Breathing Glow Animations for Request Demo CTA Buttons */
 @keyframes breathe-glow-amber {
   0%, 100% {
-    box-shadow: 0 0 14px rgba(245, 158, 11, 0.45), 0 0 28px rgba(245, 158, 11, 0.25);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.45), 0 0 24px rgba(245, 158, 11, 0.25);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.9), 0 0 50px rgba(245, 158, 11, 0.55), 0 0 75px rgba(245, 158, 11, 0.35);
-    transform: scale(1.045);
+    box-shadow: 0 0 22px rgba(245, 158, 11, 0.85), 0 0 45px rgba(245, 158, 11, 0.5);
+    transform: scale(1.035);
   }
 }
 
 .breathe-glow-amber {
-  animation: breathe-glow-amber 2.4s ease-in-out infinite;
-  display: inline-block;
-  border-radius: 9999px;
+  animation: breathe-glow-amber 2.4s ease-in-out infinite !important;
 }
 
 @keyframes breathe-glow-blue {
   0%, 100% {
-    box-shadow: 0 0 14px rgba(2, 132, 199, 0.45), 0 0 28px rgba(2, 132, 199, 0.25);
+    box-shadow: 0 0 12px rgba(2, 132, 199, 0.45), 0 0 24px rgba(2, 132, 199, 0.25);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(56, 189, 248, 0.9), 0 0 50px rgba(2, 132, 199, 0.6), 0 0 75px rgba(2, 132, 199, 0.35);
-    transform: scale(1.045);
+    box-shadow: 0 0 22px rgba(56, 189, 248, 0.85), 0 0 45px rgba(2, 132, 199, 0.5);
+    transform: scale(1.035);
   }
 }
 
 .breathe-glow-blue {
-  animation: breathe-glow-blue 2.4s ease-in-out infinite;
-  display: inline-block;
-  border-radius: 12px;
+  animation: breathe-glow-blue 2.4s ease-in-out infinite !important;
 }
+
 
 
 
