@@ -523,13 +523,18 @@ function MenuCMS() {
                     </span>
                   </div>
 
-                  {/* Variants List */}
+                  {/* Prominently Highlighted Portion Sizes & Variants */}
                   {itemVariants.length > 0 && (
-                    <div className="space-y-1.5 pt-2">
-                      <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Variants ({itemVariants.length}):</span>
-                      <div className="flex flex-wrap gap-1.5">
+                    <div className="mt-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 flex items-center justify-between gap-2 shadow-sm">
+                      <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0">
+                        <Layers className="h-3.5 w-3.5 text-amber-500" /> Portion Sizes:
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
                         {itemVariants.map((v) => (
-                          <Badge key={v.id} variant="outline" className="border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[10px]">
+                          <Badge
+                            key={v.id}
+                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 shadow-md border-none"
+                          >
                             {v.name}: {currencySymbol}{Number(v.price).toFixed(2)}
                           </Badge>
                         ))}

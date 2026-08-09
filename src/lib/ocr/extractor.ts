@@ -429,14 +429,15 @@ function parseSpatialOCRLayout(ocrData: any) {
       }
     }
 
-    const rawItemName = nameWords.join(" ").replace(/[._-]+$/, "").trim();
+    const normalized = normalizeDishNameAndVariants(lineText);
+    const finalDishName = normalized.cleanName;
 
-    if (rawItemName.length > 2) {
-      let desc = `Freshly prepared ${rawItemName.toLowerCase()} with authentic spices`;
-      let variants: ExtractedVariant[] = [];
-      let basePrice = 100;
-      let confidence: "high" | "needs_review" = "high";
-      let confidenceReason: string | undefined = undefined;
+    if (finalDishName.length > 2) {
+      let desc = `Freshly prepared ${finalDishName.toLowerCase()} with authentic spices`;
+      let variants: ExtractedVariant[] = normalized.variants;
+      let basePrice = normalized.basePrice;
+      let confidence: "high" | "needs_review" = normalized.confidence;
+      let confidenceReason: string | undefined = normalized.confidenceReason;
 
       if (numericTokens.length >= 2) {
         const halfP = numericTokens[0]?.value || 100;
@@ -446,18 +447,12 @@ function parseSpatialOCRLayout(ocrData: any) {
           { name: "Half", price: halfP },
           { name: "Full", price: fullP },
         ];
-      } else if (numericTokens.length === 1) {
+      } else if (numericTokens.length === 1 && variants.length === 0) {
         basePrice = numericTokens[0]?.value || 100;
-      } else {
-        const normalized = normalizeDishNameAndVariants(lineText);
-        basePrice = normalized.basePrice;
-        variants = normalized.variants;
-        confidence = normalized.confidence;
-        confidenceReason = normalized.confidenceReason;
       }
 
       const dishRecord: any = {
-        name: rawItemName || lineText,
+        name: finalDishName,
         desc,
         priceStr: String(basePrice),
         catName: currentCategory,
