@@ -155,7 +155,7 @@ export async function extractMenuFromFiles(
 
     // Confidence determination
     let confidence: "high" | "needs_review" = parsedPrice.confidence;
-    let confidenceReason: string | undefined;
+    let confidenceReason: string | undefined = undefined;
 
     if (parsedPrice.confidence === "needs_review") {
       confidenceReason = "Please verify price";
@@ -192,7 +192,7 @@ export async function extractMenuFromFiles(
     variantsCount += itemVariants.length;
     addonsCount += itemAddons.length;
 
-    extractedItems.push({
+    const itemRecord: ExtractedMenuItem = {
       id: itemId,
       name: raw.name,
       description: raw.desc,
@@ -205,10 +205,13 @@ export async function extractMenuFromFiles(
       variants: itemVariants,
       addons: itemAddons,
       confidence,
-      confidenceReason,
-      isDuplicate,
-      duplicateInfo,
-    });
+    };
+
+    if (confidenceReason) itemRecord.confidenceReason = confidenceReason;
+    if (isDuplicate) itemRecord.isDuplicate = isDuplicate;
+    if (duplicateInfo) itemRecord.duplicateInfo = duplicateInfo;
+
+    extractedItems.push(itemRecord);
   }
 
   const categories = Array.from(detectedCategoriesMap.values());

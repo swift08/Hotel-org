@@ -40,7 +40,7 @@ export const createMenuImportJob = createServerFn({ method: "POST" })
       created_by: userId,
     };
 
-    const { data: row, error } = await supabase
+    const { data: row, error } = await (supabase as any)
       .from("menu_imports")
       .insert(payload)
       .select("id, status, created_at")
@@ -82,7 +82,7 @@ export const processMenuImportJob = createServerFn({ method: "POST" })
     assertPerm(perms, "menu.edit");
 
     // Fetch import job
-    const { data: job, error: jobErr } = await supabase
+    const { data: job, error: jobErr } = await (supabase as any)
       .from("menu_imports")
       .select("*")
       .eq("id", data.importId)
@@ -109,7 +109,7 @@ export const processMenuImportJob = createServerFn({ method: "POST" })
       updated_at: new Date().toISOString(),
     };
 
-    const { data: updated, error: updateErr } = await supabase
+    const { data: updated, error: updateErr } = await (supabase as any)
       .from("menu_imports")
       .update(updatedPayload)
       .eq("id", data.importId)
@@ -166,7 +166,7 @@ export const updateMenuImportDraft = createServerFn({ method: "POST" })
       duplicatesCount,
     };
 
-    const { data: updated, error } = await supabase
+    const { data: updated, error } = await (supabase as any)
       .from("menu_imports")
       .update({
         review_data: data.reviewData,
@@ -202,7 +202,7 @@ export const publishMenuImport = createServerFn({ method: "POST" })
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "menu.edit");
 
-    const { data: job, error: jobErr } = await supabase
+    const { data: job, error: jobErr } = await (supabase as any)
       .from("menu_imports")
       .select("*")
       .eq("id", data.importId)
@@ -293,7 +293,7 @@ export const publishMenuImport = createServerFn({ method: "POST" })
         food_tags: foodTags,
         prep_time_minutes: item.prepTimeMinutes || 15,
         sort_order: idx + 1,
-        state: "published",
+        state: "published" as const,
         is_available: true,
         images,
       };
@@ -357,7 +357,7 @@ export const publishMenuImport = createServerFn({ method: "POST" })
     }
 
     // Get current version count for menu_versions
-    const { count } = await supabase
+    const { count } = await (supabase as any)
       .from("menu_versions")
       .select("id", { count: "exact", head: true })
       .eq("business_id", data.businessId);
@@ -365,7 +365,7 @@ export const publishMenuImport = createServerFn({ method: "POST" })
     const versionNum = (count || 0) + 1;
 
     // Create version snapshot
-    await supabase.from("menu_versions").insert({
+    await (supabase as any).from("menu_versions").insert({
       business_id: data.businessId,
       branch_id: membership.branch_id ?? null,
       version_number: versionNum,
@@ -377,7 +377,7 @@ export const publishMenuImport = createServerFn({ method: "POST" })
     });
 
     // Update job status to published
-    await supabase
+    await (supabase as any)
       .from("menu_imports")
       .update({
         status: "published",
@@ -406,7 +406,7 @@ export const listMenuImports = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: imports, error } = await supabase
+    const { data: imports, error } = await (supabase as any)
       .from("menu_imports")
       .select("*")
       .eq("business_id", data.businessId)
@@ -436,7 +436,7 @@ export const rollbackMenuVersion = createServerFn({ method: "POST" })
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "menu.edit");
 
-    const { data: version, error } = await supabase
+    const { data: version, error } = await (supabase as any)
       .from("menu_versions")
       .select("*")
       .eq("id", data.versionId)
@@ -452,8 +452,8 @@ export const rollbackMenuVersion = createServerFn({ method: "POST" })
       action: "menu.version_rolled_back",
       entity_type: "menu_version",
       entity_id: data.versionId,
-      after_state: { versionNumber: version.version_number },
+      after_state: { versionNumber: (version as any).version_number },
     });
 
-    return { success: true, versionNumber: version.version_number };
+    return { success: true, versionNumber: (version as any).version_number };
   });

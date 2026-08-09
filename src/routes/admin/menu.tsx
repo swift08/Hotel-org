@@ -70,6 +70,9 @@ function MenuCMS() {
   const [catModalOpen, setCatModalOpen] = useState(false);
   const [prodModalOpen, setProdModalOpen] = useState(false);
   const [variantModalOpen, setVariantModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [menuImports, setMenuImports] = useState<any[]>([]);
   const [selectedProductForVariant, setSelectedProductForVariant] = useState<any>(null);
 
   // Category Form State
@@ -88,6 +91,10 @@ function MenuCMS() {
   const [prodImages, setProdImages] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  // Variant Form State
+  const [variantName, setVariantName] = useState("");
+  const [variantPrice, setVariantPrice] = useState(50);
+
   const handleImageUpload = async (file: File): Promise<string | null> => {
     try {
       const bucketName = "product-images";
@@ -104,7 +111,6 @@ function MenuCMS() {
 
       if (error) {
         if (error.message.includes("bucket not found") || error.message.includes("does not exist")) {
-          // Attempt to create bucket dynamically
           await supabase.storage.createBucket(bucketName, { public: true });
           const retry = await supabase.storage.from(bucketName).upload(filePath, file, { upsert: true });
           if (retry.error) throw retry.error;
@@ -126,22 +132,22 @@ function MenuCMS() {
     }
   };
 
-  // Variant Form State
-  const [variantName, setVariantName] = useState("");
-  const [variantPrice, setVariantPrice] = useState(50);
-
   const fetchMenuData = async () => {
     setLoading(true);
     try {
       const ctx = await getMyContext();
       setContext(ctx);
       if (ctx?.membership?.business_id) {
-        const menu = await getMenu({ data: { businessId: ctx.membership.business_id } });
+        const [menu, imports] = await Promise.all([
+          getMenu({ data: { businessId: ctx.membership.business_id } }),
+          listMenuImports({ data: { businessId: ctx.membership.business_id } }).catch(() => []),
+        ]);
         setCategories(menu.categories || []);
         setProducts(menu.products || []);
         setVariants(menu.variants || []);
         setAddonGroups(menu.addonGroups || []);
         setAddons(menu.addons || []);
+        setMenuImports(imports || []);
       }
     } catch (err: any) {
       console.error(err);
@@ -230,21 +236,21 @@ function MenuCMS() {
     }
   };
 
-  // Toggle Out of Stock
-  const handleToggleStock = async (productId: string, currentAvailable: boolean) => {
+  // Toggle Item Availability
+  const handleToggleStock = async (id: string, current: boolean) => {
     if (!context?.membership?.business_id) return;
     try {
       await setProductAvailability({
         data: {
           businessId: context.membership.business_id,
-          productId,
-          isAvailable: !currentAvailable,
+          productId: id,
+          isAvailable: !current,
         },
       });
-      toast.success(!currentAvailable ? "Marked Available" : "Marked Out of Stock");
-      fetchMenuData();
+      setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, is_available: !current } : p)));
+      toast.success(!current ? "Marked In Stock" : "Marked Out of Stock");
     } catch (err: any) {
-      toast.error(err?.message || "Failed to update availability");
+      toast.error("Failed to toggle stock");
     }
   };
 
@@ -271,49 +277,6 @@ function MenuCMS() {
     setProdStation(p.station || "kitchen");
     setProdImages(p.images || []);
     setProdModalOpen(true);
-  };
-
-  // Toggle Item Availability
-  const handleToggleStock = async (id: string, current: boolean) => {
-    if (!context?.membership?.business_id) return;
-    try {
-      await setProductAvailability({
-        data: {
-          businessId: context.membership.business_id,
-          productId: id,
-          isAvailable: !current,
-        },
-      });
-      setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, is_available: !current } : p)));
-      toast.success(!current ? "Marked In Stock" : "Marked Out of Stock");
-    } catch (err: any) {
-      toast.error("Failed to toggle stock");
-    }
-  };
-
-  // Save Variant Handler
-  const [variantName, setVariantName] = useState("");
-  const [variantPrice, setVariantPrice] = useState(50);
-
-  const handleSaveVariant = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!variantName || !selectedProductForVariant || !context?.membership?.business_id) return;
-    try {
-      await saveVariant({
-        data: {
-          businessId: context.membership.business_id,
-          productId: selectedProductForVariant.id,
-          name: variantName,
-          price: variantPrice,
-        },
-      });
-      toast.success("Variant added!");
-      setVariantName("");
-      setVariantModalOpen(false);
-      fetchMenuData();
-    } catch (err: any) {
-      toast.error("Failed to add variant");
-    }
   };
 
   // Filtered Products
