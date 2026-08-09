@@ -1,24 +1,29 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { resolveTable, getPublicMenu, placeOrder, getPublicDiningSession } from "@/lib/public.functions";
+import {
+  resolveTable,
+  getPublicMenu,
+  placeOrder,
+  getPublicDiningSession,
+} from "@/lib/public.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandedLoadingScreen } from "@/components/BrandedLoadingScreen";
-import { 
-  Utensils, 
-  Search, 
-  ShoppingBag, 
-  Clock, 
-  ChevronRight, 
-  Plus, 
-  Minus, 
-  X, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  Utensils,
+  Search,
+  ShoppingBag,
+  Clock,
+  ChevronRight,
+  Plus,
+  Minus,
+  X,
+  CheckCircle2,
+  AlertCircle,
   Loader2,
   Phone,
   User,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +31,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/q/$slug")({
@@ -37,7 +48,10 @@ const isLogoUrl = (url: any) =>
   url &&
   typeof url === "string" &&
   url.trim().length > 0 &&
-  (url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:"));
+  (url.startsWith("/") ||
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("data:"));
 
 function CustomerMenuScreen() {
   const { slug } = Route.useParams();
@@ -118,10 +132,10 @@ function CustomerMenuScreen() {
       const res = await getPublicDiningSession({
         data: {
           diningSessionId: activeDiningSessionId,
-        }
+        },
       });
       setSessionOrders(res.orders || []);
-      
+
       // If the session status is completed, clear active session
       if (res.sessionStatus === "completed") {
         localStorage.removeItem(`servio_active_session_${slug}`);
@@ -135,7 +149,7 @@ function CustomerMenuScreen() {
 
   useEffect(() => {
     fetchSessionOrders();
-  }, [activeDiningSessionId]);
+  }, [activeDiningSessionId, fetchSessionOrders]);
 
   // Real-time tracking of active dining session orders
   useEffect(() => {
@@ -166,21 +180,25 @@ function CustomerMenuScreen() {
             }
           }
           fetchSessionOrders();
-        }
+        },
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [activeDiningSessionId]);
+  }, [activeDiningSessionId, fetchSessionOrders]);
 
   if (loading) {
     return (
       <BrandedLoadingScreen
         restaurantName={tableContext?.business?.name || "RASOI"}
         subtitle={`Preparing digital menu for ${tableContext?.table?.label || "your table"}...`}
-        logoUrl={isLogoUrl(tableContext?.settings?.address_line2) ? tableContext.settings.address_line2 : "/images/logo.webp"}
+        logoUrl={
+          isLogoUrl(tableContext?.settings?.address_line2)
+            ? tableContext.settings.address_line2
+            : "/images/logo.webp"
+        }
       />
     );
   }
@@ -283,14 +301,16 @@ function CustomerMenuScreen() {
           return prev;
         }
 
-        toast.warning(`Added ${allowedToAdd} units of ${line.productName} (Dish limit: ${dishLimit})`);
+        toast.warning(
+          `Added ${allowedToAdd} units of ${line.productName} (Dish limit: ${dishLimit})`,
+        );
 
         const existingIdx = prev.findIndex(
           (i) =>
             i.productId === line.productId &&
             i.variantId === line.variantId &&
             JSON.stringify(i.addonIds.sort()) === JSON.stringify(line.addonIds.sort()) &&
-            i.specialInstructions === line.specialInstructions
+            i.specialInstructions === line.specialInstructions,
         );
 
         if (existingIdx > -1) {
@@ -307,7 +327,7 @@ function CustomerMenuScreen() {
           i.productId === line.productId &&
           i.variantId === line.variantId &&
           JSON.stringify(i.addonIds.sort()) === JSON.stringify(line.addonIds.sort()) &&
-          i.specialInstructions === line.specialInstructions
+          i.specialInstructions === line.specialInstructions,
       );
 
       if (existingIdx > -1) {
@@ -382,7 +402,7 @@ function CustomerMenuScreen() {
       toast.success(`Order #${res.orderNumber} placed successfully!`);
       setCartItems([]);
       setCartDrawerOpen(false);
-      
+
       if (res.diningSessionId) {
         localStorage.setItem(`servio_active_session_${slug}`, res.diningSessionId);
         setActiveDiningSessionId(res.diningSessionId);
@@ -456,11 +476,15 @@ function CustomerMenuScreen() {
     groupedProducts[catId].push(p);
   });
 
-  const categoriesToRender = selectedCategory === "all"
-    ? menuData.categories.filter((c: any) => (groupedProducts[c.id]?.length || 0) > 0)
-    : menuData.categories.filter((c: any) => c.id === selectedCategory && (groupedProducts[c.id]?.length || 0) > 0);
+  const categoriesToRender =
+    selectedCategory === "all"
+      ? menuData.categories.filter((c: any) => (groupedProducts[c.id]?.length || 0) > 0)
+      : menuData.categories.filter(
+          (c: any) => c.id === selectedCategory && (groupedProducts[c.id]?.length || 0) > 0,
+        );
 
-  const showOtherCategory = selectedCategory === "all" && (groupedProducts["other"]?.length || 0) > 0;
+  const showOtherCategory =
+    selectedCategory === "all" && (groupedProducts["other"]?.length || 0) > 0;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-28 selection:bg-amber-500 selection:text-slate-950">
@@ -470,7 +494,11 @@ function CustomerMenuScreen() {
           <div className="flex items-center gap-3">
             {isLogoUrl(tableContext?.settings?.address_line2) ? (
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 border border-slate-800/80 overflow-hidden shrink-0">
-                <img src={tableContext.settings.address_line2} alt="Logo" className="h-full w-full object-contain" />
+                <img
+                  src={tableContext.settings.address_line2}
+                  alt="Logo"
+                  className="h-full w-full object-contain"
+                />
               </div>
             ) : (
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/20">
@@ -490,7 +518,8 @@ function CustomerMenuScreen() {
           <div className="flex items-center gap-2">
             {/* Desktop Back Button or Info */}
             <span className="hidden lg:inline text-xs text-slate-400 font-medium bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl">
-              Table QR: <span className="text-amber-400 font-bold">{tableContext?.table?.label}</span>
+              Table QR:{" "}
+              <span className="text-amber-400 font-bold">{tableContext?.table?.label}</span>
             </span>
 
             {/* Cart Button (Mobile only, on desktop cart is always visible) */}
@@ -510,7 +539,9 @@ function CustomerMenuScreen() {
       <main className="mx-auto max-w-lg lg:max-w-7xl px-4 pt-4 lg:grid lg:grid-cols-12 lg:gap-8 items-start">
         {/* Left Sidebar Category Navigation (Desktop only) */}
         <aside className="lg:col-span-3 hidden lg:block sticky top-20 self-start bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-4 space-y-1 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-none shadow-2xl">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">Menu Categories</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">
+            Menu Categories
+          </h3>
           <button
             onClick={() => setSelectedCategory("all")}
             className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all border ${
@@ -553,7 +584,9 @@ function CustomerMenuScreen() {
                   <h3 className="font-bold text-xs text-amber-400 flex items-center gap-2 tracking-wide uppercase">
                     <Utensils className="h-4 w-4" /> Live Dining Session
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Table: {tableContext?.table?.label}</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Table: {tableContext?.table?.label}
+                  </p>
                 </div>
                 <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold px-2.5 py-0.5 text-[10px]">
                   {sessionOrders.length} Order{sessionOrders.length > 1 ? "s" : ""} Active
@@ -567,9 +600,14 @@ function CustomerMenuScreen() {
                   const currentIdx = STEPS.indexOf(o.status);
 
                   return (
-                    <div key={o.id} className="space-y-2.5 border-b border-slate-800/40 pb-3.5 last:border-b-0 last:pb-0">
+                    <div
+                      key={o.id}
+                      className="space-y-2.5 border-b border-slate-800/40 pb-3.5 last:border-b-0 last:pb-0"
+                    >
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-200">Order #{o.order_number}</span>
+                        <span className="font-semibold text-slate-200">
+                          Order #{o.order_number}
+                        </span>
                         <span className="capitalize font-bold text-amber-400 text-[10px] bg-amber-500/10 px-2 py-0.5 rounded-md">
                           {o.status === "pending" ? "Waiting for Kitchen" : o.status}
                         </span>
@@ -581,20 +619,29 @@ function CustomerMenuScreen() {
                           const reached = currentIdx >= idx;
                           const isCurrent = currentIdx === idx;
                           return (
-                            <div key={s} className="flex-1 flex flex-col items-center gap-1.5 relative">
+                            <div
+                              key={s}
+                              className="flex-1 flex flex-col items-center gap-1.5 relative"
+                            >
                               {/* Dot */}
                               <div
                                 className={`h-2.5 w-2.5 rounded-full border transition-all ${
                                   isCurrent
                                     ? "bg-amber-500 border-amber-500 ring-4 ring-amber-500/25"
                                     : reached
-                                    ? "bg-emerald-500 border-emerald-500"
-                                    : "bg-slate-800 border-slate-700"
+                                      ? "bg-emerald-500 border-emerald-500"
+                                      : "bg-slate-800 border-slate-700"
                                 }`}
                               />
-                              <span className={`text-[8px] font-medium capitalize select-none ${
-                                isCurrent ? "text-amber-400 font-bold" : reached ? "text-emerald-400" : "text-slate-500"
-                              }`}>
+                              <span
+                                className={`text-[8px] font-medium capitalize select-none ${
+                                  isCurrent
+                                    ? "text-amber-400 font-bold"
+                                    : reached
+                                      ? "text-emerald-400"
+                                      : "text-slate-500"
+                                }`}
+                              >
                                 {s === "pending" ? "Placed" : s}
                               </span>
                             </div>
@@ -617,7 +664,9 @@ function CustomerMenuScreen() {
                   Call Waiter
                 </Button>
                 <Button
-                  onClick={() => toast.success("💸 Bill requested! Waiter is bringing the tax invoice.")}
+                  onClick={() =>
+                    toast.success("💸 Bill requested! Waiter is bringing the tax invoice.")
+                  }
                   size="sm"
                   className="flex-1 bg-amber-500 text-slate-950 text-xs font-bold hover:bg-amber-400 h-9 rounded-xl shadow-lg shadow-amber-500/10"
                 >
@@ -644,7 +693,9 @@ function CustomerMenuScreen() {
               <button
                 onClick={() => setFoodFilter("all")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 transition-all ${
-                  foodFilter === "all" ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
+                  foodFilter === "all"
+                    ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                    : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
                 }`}
               >
                 All Items
@@ -652,7 +703,9 @@ function CustomerMenuScreen() {
               <button
                 onClick={() => setFoodFilter("veg")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition-all ${
-                  foodFilter === "veg" ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20" : "bg-slate-900 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10"
+                  foodFilter === "veg"
+                    ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
+                    : "bg-slate-900 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10"
                 }`}
               >
                 <span className="flex h-2.5 w-2.5 items-center justify-center rounded border border-emerald-500 p-0.5">
@@ -663,7 +716,9 @@ function CustomerMenuScreen() {
               <button
                 onClick={() => setFoodFilter("non_veg")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition-all ${
-                  foodFilter === "non_veg" ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "bg-slate-900 text-red-400 border border-red-500/30 hover:bg-red-500/10"
+                  foodFilter === "non_veg"
+                    ? "bg-red-500 text-white shadow-md shadow-red-500/20"
+                    : "bg-slate-900 text-red-400 border border-red-500/30 hover:bg-red-500/10"
                 }`}
               >
                 <span className="flex h-2.5 w-2.5 items-center justify-center rounded border border-red-500 p-0.5">
@@ -674,7 +729,9 @@ function CustomerMenuScreen() {
               <button
                 onClick={() => setFoodFilter("bestseller")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 transition-all ${
-                  foodFilter === "bestseller" ? "bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20" : "bg-slate-900 text-amber-300 border border-amber-500/30 hover:bg-amber-500/10"
+                  foodFilter === "bestseller"
+                    ? "bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20"
+                    : "bg-slate-900 text-amber-300 border border-amber-500/30 hover:bg-amber-500/10"
                 }`}
               >
                 🔥 Bestsellers
@@ -735,13 +792,18 @@ function CustomerMenuScreen() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {items.map((p: any) => {
                           const tag = p.food_tags?.[0] || "veg";
-                          const pVariants = menuData.variants.filter((v: any) => v.product_id === p.id);
+                          const pVariants = menuData.variants.filter(
+                            (v: any) => v.product_id === p.id,
+                          );
                           const inCartQty = cartItems
                             .filter((ci) => ci.productId === p.id)
                             .reduce((a, b) => a + b.quantity, 0);
 
                           return (
-                            <Card key={p.id} className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between">
+                            <Card
+                              key={p.id}
+                              className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between"
+                            >
                               <CardContent className="p-4 flex gap-3 items-start justify-between h-full">
                                 <div className="flex-1 space-y-1.5 min-w-0">
                                   <div className="flex items-center gap-1.5">
@@ -755,16 +817,21 @@ function CustomerMenuScreen() {
                                         <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                                       </span>
                                     )}
-                                    <h3 className="font-bold text-sm text-white leading-snug truncate">{p.name}</h3>
+                                    <h3 className="font-bold text-sm text-white leading-snug truncate">
+                                      {p.name}
+                                    </h3>
                                   </div>
 
                                   {p.description && (
-                                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{p.description}</p>
+                                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                                      {p.description}
+                                    </p>
                                   )}
 
                                   <div className="flex items-center gap-2 pt-1">
                                     <span className="text-sm font-extrabold text-amber-400">
-                                      {currencySymbol}{Number(p.base_price).toFixed(2)}
+                                      {currencySymbol}
+                                      {Number(p.base_price).toFixed(2)}
                                     </span>
                                     <span className="text-[10px] text-slate-500 flex items-center gap-0.5">
                                       <Clock className="h-2.5 w-2.5" /> {p.prep_time_minutes}m
@@ -776,14 +843,18 @@ function CustomerMenuScreen() {
                                 <div className="flex flex-col items-center shrink-0 gap-2">
                                   {p.images?.[0] ? (
                                     <div className="h-20 w-20 rounded-xl overflow-hidden border border-slate-800 relative bg-slate-950">
-                                      <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
+                                      <img
+                                        src={p.images[0]}
+                                        alt={p.name}
+                                        className="h-full w-full object-cover"
+                                      />
                                     </div>
                                   ) : (
                                     <div className="h-20 w-20 rounded-xl bg-slate-900 border border-slate-850 flex items-center justify-center text-slate-700">
                                       <Utensils className="h-6 w-6 opacity-30" />
                                     </div>
                                   )}
-                                  
+
                                   <div className="flex flex-col items-center">
                                     <Button
                                       onClick={() => handleAddToCartClick(p)}
@@ -793,9 +864,13 @@ function CustomerMenuScreen() {
                                       + ADD {inCartQty > 0 ? `(${inCartQty})` : ""}
                                     </Button>
                                     {pVariants.length > 0 ? (
-                                      <span className="text-[8px] text-slate-500 mt-0.5">Customizable</span>
+                                      <span className="text-[8px] text-slate-500 mt-0.5">
+                                        Customizable
+                                      </span>
                                     ) : inCartQty > 0 ? (
-                                      <span className="text-[8px] text-amber-400 font-semibold mt-0.5">{inCartQty} in cart</span>
+                                      <span className="text-[8px] text-amber-400 font-semibold mt-0.5">
+                                        {inCartQty} in cart
+                                      </span>
                                     ) : null}
                                   </div>
                                 </div>
@@ -818,13 +893,18 @@ function CustomerMenuScreen() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {(groupedProducts["other"] || []).map((p: any) => {
                         const tag = p.food_tags?.[0] || "veg";
-                        const pVariants = menuData.variants.filter((v: any) => v.product_id === p.id);
+                        const pVariants = menuData.variants.filter(
+                          (v: any) => v.product_id === p.id,
+                        );
                         const inCartQty = cartItems
                           .filter((ci) => ci.productId === p.id)
                           .reduce((a, b) => a + b.quantity, 0);
 
                         return (
-                          <Card key={p.id} className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between">
+                          <Card
+                            key={p.id}
+                            className="border-slate-800 bg-slate-900/60 backdrop-blur-md text-slate-100 overflow-hidden shadow-md hover:border-slate-700/60 transition-all duration-300 flex flex-col justify-between"
+                          >
                             <CardContent className="p-4 flex gap-3 items-start justify-between h-full">
                               <div className="flex-1 space-y-1.5 min-w-0">
                                 <div className="flex items-center gap-1.5">
@@ -838,16 +918,21 @@ function CustomerMenuScreen() {
                                       <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                                     </span>
                                   )}
-                                  <h3 className="font-bold text-sm text-white leading-snug truncate">{p.name}</h3>
+                                  <h3 className="font-bold text-sm text-white leading-snug truncate">
+                                    {p.name}
+                                  </h3>
                                 </div>
 
                                 {p.description && (
-                                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{p.description}</p>
+                                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                                    {p.description}
+                                  </p>
                                 )}
 
                                 <div className="flex items-center gap-2 pt-1">
                                   <span className="text-sm font-extrabold text-amber-400">
-                                    {currencySymbol}{Number(p.base_price).toFixed(2)}
+                                    {currencySymbol}
+                                    {Number(p.base_price).toFixed(2)}
                                   </span>
                                   <span className="text-[10px] text-slate-500 flex items-center gap-0.5">
                                     <Clock className="h-2.5 w-2.5" /> {p.prep_time_minutes}m
@@ -859,14 +944,18 @@ function CustomerMenuScreen() {
                               <div className="flex flex-col items-center shrink-0 gap-2">
                                 {p.images?.[0] ? (
                                   <div className="h-20 w-20 rounded-xl overflow-hidden border border-slate-800 relative bg-slate-950">
-                                    <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
+                                    <img
+                                      src={p.images[0]}
+                                      alt={p.name}
+                                      className="h-full w-full object-cover"
+                                    />
                                   </div>
                                 ) : (
                                   <div className="h-20 w-20 rounded-xl bg-slate-900 border border-slate-850 flex items-center justify-center text-slate-700">
                                     <Utensils className="h-6 w-6 opacity-30" />
                                   </div>
                                 )}
-                                
+
                                 <div className="flex flex-col items-center">
                                   <Button
                                     onClick={() => handleAddToCartClick(p)}
@@ -876,9 +965,13 @@ function CustomerMenuScreen() {
                                     + ADD {inCartQty > 0 ? `(${inCartQty})` : ""}
                                   </Button>
                                   {pVariants.length > 0 ? (
-                                    <span className="text-[8px] text-slate-500 mt-0.5">Customizable</span>
+                                    <span className="text-[8px] text-slate-500 mt-0.5">
+                                      Customizable
+                                    </span>
                                   ) : inCartQty > 0 ? (
-                                    <span className="text-[8px] text-amber-400 font-semibold mt-0.5">{inCartQty} in cart</span>
+                                    <span className="text-[8px] text-amber-400 font-semibold mt-0.5">
+                                      {inCartQty} in cart
+                                    </span>
                                   ) : null}
                                 </div>
                               </div>
@@ -901,14 +994,19 @@ function CustomerMenuScreen() {
               <ShoppingBag className="h-4 w-4 text-amber-500" />
               <span>Your Cart</span>
             </h3>
-            <span className="text-amber-400 font-extrabold text-sm">{currencySymbol}{cartSubtotal.toFixed(2)}</span>
+            <span className="text-amber-400 font-extrabold text-sm">
+              {currencySymbol}
+              {cartSubtotal.toFixed(2)}
+            </span>
           </div>
 
           {cartItems.length === 0 ? (
             <div className="text-center py-8 text-slate-500">
               <ShoppingBag className="h-8 w-8 mx-auto mb-2 text-slate-700" />
               <p className="text-xs font-semibold text-slate-400">Your cart is empty</p>
-              <p className="text-[10px] text-slate-500 mt-0.5">Select delicious dishes to add them here.</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">
+                Select delicious dishes to add them here.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -916,28 +1014,49 @@ function CustomerMenuScreen() {
               <div className="space-y-2 max-h-[35vh] overflow-y-auto pr-1 scrollbar-none">
                 {cartItems.map((item, idx) => {
                   const itemPrice = item.variantId ? item.variantPrice : item.basePrice;
-                  const addonsTotal = item.addonsList.reduce((a: number, b: any) => a + Number(b.price), 0);
+                  const addonsTotal = item.addonsList.reduce(
+                    (a: number, b: any) => a + Number(b.price),
+                    0,
+                  );
                   const linePrice = (itemPrice + addonsTotal) * item.quantity;
 
                   return (
-                    <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-950/60 rounded-xl border border-slate-850">
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-2.5 bg-slate-950/60 rounded-xl border border-slate-850"
+                    >
                       <div className="space-y-0.5 flex-1 pr-2">
-                        <h4 className="font-bold text-xs text-white leading-tight">{item.productName}</h4>
+                        <h4 className="font-bold text-xs text-white leading-tight">
+                          {item.productName}
+                        </h4>
                         {item.variantName && (
                           <p className="text-[9px] text-slate-500">Variant: {item.variantName}</p>
                         )}
                         {item.specialInstructions && (
-                          <p className="text-[9px] text-amber-400 leading-tight">"{item.specialInstructions}"</p>
+                          <p className="text-[9px] text-amber-400 leading-tight">
+                            "{item.specialInstructions}"
+                          </p>
                         )}
-                        <p className="text-[11px] text-amber-400 font-semibold">{currencySymbol}{linePrice.toFixed(2)}</p>
+                        <p className="text-[11px] text-amber-400 font-semibold">
+                          {currencySymbol}
+                          {linePrice.toFixed(2)}
+                        </p>
                       </div>
 
                       <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 px-1 py-0.5 rounded-lg shrink-0">
-                        <button onClick={() => updateQuantity(idx, -1)} className="text-slate-400 hover:text-white p-0.5">
+                        <button
+                          onClick={() => updateQuantity(idx, -1)}
+                          className="text-slate-400 hover:text-white p-0.5"
+                        >
                           <Minus className="h-3 w-3" />
                         </button>
-                        <span className="font-bold text-[10px] text-white w-4 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(idx, 1)} className="text-slate-400 hover:text-white p-0.5">
+                        <span className="font-bold text-[10px] text-white w-4 text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(idx, 1)}
+                          className="text-slate-400 hover:text-white p-0.5"
+                        >
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
@@ -948,10 +1067,14 @@ function CustomerMenuScreen() {
 
               {/* Customer details */}
               <div className="space-y-3 pt-3 border-t border-slate-800">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer Details (Optional)</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Customer Details (Optional)
+                </h4>
                 <div className="space-y-2">
                   <div className="space-y-1">
-                    <Label htmlFor="customerNameMini" className="text-[10px] text-slate-400">Name</Label>
+                    <Label htmlFor="customerNameMini" className="text-[10px] text-slate-400">
+                      Name
+                    </Label>
                     <Input
                       id="customerNameMini"
                       name="customerName"
@@ -963,7 +1086,9 @@ function CustomerMenuScreen() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="customerPhoneMini" className="text-[10px] text-slate-400">Mobile #</Label>
+                    <Label htmlFor="customerPhoneMini" className="text-[10px] text-slate-400">
+                      Mobile #
+                    </Label>
                     <Input
                       id="customerPhoneMini"
                       name="customerPhone"
@@ -991,7 +1116,8 @@ function CustomerMenuScreen() {
                   </>
                 ) : (
                   <>
-                    Place Order ({currencySymbol}{cartSubtotal.toFixed(2)})
+                    Place Order ({currencySymbol}
+                    {cartSubtotal.toFixed(2)})
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -1017,7 +1143,10 @@ function CustomerMenuScreen() {
                 <span className="text-sm">View Cart & Order</span>
               </div>
               <div className="flex items-center gap-2 text-lg">
-                <span>{currencySymbol}{cartSubtotal.toFixed(2)}</span>
+                <span>
+                  {currencySymbol}
+                  {cartSubtotal.toFixed(2)}
+                </span>
                 <ChevronRight className="h-5 w-5" />
               </div>
             </Button>
@@ -1034,29 +1163,36 @@ function CustomerMenuScreen() {
 
           <div className="space-y-4 pt-2">
             {/* Variants Choice */}
-            {selectedProduct && menuData.variants.filter((v: any) => v.product_id === selectedProduct.id).length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-300">Choose Size / Variant</Label>
+            {selectedProduct &&
+              menuData.variants.filter((v: any) => v.product_id === selectedProduct.id).length >
+                0 && (
                 <div className="space-y-2">
-                  {menuData.variants
-                    .filter((v: any) => v.product_id === selectedProduct.id)
-                    .map((v: any) => (
-                      <div
-                        key={v.id}
-                        onClick={() => setModalVariant(v.id)}
-                        className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                          modalVariant === v.id
-                            ? "border-amber-500 bg-amber-500/10 text-white font-bold"
-                            : "border-slate-800 bg-slate-950/60 text-slate-300"
-                        }`}
-                      >
-                        <span className="text-sm">{v.name}</span>
-                        <span className="text-amber-400 font-extrabold">{currencySymbol}{Number(v.price).toFixed(2)}</span>
-                      </div>
-                    ))}
+                  <Label className="text-xs font-semibold text-slate-300">
+                    Choose Size / Variant
+                  </Label>
+                  <div className="space-y-2">
+                    {menuData.variants
+                      .filter((v: any) => v.product_id === selectedProduct.id)
+                      .map((v: any) => (
+                        <div
+                          key={v.id}
+                          onClick={() => setModalVariant(v.id)}
+                          className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                            modalVariant === v.id
+                              ? "border-amber-500 bg-amber-500/10 text-white font-bold"
+                              : "border-slate-800 bg-slate-950/60 text-slate-300"
+                          }`}
+                        >
+                          <span className="text-sm">{v.name}</span>
+                          <span className="text-amber-400 font-extrabold">
+                            {currencySymbol}
+                            {Number(v.price).toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Special Instructions */}
             <div className="space-y-2">
@@ -1082,13 +1218,16 @@ function CustomerMenuScreen() {
                 <span className="font-bold text-white text-sm">{modalQty}</span>
                 <button
                   onClick={() => {
-                    const dishLimit = selectedProduct?.max_qty || selectedProduct?.max_limit || DEFAULT_DISH_LIMIT;
+                    const dishLimit =
+                      selectedProduct?.max_qty || selectedProduct?.max_limit || DEFAULT_DISH_LIMIT;
                     const currentInCart = cartItems
                       .filter((i) => i.productId === selectedProduct?.id)
                       .reduce((sum, i) => sum + i.quantity, 0);
 
                     if (currentInCart + modalQty >= dishLimit) {
-                      toast.error(`Maximum quantity limit for ${selectedProduct?.name || "this dish"} is ${dishLimit}!`);
+                      toast.error(
+                        `Maximum quantity limit for ${selectedProduct?.name || "this dish"} is ${dishLimit}!`,
+                      );
                     } else {
                       setModalQty(modalQty + 1);
                     }
@@ -1114,11 +1253,17 @@ function CustomerMenuScreen() {
 
       {/* Cart & Checkout Sheet */}
       <Sheet open={cartDrawerOpen} onOpenChange={setCartDrawerOpen}>
-        <SheetContent side="bottom" className="bg-slate-900 border-slate-800 text-white rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <SheetContent
+          side="bottom"
+          className="bg-slate-900 border-slate-800 text-white rounded-t-3xl max-h-[90vh] overflow-y-auto"
+        >
           <SheetHeader className="pb-4 border-b border-slate-800">
             <SheetTitle className="text-lg font-bold text-white flex items-center justify-between">
               <span>Your Cart ({tableContext?.table?.label})</span>
-              <span className="text-amber-400 text-base">{currencySymbol}{cartSubtotal.toFixed(2)}</span>
+              <span className="text-amber-400 text-base">
+                {currencySymbol}
+                {cartSubtotal.toFixed(2)}
+              </span>
             </SheetTitle>
           </SheetHeader>
 
@@ -1127,28 +1272,45 @@ function CustomerMenuScreen() {
             <div className="space-y-3">
               {cartItems.map((item, idx) => {
                 const itemPrice = item.variantId ? item.variantPrice : item.basePrice;
-                const addonsTotal = item.addonsList.reduce((a: number, b: any) => a + Number(b.price), 0);
+                const addonsTotal = item.addonsList.reduce(
+                  (a: number, b: any) => a + Number(b.price),
+                  0,
+                );
                 const linePrice = (itemPrice + addonsTotal) * item.quantity;
 
                 return (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800"
+                  >
                     <div className="space-y-0.5 flex-1">
                       <h4 className="font-bold text-sm text-white">{item.productName}</h4>
                       {item.variantName && (
                         <p className="text-xs text-slate-400">Variant: {item.variantName}</p>
                       )}
                       {item.specialInstructions && (
-                        <p className="text-[11px] text-amber-400">Note: "{item.specialInstructions}"</p>
+                        <p className="text-[11px] text-amber-400">
+                          Note: "{item.specialInstructions}"
+                        </p>
                       )}
-                      <p className="text-xs text-amber-400 font-semibold">{currencySymbol}{linePrice.toFixed(2)}</p>
+                      <p className="text-xs text-amber-400 font-semibold">
+                        {currencySymbol}
+                        {linePrice.toFixed(2)}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-2 py-1 rounded-lg">
-                      <button onClick={() => updateQuantity(idx, -1)} className="text-slate-400 hover:text-white p-1">
+                      <button
+                        onClick={() => updateQuantity(idx, -1)}
+                        className="text-slate-400 hover:text-white p-1"
+                      >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
                       <span className="font-bold text-xs text-white">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(idx, 1)} className="text-slate-400 hover:text-white p-1">
+                      <button
+                        onClick={() => updateQuantity(idx, 1)}
+                        className="text-slate-400 hover:text-white p-1"
+                      >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -1159,10 +1321,14 @@ function CustomerMenuScreen() {
 
             {/* Customer Contact Form */}
             <div className="space-y-3 pt-2 border-t border-slate-800">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Customer Details (Optional)</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Customer Details (Optional)
+              </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label htmlFor="customerName" className="text-xs text-slate-300">Name</Label>
+                  <Label htmlFor="customerName" className="text-xs text-slate-300">
+                    Name
+                  </Label>
                   <Input
                     id="customerName"
                     name="customerName"
@@ -1174,7 +1340,9 @@ function CustomerMenuScreen() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="customerPhone" className="text-xs text-slate-300">Mobile #</Label>
+                  <Label htmlFor="customerPhone" className="text-xs text-slate-300">
+                    Mobile #
+                  </Label>
                   <Input
                     id="customerPhone"
                     name="customerPhone"
@@ -1203,7 +1371,8 @@ function CustomerMenuScreen() {
                 </>
               ) : (
                 <>
-                  Place Order to Table ({currencySymbol}{cartSubtotal.toFixed(2)})
+                  Place Order to Table ({currencySymbol}
+                  {cartSubtotal.toFixed(2)})
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}

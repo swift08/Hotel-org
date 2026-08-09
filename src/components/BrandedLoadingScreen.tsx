@@ -21,12 +21,11 @@ export const BrandedLoadingScreen: React.FC<BrandedLoadingScreenProps> = ({
 
       {/* Main Glass Card */}
       <div className="relative z-10 flex flex-col items-center max-w-sm w-full p-8 rounded-3xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl shadow-2xl space-y-6">
-        
         {/* Animated Glowing Logo Container */}
         <div className="relative flex items-center justify-center">
           {/* Outer Spinning Ring */}
           <div className="absolute -inset-3 rounded-3xl border-2 border-dashed border-amber-500/30 animate-[spin_8s_linear_infinite]" />
-          
+
           {/* Outer Pulse Glow */}
           <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 opacity-30 blur animate-pulse" />
 
@@ -54,9 +53,7 @@ export const BrandedLoadingScreen: React.FC<BrandedLoadingScreenProps> = ({
           <h2 className="text-2xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
             <span>{restaurantName}</span>
           </h2>
-          <p className="text-xs font-medium text-amber-400/90 tracking-wide">
-            {subtitle}
-          </p>
+          <p className="text-xs font-medium text-amber-400/90 tracking-wide">{subtitle}</p>
         </div>
 
         {/* Smooth Loading Indicator Bar */}

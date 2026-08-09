@@ -68,7 +68,7 @@ export const ScrollExpand: React.FC<ScrollExpandProps> = ({
       rawProgress = Math.max(0, Math.min(1, rawProgress));
 
       // Account for hold distance
-      if (rawProgress > (1 - holdDistance)) {
+      if (rawProgress > 1 - holdDistance) {
         rawProgress = 1;
       } else if (holdDistance < 1) {
         rawProgress = rawProgress / (1 - holdDistance);
@@ -148,10 +148,7 @@ export const ScrollExpand: React.FC<ScrollExpandProps> = ({
               decoding="async"
             />
             {currentScrimOpacity > 0.01 && (
-              <div
-                className="scroll-expand-scrim"
-                style={{ opacity: currentScrimOpacity }}
-              />
+              <div className="scroll-expand-scrim" style={{ opacity: currentScrimOpacity }} />
             )}
           </div>
         </div>

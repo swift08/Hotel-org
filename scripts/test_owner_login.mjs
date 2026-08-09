@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = "https://pzyiffaaeqrpbzwymbmv.supabase.co";
-const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6eWlmZmFhZXFycGJ6d3ltYm12Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjE3NTQ4MywiZXhwIjoyMTAxNzUxNDgzfQ.5IfPZ7fgMbOgeIsT2X-mBr7OZvIYrzhceuSKzqYbr8M";
+const SERVICE_ROLE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6eWlmZmFhZXFycGJ6d3ltYm12Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjE3NTQ4MywiZXhwIjoyMTAxNzUxNDgzfQ.5IfPZ7fgMbOgeIsT2X-mBr7OZvIYrzhceuSKzqYbr8M";
 
 const adminSupabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
@@ -44,7 +45,11 @@ async function setupProductionOwnerAccount() {
   });
 
   // Create Business: Kapila Riverfront Bistro
-  const { data: existingBiz } = await adminSupabase.from("businesses").select("*").eq("name", "Kapila Riverfront Bistro").maybeSingle();
+  const { data: existingBiz } = await adminSupabase
+    .from("businesses")
+    .select("*")
+    .eq("name", "Kapila Riverfront Bistro")
+    .maybeSingle();
   let bizId = existingBiz?.id;
 
   if (!existingBiz) {
@@ -70,13 +75,17 @@ async function setupProductionOwnerAccount() {
       business_id: bizId,
       legal_name: "Kapila Riverfront Bistro Pvt Ltd",
       tax_mode: "exclusive",
-      default_tax_rate: 5.00,
+      default_tax_rate: 5.0,
       cash_payment_enabled: true,
       online_payment_enabled: true,
     });
 
     // Create Main Branch
-    const { data: existingBranch } = await adminSupabase.from("branches").select("*").eq("business_id", bizId).maybeSingle();
+    const { data: existingBranch } = await adminSupabase
+      .from("branches")
+      .select("*")
+      .eq("business_id", bizId)
+      .maybeSingle();
     let branchId = existingBranch?.id;
 
     if (!existingBranch) {

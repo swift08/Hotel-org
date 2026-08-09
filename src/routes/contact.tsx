@@ -42,7 +42,9 @@ function ContactPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     if (errorMsg) setErrorMsg(null);
   };
@@ -108,11 +110,21 @@ function ContactPage() {
             </Link>
 
             <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
-              <Link to="/" className="text-slate-300 hover:text-white transition-colors">Home</Link>
-              <a href="/#features" className="text-slate-300 hover:text-white transition-colors">Features & Operations</a>
-              <Link to="/privacy" className="text-slate-300 hover:text-white transition-colors">Privacy</Link>
-              <Link to="/terms" className="text-slate-300 hover:text-white transition-colors">Terms</Link>
-              <Link to="/contact" className="text-amber-400 font-bold">Contact Us</Link>
+              <Link to="/" className="text-slate-300 hover:text-white transition-colors">
+                Home
+              </Link>
+              <a href="/#features" className="text-slate-300 hover:text-white transition-colors">
+                Features & Operations
+              </a>
+              <Link to="/privacy" className="text-slate-300 hover:text-white transition-colors">
+                Privacy
+              </Link>
+              <Link to="/terms" className="text-slate-300 hover:text-white transition-colors">
+                Terms
+              </Link>
+              <Link to="/contact" className="text-amber-400 font-bold">
+                Contact Us
+              </Link>
             </div>
 
             <div className="flex items-center space-x-3">
@@ -192,7 +204,7 @@ function ContactPage() {
       {/* ═══════ 2. HERO SECTION ═══════ */}
       <section className="relative pt-36 pb-20 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900/60 to-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(245,158,11,0.08),transparent_60%)] pointer-events-none" />
-        
+
         <div className="container mx-auto px-4 max-w-7xl relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider">
@@ -207,7 +219,8 @@ function ContactPage() {
             </h1>
 
             <p className="text-base md:text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
-              Empower your venue with automated QR ordering, kitchen display systems (KDS), multi-branch billing, staff permissions, and real-time operational analytics.
+              Empower your venue with automated QR ordering, kitchen display systems (KDS),
+              multi-branch billing, staff permissions, and real-time operational analytics.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -232,7 +245,6 @@ function ContactPage() {
       <section id="contact-form" className="py-16 relative">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            
             {/* Left Column: Form & Interactive Cards */}
             <div className="lg:col-span-7 space-y-8">
               <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-6 md:p-10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
@@ -243,7 +255,8 @@ function ContactPage() {
                     <Send className="text-amber-400" size={22} /> Get in Touch with Our Team
                   </h2>
                   <p className="text-sm text-slate-400 mt-1">
-                    Fill in your details below and our operations specialist will get back to you within 24 hours.
+                    Fill in your details below and our operations specialist will get back to you
+                    within 24 hours.
                   </p>
                 </div>
 
@@ -254,7 +267,8 @@ function ContactPage() {
                     </div>
                     <h3 className="text-xl font-bold text-white">Thank You for Reaching Out!</h3>
                     <p className="text-sm text-slate-300 leading-relaxed max-w-md mx-auto">
-                      Your inquiry has been received. Our hospitality technology team will review your requirements and reach out promptly.
+                      Your inquiry has been received. Our hospitality technology team will review
+                      your requirements and reach out promptly.
                     </p>
                     <div className="text-xs font-mono bg-slate-950/80 px-4 py-2 rounded-xl text-emerald-400 inline-block border border-emerald-500/20">
                       Reference ID: {submitted}
@@ -357,7 +371,6 @@ function ContactPage() {
                           required
                           className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
                         />
-
                       </div>
                     </div>
 
@@ -375,7 +388,9 @@ function ContactPage() {
                           <option value="Fine Dining Restaurant">Fine Dining Restaurant</option>
                           <option value="Casual Dining / Cafe">Casual Dining / Cafe</option>
                           <option value="Hotel & Room Service">Hotel & Room Service</option>
-                          <option value="Quick Service (QSR) / Food Court">Quick Service (QSR)</option>
+                          <option value="Quick Service (QSR) / Food Court">
+                            Quick Service (QSR)
+                          </option>
                           <option value="Bar / Brewery">Bar / Brewery / Lounge</option>
                         </select>
                       </div>
@@ -393,7 +408,9 @@ function ContactPage() {
                           <option value="1 Outlet">1 Outlet</option>
                           <option value="2 - 5 Outlets">2 – 5 Outlets</option>
                           <option value="6 - 15 Outlets">6 – 15 Outlets</option>
-                          <option value="15+ Multi-branch Enterprise">15+ Multi-branch Enterprise</option>
+                          <option value="15+ Multi-branch Enterprise">
+                            15+ Multi-branch Enterprise
+                          </option>
                         </select>
                       </div>
                     </div>
@@ -430,7 +447,8 @@ function ContactPage() {
                     </button>
 
                     <p className="text-[11px] text-slate-500 text-center flex items-center justify-center gap-1.5 pt-2">
-                      <ShieldCheck size={14} className="text-amber-400" /> Server-side payload validation & zero spam guarantee.
+                      <ShieldCheck size={14} className="text-amber-400" /> Server-side payload
+                      validation & zero spam guarantee.
                     </p>
                   </form>
                 )}
@@ -439,7 +457,6 @@ function ContactPage() {
 
             {/* Right Column: Contact Cards & ADMARK DIGITALS Information */}
             <div className="lg:col-span-5 space-y-6">
-              
               {/* Card 1: Direct Support */}
               <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-amber-500/30 transition-all space-y-3">
                 <div className="flex items-center gap-3">
@@ -452,8 +469,18 @@ function ContactPage() {
                   </div>
                 </div>
                 <div className="space-y-1 text-sm font-semibold pt-2 border-t border-slate-800">
-                  <a href="mailto:info@admarkdigitals.com" className="text-amber-400 hover:underline block">info@admarkdigitals.com</a>
-                  <a href="mailto:info@aadmarkdigitals.com" className="text-slate-300 hover:underline block text-xs">info@aadmarkdigitals.com</a>
+                  <a
+                    href="mailto:info@admarkdigitals.com"
+                    className="text-amber-400 hover:underline block"
+                  >
+                    info@admarkdigitals.com
+                  </a>
+                  <a
+                    href="mailto:info@aadmarkdigitals.com"
+                    className="text-slate-300 hover:underline block text-xs"
+                  >
+                    info@aadmarkdigitals.com
+                  </a>
                 </div>
               </div>
 
@@ -469,8 +496,12 @@ function ContactPage() {
                   </div>
                 </div>
                 <div className="space-y-1 text-sm font-semibold pt-2 border-t border-slate-800">
-                  <a href="tel:+919686658055" className="text-emerald-400 hover:underline block">+91 96866 58055</a>
-                  <a href="tel:9632092273" className="text-slate-300 hover:underline block text-xs">+91 96320 92273</a>
+                  <a href="tel:+919686658055" className="text-emerald-400 hover:underline block">
+                    +91 96866 58055
+                  </a>
+                  <a href="tel:9632092273" className="text-slate-300 hover:underline block text-xs">
+                    +91 96320 92273
+                  </a>
                 </div>
               </div>
 
@@ -489,12 +520,21 @@ function ContactPage() {
                 <div className="text-xs text-slate-300 leading-relaxed space-y-2 border-t border-slate-800 pt-3">
                   <p className="flex items-start gap-2">
                     <MapPin size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
-                    <span>Prashanth Plaza, 5th Cross, 4th Main, Saraswathipuram, Mysuru 570009, Karnataka, India</span>
+                    <span>
+                      Prashanth Plaza, 5th Cross, 4th Main, Saraswathipuram, Mysuru 570009,
+                      Karnataka, India
+                    </span>
                   </p>
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-400">Primary: Mysuru</span>
-                    <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-400">Also in: Bengaluru</span>
-                    <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-400">Hyderabad</span>
+                    <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-400">
+                      Primary: Mysuru
+                    </span>
+                    <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-400">
+                      Also in: Bengaluru
+                    </span>
+                    <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-400">
+                      Hyderabad
+                    </span>
                   </div>
                 </div>
               </div>
@@ -512,9 +552,7 @@ function ContactPage() {
                   Rasoi Operations Core on Tablet, POS & Mobile Web
                 </p>
               </div>
-
             </div>
-
           </div>
         </div>
       </section>
@@ -523,13 +561,30 @@ function ContactPage() {
       <footer className="py-12 border-t border-white/10 bg-slate-950 text-slate-400 text-sm">
         <div className="container mx-auto px-4 max-w-7xl text-center space-y-4">
           <div className="flex items-center justify-center space-x-6">
-            <Link to="/" className="hover:text-white transition-colors">Home</Link>
-            <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-            <Link to="/contact" className="text-amber-400 font-semibold">Contact Support</Link>
+            <Link to="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
+            <Link to="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
+            <Link to="/contact" className="text-amber-400 font-semibold">
+              Contact Support
+            </Link>
           </div>
           <p className="text-xs text-slate-500">
-            © 2026 <a href="https://www.admarkdigitals.com/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:underline font-semibold">ADMARK DIGITALS</a>. All rights reserved.
+            © 2026{" "}
+            <a
+              href="https://www.admarkdigitals.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-400 hover:underline font-semibold"
+            >
+              ADMARK DIGITALS
+            </a>
+            . All rights reserved.
           </p>
         </div>
       </footer>

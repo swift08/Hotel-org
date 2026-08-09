@@ -2,27 +2,33 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { createBusiness, getMyContext } from "@/lib/business.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  Building2, 
-  UtensilsCrossed, 
-  MapPin, 
-  QrCode, 
-  FileText, 
-  ArrowRight, 
-  CheckCircle, 
-  Loader2, 
+import {
+  Building2,
+  UtensilsCrossed,
+  MapPin,
+  QrCode,
+  FileText,
+  ArrowRight,
+  CheckCircle,
+  Loader2,
   Store,
   Hotel,
   Coffee,
   GlassWater,
   Flame,
-  ShoppingBag
+  ShoppingBag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/onboarding/")({
@@ -30,12 +36,42 @@ export const Route = createFileRoute("/onboarding/")({
 });
 
 const BUSINESS_TYPES = [
-  { id: "restaurant", label: "Restaurant", icon: UtensilsCrossed, desc: "Full service dine-in & table ordering" },
-  { id: "cafe", label: "Café", icon: Coffee, desc: "Quick service, coffee, snacks & counter ordering" },
-  { id: "hotel", label: "Hotel / Resort", icon: Hotel, desc: "Rooms, room service & multi-outlet dining" },
-  { id: "bar_pub", label: "Bar & Pub", icon: GlassWater, desc: "High volume bar ordering & table QRs" },
-  { id: "cloud_kitchen", label: "Cloud Kitchen", icon: Flame, desc: "Delivery & takeaway focused operations" },
-  { id: "food_outlet", label: "Food Outlet / Kiosk", icon: ShoppingBag, desc: "Counter ordering & fast takeaway" },
+  {
+    id: "restaurant",
+    label: "Restaurant",
+    icon: UtensilsCrossed,
+    desc: "Full service dine-in & table ordering",
+  },
+  {
+    id: "cafe",
+    label: "Café",
+    icon: Coffee,
+    desc: "Quick service, coffee, snacks & counter ordering",
+  },
+  {
+    id: "hotel",
+    label: "Hotel / Resort",
+    icon: Hotel,
+    desc: "Rooms, room service & multi-outlet dining",
+  },
+  {
+    id: "bar_pub",
+    label: "Bar & Pub",
+    icon: GlassWater,
+    desc: "High volume bar ordering & table QRs",
+  },
+  {
+    id: "cloud_kitchen",
+    label: "Cloud Kitchen",
+    icon: Flame,
+    desc: "Delivery & takeaway focused operations",
+  },
+  {
+    id: "food_outlet",
+    label: "Food Outlet / Kiosk",
+    icon: ShoppingBag,
+    desc: "Counter ordering & fast takeaway",
+  },
 ];
 
 function Onboarding() {
@@ -116,7 +152,7 @@ function Onboarding() {
         if (Array.isArray(parsed) && parsed[0]?.message) {
           const field = parsed[0]?.path?.[0];
           const msg = parsed[0].message;
-          userMessage = field ? `${String(field).replace(/_/g, ' ')}: ${msg}` : msg;
+          userMessage = field ? `${String(field).replace(/_/g, " ")}: ${msg}` : msg;
         }
       } catch {
         // not JSON, use as-is
@@ -164,7 +200,9 @@ function Onboarding() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="businessName" className="text-xs font-semibold text-slate-300">Business Name *</Label>
+                  <Label htmlFor="businessName" className="text-xs font-semibold text-slate-300">
+                    Business Name *
+                  </Label>
                   <Input
                     id="businessName"
                     name="businessName"
@@ -178,7 +216,9 @@ function Onboarding() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-xs font-semibold text-slate-300">Phone Number</Label>
+                  <Label htmlFor="phone" className="text-xs font-semibold text-slate-300">
+                    Phone Number
+                  </Label>
                   <Input
                     id="phone"
                     name="phone"
@@ -191,7 +231,6 @@ function Onboarding() {
                   />
                 </div>
               </div>
-
 
               {/* Business Type Grid */}
               <div className="space-y-2 pt-2">
@@ -211,10 +250,14 @@ function Onboarding() {
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1.5">
-                          <IconComp className={`h-4 w-4 ${isSelected ? "text-amber-400" : "text-slate-500"}`} />
+                          <IconComp
+                            className={`h-4 w-4 ${isSelected ? "text-amber-400" : "text-slate-500"}`}
+                          />
                           <span className="text-sm font-bold">{bt.label}</span>
                         </div>
-                        <p className="text-[11px] leading-tight line-clamp-2 text-slate-500">{bt.desc}</p>
+                        <p className="text-[11px] leading-tight line-clamp-2 text-slate-500">
+                          {bt.desc}
+                        </p>
                       </div>
                     );
                   })}
@@ -237,7 +280,9 @@ function Onboarding() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="branchName" className="text-xs font-semibold text-slate-300">Branch Name *</Label>
+                  <Label htmlFor="branchName" className="text-xs font-semibold text-slate-300">
+                    Branch Name *
+                  </Label>
                   <Input
                     id="branchName"
                     name="branchName"
@@ -251,7 +296,9 @@ function Onboarding() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-xs font-semibold text-slate-300">City</Label>
+                  <Label htmlFor="city" className="text-xs font-semibold text-slate-300">
+                    City
+                  </Label>
                   <Input
                     id="city"
                     name="city"
@@ -266,7 +313,9 @@ function Onboarding() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
                 <div className="space-y-2">
-                  <Label htmlFor="tableCount" className="text-xs font-semibold text-slate-300">Initial Table Count</Label>
+                  <Label htmlFor="tableCount" className="text-xs font-semibold text-slate-300">
+                    Initial Table Count
+                  </Label>
                   <Input
                     id="tableCount"
                     name="tableCount"
@@ -277,11 +326,15 @@ function Onboarding() {
                     onChange={(e) => setTableCount(Number(e.target.value))}
                     className="bg-slate-950 border-slate-800 text-white focus:border-amber-500"
                   />
-                  <p className="text-[11px] text-slate-500">Creates Table 01 to Table {tableCount} with QR codes.</p>
+                  <p className="text-[11px] text-slate-500">
+                    Creates Table 01 to Table {tableCount} with QR codes.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="gstin" className="text-xs font-semibold text-slate-300">GSTIN / Tax ID (Optional)</Label>
+                  <Label htmlFor="gstin" className="text-xs font-semibold text-slate-300">
+                    GSTIN / Tax ID (Optional)
+                  </Label>
                   <Input
                     id="gstin"
                     name="gstin"
@@ -293,7 +346,6 @@ function Onboarding() {
                   />
                 </div>
               </div>
-
             </CardContent>
           </Card>
 

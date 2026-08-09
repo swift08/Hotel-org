@@ -70,7 +70,11 @@ function Login() {
         {/* Branding */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center justify-center">
-            <img src="/images/logo.webp" alt="Rasoi Logo" className="h-16 w-auto object-contain drop-shadow-lg" />
+            <img
+              src="/images/logo.webp"
+              alt="Rasoi Logo"
+              className="h-16 w-auto object-contain drop-shadow-lg"
+            />
           </Link>
           <h1 className="mt-4 text-xl font-bold text-white">Sign in to your account</h1>
           <p className="mt-1 text-sm text-slate-400">Access your restaurant management console</p>

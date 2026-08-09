@@ -3,15 +3,15 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
 import { BrandedLoadingScreen } from "@/components/BrandedLoadingScreen";
-import { 
-  ChefHat, 
-  Volume2, 
-  VolumeX, 
-  Clock, 
-  CheckCircle2, 
-  Play, 
-  AlertCircle, 
-  Utensils, 
+import {
+  ChefHat,
+  Volume2,
+  VolumeX,
+  Clock,
+  CheckCircle2,
+  Play,
+  AlertCircle,
+  Utensils,
   ArrowLeft,
   RefreshCw,
   Loader2,
@@ -19,7 +19,7 @@ import {
   Sparkles,
   Flame,
   Volume1,
-  ShieldAlert
+  ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -110,7 +110,8 @@ function KitchenDisplaySystem() {
         // Fetch active non-completed orders (pending, accepted, preparing, ready)
         const { data: orderList, error } = await supabase
           .from("orders")
-          .select(`
+          .select(
+            `
             id,
             order_number,
             table_id,
@@ -128,7 +129,8 @@ function KitchenDisplaySystem() {
               special_instructions,
               station
             )
-          `)
+          `,
+          )
           .eq("business_id", ctx.membership.business_id)
           .in("status", ["pending", "accepted", "preparing", "ready"])
           .order("created_at", { ascending: true });
@@ -175,13 +177,15 @@ function KitchenDisplaySystem() {
         },
         (payload: any) => {
           if (payload.eventType === "INSERT") {
-            toast.info(`🔔 New Kitchen Ticket #${payload.new?.order_number || ""} on ${payload.new?.table_label || "Table"}`);
+            toast.info(
+              `🔔 New Kitchen Ticket #${payload.new?.order_number || ""} on ${payload.new?.table_label || "Table"}`,
+            );
             if (soundEnabled) playKitchenChime();
           } else {
             toast.info("Kitchen tickets updated!");
           }
           fetchKdsOrders();
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -193,7 +197,7 @@ function KitchenDisplaySystem() {
         },
         () => {
           fetchKdsOrders();
-        }
+        },
       )
       .subscribe();
 
@@ -203,7 +207,7 @@ function KitchenDisplaySystem() {
       window.removeEventListener("click", handleUserInteraction);
       window.removeEventListener("touchstart", handleUserInteraction);
     };
-  }, [soundEnabled, context?.membership?.business_id]);
+  }, [soundEnabled, context?.membership?.business_id, playKitchenChime]);
 
   const handleUpdateStatus = async (orderId: string, nextStatus: string) => {
     getAudioContext();
@@ -214,7 +218,7 @@ function KitchenDisplaySystem() {
           businessId: context.membership.business_id,
           orderId,
           toStatus: nextStatus,
-        }
+        },
       });
 
       // Automatically set table state to occupied when the order is accepted
@@ -241,7 +245,11 @@ function KitchenDisplaySystem() {
     return Math.floor((now - start) / 60000);
   };
 
-  const canViewKds = !context || context.permissions?.includes("kds.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canViewKds =
+    !context ||
+    context.permissions?.includes("kds.view") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
 
   if (!loading && context && !canViewKds) {
     return (
@@ -249,9 +257,16 @@ function KitchenDisplaySystem() {
         <div className="max-w-md space-y-4">
           <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
           <h2 className="text-2xl font-bold text-white">Access Denied (403)</h2>
-          <p className="text-slate-400">You do not have permission (`kds.view`) to access Kitchen Display System.</p>
+          <p className="text-slate-400">
+            You do not have permission (`kds.view`) to access Kitchen Display System.
+          </p>
           <Link to="/admin/dashboard">
-            <Button variant="outline" className="mt-4 border-slate-800 text-white hover:bg-slate-900">Return to Dashboard</Button>
+            <Button
+              variant="outline"
+              className="mt-4 border-slate-800 text-white hover:bg-slate-900"
+            >
+              Return to Dashboard
+            </Button>
           </Link>
         </div>
       </div>
@@ -259,13 +274,13 @@ function KitchenDisplaySystem() {
   }
 
   return (
-    <div 
+    <div
       onClick={getAudioContext}
       className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950 flex flex-col"
     >
       {/* Sound Activation Banner if Audio is Suspended */}
       {!audioUnlocked && soundEnabled && (
-        <div 
+        <div
           onClick={getAudioContext}
           className="bg-amber-500 text-slate-950 font-extrabold px-4 py-2 text-center text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:bg-amber-400 transition-colors shrink-0"
         >
@@ -284,7 +299,11 @@ function KitchenDisplaySystem() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <img src="/images/logo.webp" alt="Rasoi Logo" className="h-10 w-auto object-contain shrink-0 drop-shadow-md" />
+            <img
+              src="/images/logo.webp"
+              alt="Rasoi Logo"
+              className="h-10 w-auto object-contain shrink-0 drop-shadow-md"
+            />
             <div>
               <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
                 RASOI KDS
@@ -319,10 +338,16 @@ function KitchenDisplaySystem() {
             variant="outline"
             size="sm"
             className={`border-slate-800 font-bold text-xs ${
-              soundEnabled ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-slate-900 text-slate-400"
+              soundEnabled
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                : "bg-slate-900 text-slate-400"
             }`}
           >
-            {soundEnabled ? <Volume2 className="mr-1.5 h-3.5 w-3.5" /> : <VolumeX className="mr-1.5 h-3.5 w-3.5" />}
+            {soundEnabled ? (
+              <Volume2 className="mr-1.5 h-3.5 w-3.5" />
+            ) : (
+              <VolumeX className="mr-1.5 h-3.5 w-3.5" />
+            )}
             Sound {soundEnabled ? "ON" : "OFF"}
           </Button>
 
@@ -376,16 +401,23 @@ function KitchenDisplaySystem() {
               }
 
               return (
-                <Card key={ord.id} className={`border-2 ${priorityColor} shadow-xl flex flex-col justify-between overflow-hidden transition-all`}>
+                <Card
+                  key={ord.id}
+                  className={`border-2 ${priorityColor} shadow-xl flex flex-col justify-between overflow-hidden transition-all`}
+                >
                   {/* Card Header */}
                   <CardHeader className="p-4 pb-3 border-b border-slate-800/80 bg-slate-950/50 flex flex-row items-center justify-between">
                     <div>
                       <CardTitle className="text-lg font-black text-amber-400 flex items-center gap-2">
                         {ord.table_label || "Takeaway"}
-                        <span className="text-xs font-semibold text-slate-500">#{ord.order_number || ord.id.slice(0, 6)}</span>
+                        <span className="text-xs font-semibold text-slate-500">
+                          #{ord.order_number || ord.id.slice(0, 6)}
+                        </span>
                       </CardTitle>
                       {ord.customer_name && (
-                        <p className="text-xs text-slate-400 mt-0.5">Customer: {ord.customer_name}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Customer: {ord.customer_name}
+                        </p>
                       )}
                     </div>
 
@@ -405,15 +437,24 @@ function KitchenDisplaySystem() {
 
                     <div className="space-y-2.5 divide-y divide-slate-800/60">
                       {ord.order_items?.map((item: any) => (
-                        <div key={item.id} className="pt-2 first:pt-0 flex items-start justify-between gap-2">
+                        <div
+                          key={item.id}
+                          className="pt-2 first:pt-0 flex items-start justify-between gap-2"
+                        >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-baseline gap-1.5">
-                              <span className="font-black text-amber-400 text-sm">{item.quantity}×</span>
-                              <span className="font-bold text-white text-sm break-words">{item.product_name}</span>
+                              <span className="font-black text-amber-400 text-sm">
+                                {item.quantity}×
+                              </span>
+                              <span className="font-bold text-white text-sm break-words">
+                                {item.product_name}
+                              </span>
                             </div>
 
                             {item.variant_name && (
-                              <p className="text-xs text-slate-400 ml-5 font-medium">Variant: {item.variant_name}</p>
+                              <p className="text-xs text-slate-400 ml-5 font-medium">
+                                Variant: {item.variant_name}
+                              </p>
                             )}
 
                             {Array.isArray(item.addons) && item.addons.length > 0 && (

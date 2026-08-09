@@ -2,18 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
-import { 
-  BarChart3, 
-  Download, 
-  IndianRupee, 
-  ShoppingBag, 
-  TrendingUp, 
-  Calendar, 
+import {
+  BarChart3,
+  Download,
+  IndianRupee,
+  ShoppingBag,
+  TrendingUp,
+  Calendar,
   RefreshCw,
   Loader2,
   PieChart,
   DollarSign,
-  ShieldAlert
+  ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -72,7 +72,9 @@ function ReportsAndAnalytics() {
         // Fetch Orders with created_at and channel
         const { data: orders } = await supabase
           .from("orders")
-          .select("id, grand_total, subtotal, tax_total, discount_total, status, payment_status, created_at, channel")
+          .select(
+            "id, grand_total, subtotal, tax_total, discount_total, status, payment_status, created_at, channel",
+          )
           .eq("business_id", businessId);
 
         // Fetch Order Items for Top Dishes
@@ -83,12 +85,18 @@ function ReportsAndAnalytics() {
 
         if (orders) {
           const completedPaid = orders.filter(
-            (o) => o.status === "completed" || o.payment_status === "paid"
+            (o) => o.status === "completed" || o.payment_status === "paid",
           );
 
-          const revenue = completedPaid.reduce((acc, curr) => acc + Number(curr.grand_total || 0), 0);
+          const revenue = completedPaid.reduce(
+            (acc, curr) => acc + Number(curr.grand_total || 0),
+            0,
+          );
           const tax = completedPaid.reduce((acc, curr) => acc + Number(curr.tax_total || 0), 0);
-          const discount = completedPaid.reduce((acc, curr) => acc + Number(curr.discount_total || 0), 0);
+          const discount = completedPaid.reduce(
+            (acc, curr) => acc + Number(curr.discount_total || 0),
+            0,
+          );
           const count = completedPaid.length;
           const aov = count > 0 ? revenue / count : 0;
 
@@ -103,7 +111,7 @@ function ReportsAndAnalytics() {
           // 1. Compute Sales Trend (Last 14 days)
           const dateDailyMap: Record<string, number> = {};
           const sortedOrders = [...completedPaid].sort(
-            (a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+            (a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime(),
           );
 
           sortedOrders.forEach((o) => {
@@ -124,7 +132,12 @@ function ReportsAndAnalytics() {
           // 2. Compute Channels Distribution
           const channelMap: Record<string, number> = {};
           orders.forEach((o) => {
-            const ch = o.channel === "qr" ? "QR Ordering" : o.channel === "waiter" ? "Waiter App" : "POS Desktop";
+            const ch =
+              o.channel === "qr"
+                ? "QR Ordering"
+                : o.channel === "waiter"
+                  ? "Waiter App"
+                  : "POS Desktop";
             channelMap[ch] = (channelMap[ch] || 0) + 1;
           });
 
@@ -196,16 +209,24 @@ function ReportsAndAnalytics() {
 
   const currencySymbol = context?.business?.currency === "INR" ? "₹" : "$";
 
-  const canViewReports = !context || context.permissions?.includes("reports.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canViewReports =
+    !context ||
+    context.permissions?.includes("reports.view") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
 
   if (!loading && context && !canViewReports) {
     return (
       <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
         <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
-        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`reports.view`) to access Reports & Analytics.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          You do not have permission (`reports.view`) to access Reports & Analytics.
+        </p>
         <Link to="/admin/dashboard">
-          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+          <Button variant="outline" className="mt-4">
+            Return to Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -231,7 +252,8 @@ function ReportsAndAnalytics() {
             size="sm"
             className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <RefreshCw className={`mr-2 h-4 w-4 shrink-0 ${loading ? "animate-spin" : ""}`} /> Refresh
+            <RefreshCw className={`mr-2 h-4 w-4 shrink-0 ${loading ? "animate-spin" : ""}`} />{" "}
+            Refresh
           </Button>
 
           <Button
@@ -248,34 +270,47 @@ function ReportsAndAnalytics() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Net Revenue</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Total Net Revenue
+            </span>
             <div className="mt-3 text-3xl font-extrabold text-slate-800 dark:text-white">
-              {currencySymbol}{reportData.totalRevenue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              {currencySymbol}
+              {reportData.totalRevenue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Completed Orders</span>
-            <div className="mt-3 text-3xl font-extrabold text-slate-800 dark:text-white">{reportData.totalOrders}</div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Completed Orders
+            </span>
+            <div className="mt-3 text-3xl font-extrabold text-slate-800 dark:text-white">
+              {reportData.totalOrders}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">GST Tax Collected</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              GST Tax Collected
+            </span>
             <div className="mt-3 text-3xl font-extrabold text-amber-600 dark:text-amber-400">
-              {currencySymbol}{reportData.totalTaxCollected.toFixed(2)}
+              {currencySymbol}
+              {reportData.totalTaxCollected.toFixed(2)}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 backdrop-blur-md shadow-md dark:shadow-xl text-slate-800 dark:text-slate-100 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-300">
           <CardContent className="p-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Discounts Issued</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Discounts Issued
+            </span>
             <div className="mt-3 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
-              {currencySymbol}{reportData.totalDiscounts.toFixed(2)}
+              {currencySymbol}
+              {reportData.totalDiscounts.toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -303,13 +338,30 @@ function ReportsAndAnalytics() {
                 <AreaChart data={dailySales} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" vertical={false} />
-                  <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `${currencySymbol}${val}`} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e2e8f0"
+                    className="dark:stroke-slate-800"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#64748b"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="#64748b"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(val) => `${currencySymbol}${val}`}
+                  />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "rgba(15, 23, 42, 0.95)",
@@ -321,7 +373,14 @@ function ReportsAndAnalytics() {
                     labelStyle={{ color: "#fff" }}
                     formatter={(value) => [`${currencySymbol}${value}`, "Revenue"]}
                   />
-                  <Area type="monotone" dataKey="amount" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                  <Area
+                    type="monotone"
+                    dataKey="amount"
+                    stroke="#f59e0b"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
@@ -380,8 +439,13 @@ function ReportsAndAnalytics() {
                 <div className="absolute bottom-2 inset-x-0 flex justify-center gap-4 flex-wrap text-[11px] text-slate-500 dark:text-slate-400 px-4">
                   {channelData.map((entry, index) => (
                     <div key={entry.name} className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }} />
-                      <span>{entry.name} ({entry.value})</span>
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                      />
+                      <span>
+                        {entry.name} ({entry.value})
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -412,7 +476,13 @@ function ReportsAndAnalytics() {
             ) : isMounted && topDishData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topDishData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                  <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                  <XAxis
+                    dataKey="name"
+                    stroke="#64748b"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
                   <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{

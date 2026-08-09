@@ -84,7 +84,11 @@ export async function resolvePermissions(
   }
   const [{ data: defaults }, { data: overrides }] = await Promise.all([
     db.from("role_default_permissions").select("permission_key").eq("role", role),
-    db.from("role_permissions").select("permission_key, allowed").eq("business_id", businessId).eq("role", role),
+    db
+      .from("role_permissions")
+      .select("permission_key, allowed")
+      .eq("business_id", businessId)
+      .eq("role", role),
   ]);
   const set = new Set((defaults ?? []).map((d) => d.permission_key));
   for (const o of overrides ?? []) {
@@ -172,15 +176,15 @@ export async function nextOrderNumber(db: Db, businessId: string) {
  * Any transition not listed here is invalid and will be rejected.
  */
 export const VALID_ORDER_TRANSITIONS: Record<string, string[]> = {
-  pending:     ["accepted", "cancelled", "rejected"],
-  accepted:    ["preparing", "cancelled"],
-  preparing:   ["ready", "cancelled"],
-  ready:       ["served", "cancelled"],
-  served:      ["completed"],
-  completed:   ["refunded"],
-  cancelled:   [],                     // terminal
-  rejected:    [],                     // terminal
-  refunded:    [],                     // terminal
+  pending: ["accepted", "cancelled", "rejected"],
+  accepted: ["preparing", "cancelled"],
+  preparing: ["ready", "cancelled"],
+  ready: ["served", "cancelled"],
+  served: ["completed"],
+  completed: ["refunded"],
+  cancelled: [], // terminal
+  rejected: [], // terminal
+  refunded: [], // terminal
   payment_failed: ["pending", "cancelled"],
 };
 
@@ -229,7 +233,8 @@ export async function transitionOrderStatus(
     .maybeSingle();
 
   if (updateErr) throw new Error(updateErr.message);
-  if (!updated) throw new Error("Order was modified by another user. Please refresh and try again.");
+  if (!updated)
+    throw new Error("Order was modified by another user. Please refresh and try again.");
 
   // 4. Record order event
   await db.from("order_events").insert({

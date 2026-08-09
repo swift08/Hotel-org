@@ -80,7 +80,9 @@ function Dashboard() {
 
         const { data: orders, error: ordersErr } = await supabase
           .from("orders")
-          .select("id, grand_total, status, payment_status, created_at, table_label, customer_name, customer_phone")
+          .select(
+            "id, grand_total, status, payment_status, created_at, table_label, customer_name, customer_phone",
+          )
           .eq("business_id", ctx.membership.business_id)
           .order("created_at", { ascending: false })
           .limit(100);
@@ -90,7 +92,7 @@ function Dashboard() {
         const orderList = orders || [];
         const todayOrders = orderList.filter((o) => new Date(o.created_at) >= todayStart);
         const completedPaid = todayOrders.filter(
-          (o) => o.status === "completed" || o.payment_status === "paid"
+          (o) => o.status === "completed" || o.payment_status === "paid",
         );
         const revenue = completedPaid.reduce((acc, curr) => acc + Number(curr.grand_total || 0), 0);
         const count = todayOrders.length;
@@ -101,7 +103,10 @@ function Dashboard() {
         const pendingCount = orderList.filter((o) => o.status === "pending").length;
         const preparingCount = orderList.filter((o) => o.status === "preparing").length;
         const paidCount = todayOrders.filter((o) => o.payment_status === "paid").length;
-        const unpaidCount = orderList.filter((o) => o.payment_status !== "paid" && o.status !== "cancelled" && o.status !== "completed").length;
+        const unpaidCount = orderList.filter(
+          (o) =>
+            o.payment_status !== "paid" && o.status !== "cancelled" && o.status !== "completed",
+        ).length;
 
         setStats({
           todayRevenue: revenue,
@@ -149,10 +154,12 @@ function Dashboard() {
         },
         (payload: any) => {
           if (payload.eventType === "INSERT") {
-            toast.info(`🔔 New live order #${payload.new?.order_number || ""} on ${payload.new?.table_label || "Table"}`);
+            toast.info(
+              `🔔 New live order #${payload.new?.order_number || ""} on ${payload.new?.table_label || "Table"}`,
+            );
           }
           loadDashboardData();
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -164,7 +171,7 @@ function Dashboard() {
         },
         () => {
           loadDashboardData();
-        }
+        },
       )
       .subscribe();
 
@@ -186,12 +193,27 @@ function Dashboard() {
   const getTableStatusStyle = (state: string) => {
     switch (state) {
       case "occupied":
-        return { border: "border-amber-500/40", bg: "bg-amber-500/5 dark:bg-amber-500/10", dot: "bg-amber-500 dark:bg-amber-400", text: "text-slate-800 dark:text-white" };
+        return {
+          border: "border-amber-500/40",
+          bg: "bg-amber-500/5 dark:bg-amber-500/10",
+          dot: "bg-amber-500 dark:bg-amber-400",
+          text: "text-slate-800 dark:text-white",
+        };
       case "payment_pending":
-        return { border: "border-red-500/40", bg: "bg-red-500/5 dark:bg-red-500/10", dot: "bg-red-500 dark:bg-red-400", text: "text-slate-800 dark:text-white" };
+        return {
+          border: "border-red-500/40",
+          bg: "bg-red-500/5 dark:bg-red-500/10",
+          dot: "bg-red-500 dark:bg-red-400",
+          text: "text-slate-800 dark:text-white",
+        };
       case "available":
       default:
-        return { border: "border-slate-200 dark:border-slate-800", bg: "bg-white dark:bg-slate-900/30", dot: "bg-emerald-500 dark:bg-emerald-400", text: "text-slate-600 dark:text-slate-300" };
+        return {
+          border: "border-slate-200 dark:border-slate-800",
+          bg: "bg-white dark:bg-slate-900/30",
+          dot: "bg-emerald-500 dark:bg-emerald-400",
+          text: "text-slate-600 dark:text-slate-300",
+        };
     }
   };
 
@@ -200,12 +222,15 @@ function Dashboard() {
       pending: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/25",
       new: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/25",
       preparing: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25",
-      ready: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
+      ready:
+        "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
       served: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/25",
       completed: "bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/25",
       cancelled: "bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/25",
     };
-    return map[status] || "bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/25";
+    return (
+      map[status] || "bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/25"
+    );
   };
 
   // Render role header banner
@@ -226,7 +251,10 @@ function Dashboard() {
           </Badge>
         </div>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {subtitle} <span className="text-slate-800 dark:text-slate-350 font-bold">{context?.business?.name}</span>
+          {subtitle}{" "}
+          <span className="text-slate-800 dark:text-slate-350 font-bold">
+            {context?.business?.name}
+          </span>
         </p>
       </div>
 
@@ -310,35 +338,57 @@ function Dashboard() {
         <Card className="border-slate-800 bg-slate-900/80 backdrop-blur">
           <CardHeader>
             <CardTitle className="text-base font-bold text-white">Active Kitchen Queue</CardTitle>
-            <CardDescription className="text-xs text-slate-400">Current orders requiring preparation</CardDescription>
+            <CardDescription className="text-xs text-slate-400">
+              Current orders requiring preparation
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {recentOrders.filter(o => o.status !== "completed" && o.status !== "cancelled").length === 0 ? (
+            {recentOrders.filter((o) => o.status !== "completed" && o.status !== "cancelled")
+              .length === 0 ? (
               <div className="text-center py-10 text-slate-500">
                 <ChefHat className="h-10 w-10 mx-auto mb-2 text-slate-700" />
                 <p className="text-sm font-semibold text-slate-300">Kitchen Queue Clean!</p>
-                <p className="text-xs text-slate-600">All pending tickets have been prepared and served.</p>
+                <p className="text-xs text-slate-600">
+                  All pending tickets have been prepared and served.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {recentOrders.filter(o => o.status !== "completed" && o.status !== "cancelled").map(o => (
-                  <div key={o.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-amber-400">{o.table_label || "Counter"}</span>
-                      <Badge className={`text-[10px] font-bold capitalize ${getOrderStatusBadge(o.status)}`}>
-                        {o.status}
-                      </Badge>
+                {recentOrders
+                  .filter((o) => o.status !== "completed" && o.status !== "cancelled")
+                  .map((o) => (
+                    <div
+                      key={o.id}
+                      className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-amber-400">
+                          {o.table_label || "Counter"}
+                        </span>
+                        <Badge
+                          className={`text-[10px] font-bold capitalize ${getOrderStatusBadge(o.status)}`}
+                        >
+                          {o.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-slate-400">
+                        Placed at{" "}
+                        {new Date(o.created_at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                      <Link to="/kds">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs h-7 border-slate-700 mt-1"
+                        >
+                          View Ticket Details
+                        </Button>
+                      </Link>
                     </div>
-                    <p className="text-xs text-slate-400">
-                      Placed at {new Date(o.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                    <Link to="/kds">
-                      <Button size="sm" variant="outline" className="w-full text-xs h-7 border-slate-700 mt-1">
-                        View Ticket Details
-                      </Button>
-                    </Link>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </CardContent>
@@ -361,9 +411,12 @@ function Dashboard() {
           <Card className="border-emerald-500/30 bg-emerald-500/5 text-slate-100 p-5">
             <p className="text-xs uppercase font-bold text-emerald-400">Today's Collections</p>
             <p className="text-3xl font-black text-white mt-1">
-              {currencySymbol}{stats.todayRevenue.toLocaleString()}
+              {currencySymbol}
+              {stats.todayRevenue.toLocaleString()}
             </p>
-            <p className="text-[11px] text-slate-400 mt-2">{stats.paidOrdersCount} paid transactions today</p>
+            <p className="text-[11px] text-slate-400 mt-2">
+              {stats.paidOrdersCount} paid transactions today
+            </p>
           </Card>
 
           <Card className="border-red-500/30 bg-red-500/5 text-slate-100 p-5">
@@ -386,8 +439,12 @@ function Dashboard() {
         <Card className="border-slate-800 bg-slate-900/80 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base font-bold text-white">Pending Collections Queue</CardTitle>
-              <CardDescription className="text-xs text-slate-400">Orders requiring payment confirmation</CardDescription>
+              <CardTitle className="text-base font-bold text-white">
+                Pending Collections Queue
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                Orders requiring payment confirmation
+              </CardDescription>
             </div>
             <Link to="/admin/orders">
               <Button size="sm" variant="outline" className="border-slate-700 text-xs">
@@ -396,31 +453,42 @@ function Dashboard() {
             </Link>
           </CardHeader>
           <CardContent className="space-y-2">
-            {recentOrders.filter(o => o.payment_status !== "paid").length === 0 ? (
+            {recentOrders.filter((o) => o.payment_status !== "paid").length === 0 ? (
               <div className="text-center py-8 text-slate-500">
                 <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-emerald-500" />
                 <p className="text-sm font-semibold text-slate-300">All Bills Settled!</p>
               </div>
             ) : (
-              recentOrders.filter(o => o.payment_status !== "paid").map(o => (
-                <div key={o.id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-amber-400">{o.table_label || "Counter"}</span>
-                    <span className="text-xs text-slate-400 ml-2">#{o.id.slice(0, 8)}</span>
-                    <p className="text-[11px] text-slate-500">Time: {new Date(o.created_at).toLocaleTimeString()}</p>
+              recentOrders
+                .filter((o) => o.payment_status !== "paid")
+                .map((o) => (
+                  <div
+                    key={o.id}
+                    className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between"
+                  >
+                    <div>
+                      <span className="font-bold text-amber-400">{o.table_label || "Counter"}</span>
+                      <span className="text-xs text-slate-400 ml-2">#{o.id.slice(0, 8)}</span>
+                      <p className="text-[11px] text-slate-500">
+                        Time: {new Date(o.created_at).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-black text-white text-base">
+                        {currencySymbol}
+                        {Number(o.grand_total).toFixed(2)}
+                      </span>
+                      <Link to="/admin/orders">
+                        <Button
+                          size="sm"
+                          className="bg-amber-500 text-slate-950 font-bold text-xs h-8"
+                        >
+                          Collect
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-black text-white text-base">
-                      {currencySymbol}{Number(o.grand_total).toFixed(2)}
-                    </span>
-                    <Link to="/admin/orders">
-                      <Button size="sm" className="bg-amber-500 text-slate-950 font-bold text-xs h-8">
-                        Collect
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              ))
+                ))
             )}
           </CardContent>
         </Card>
@@ -445,10 +513,15 @@ function Dashboard() {
                 Floor Table Status
                 <span className="flex h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/30 animate-pulse" />
               </CardTitle>
-              <CardDescription className="text-xs text-slate-400">Green = Free, Amber = Occupied, Red = Bill Due</CardDescription>
+              <CardDescription className="text-xs text-slate-400">
+                Green = Free, Amber = Occupied, Red = Bill Due
+              </CardDescription>
             </div>
             <Link to="/admin/orders">
-              <Button size="sm" className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 text-xs">
+              <Button
+                size="sm"
+                className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 text-xs"
+              >
                 + New Order
               </Button>
             </Link>
@@ -458,17 +531,26 @@ function Dashboard() {
               {tables.map((t) => {
                 const s = getTableStatusStyle(t.state);
                 return (
-                  <div key={t.id} className={`p-4 rounded-xl border ${s.border} ${s.bg} flex flex-col justify-between gap-3`}>
+                  <div
+                    key={t.id}
+                    className={`p-4 rounded-xl border ${s.border} ${s.bg} flex flex-col justify-between gap-3`}
+                  >
                     <div className="flex items-center justify-between">
                       <span className={`font-bold text-base ${s.text}`}>{t.label}</span>
                       <div className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />
                     </div>
                     <div className="text-xs text-slate-400 flex items-center justify-between">
                       <span>{t.seats} seats</span>
-                      <span className="capitalize text-[10px] font-semibold text-slate-300">{t.state.replace("_", " ")}</span>
+                      <span className="capitalize text-[10px] font-semibold text-slate-300">
+                        {t.state.replace("_", " ")}
+                      </span>
                     </div>
                     <Link to="/admin/orders">
-                      <Button size="sm" variant="outline" className="w-full text-xs h-7 border-slate-700 bg-slate-950">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full text-xs h-7 border-slate-700 bg-slate-950"
+                      >
                         Select Table
                       </Button>
                     </Link>
@@ -502,7 +584,9 @@ function Dashboard() {
           <Card className="border-slate-800 bg-slate-900/80 p-4">
             <p className="text-[10px] font-semibold uppercase text-slate-400">Occupancy Rate</p>
             <p className="text-2xl font-black text-amber-400 mt-1">{occupancyPct}%</p>
-            <p className="text-[10px] text-slate-500">{stats.occupiedTablesCount} occupied / {stats.activeTablesCount} total</p>
+            <p className="text-[10px] text-slate-500">
+              {stats.occupiedTablesCount} occupied / {stats.activeTablesCount} total
+            </p>
           </Card>
 
           <Card className="border-slate-800 bg-slate-900/80 p-4">
@@ -521,19 +605,31 @@ function Dashboard() {
         {/* Quick Actions */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Link to="/admin/tables">
-            <Button variant="outline" className="w-full border-slate-700 bg-slate-900 text-slate-200 text-xs h-11">
+            <Button
+              variant="outline"
+              className="w-full border-slate-700 bg-slate-900 text-slate-200 text-xs h-11"
+            >
               <QrCode className="mr-2 h-4 w-4 text-amber-400" /> Table & Room Map
             </Button>
           </Link>
           <Link to="/admin/orders">
-            <Button variant="outline" className="w-full border-slate-700 bg-slate-900 text-slate-200 text-xs h-11">
+            <Button
+              variant="outline"
+              className="w-full border-slate-700 bg-slate-900 text-slate-200 text-xs h-11"
+            >
               <ShoppingBag className="mr-2 h-4 w-4 text-blue-400" /> Room Service Tickets
             </Button>
           </Link>
-          <Button variant="outline" className="border-slate-700 bg-slate-900 text-slate-200 text-xs h-11">
+          <Button
+            variant="outline"
+            className="border-slate-700 bg-slate-900 text-slate-200 text-xs h-11"
+          >
             <User className="mr-2 h-4 w-4 text-emerald-400" /> Guest Check-In
           </Button>
-          <Button variant="outline" className="border-slate-700 bg-slate-900 text-slate-200 text-xs h-11">
+          <Button
+            variant="outline"
+            className="border-slate-700 bg-slate-900 text-slate-200 text-xs h-11"
+          >
             <Bell className="mr-2 h-4 w-4 text-purple-400" /> Service Requests
           </Button>
         </div>
@@ -543,7 +639,9 @@ function Dashboard() {
           {/* Tables Map */}
           <Card className="border-slate-800 bg-slate-900/80 backdrop-blur">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-bold text-white">Live Floor & Room Overview</CardTitle>
+              <CardTitle className="text-base font-bold text-white">
+                Live Floor & Room Overview
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-2.5">
@@ -566,16 +664,25 @@ function Dashboard() {
           {/* Active Orders */}
           <Card className="border-slate-800 bg-slate-900/80 backdrop-blur">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-bold text-white">Active Service Tickets</CardTitle>
+              <CardTitle className="text-base font-bold text-white">
+                Active Service Tickets
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {recentOrders.slice(0, 5).map((o) => (
-                <div key={o.id} className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                <div
+                  key={o.id}
+                  className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs"
+                >
                   <div>
                     <span className="font-bold text-amber-400">{o.table_label || "Counter"}</span>
-                    <p className="text-[10px] text-slate-500">{new Date(o.created_at).toLocaleTimeString()}</p>
+                    <p className="text-[10px] text-slate-500">
+                      {new Date(o.created_at).toLocaleTimeString()}
+                    </p>
                   </div>
-                  <Badge className={`text-[9px] font-bold capitalize ${getOrderStatusBadge(o.status)}`}>
+                  <Badge
+                    className={`text-[9px] font-bold capitalize ${getOrderStatusBadge(o.status)}`}
+                  >
                     {o.status}
                   </Badge>
                 </div>
@@ -635,7 +742,10 @@ function Dashboard() {
       sub: "Awaiting kitchen action",
       icon: Clock,
       color: stats.pendingOrdersCount > 0 ? "text-orange-400" : "text-slate-500",
-      bg: stats.pendingOrdersCount > 0 ? "bg-orange-500/10 border-orange-500/20" : "bg-slate-800/40 border-slate-700/40",
+      bg:
+        stats.pendingOrdersCount > 0
+          ? "bg-orange-500/10 border-orange-500/20"
+          : "bg-slate-800/40 border-slate-700/40",
       urgent: stats.pendingOrdersCount > 3,
       targetRoute: "/admin/orders",
       actionHint: "Process Pending →",
@@ -646,7 +756,10 @@ function Dashboard() {
       sub: "Orders actively preparing",
       icon: Flame,
       color: stats.preparingOrdersCount > 0 ? "text-red-400" : "text-slate-500",
-      bg: stats.preparingOrdersCount > 0 ? "bg-red-500/10 border-red-500/20" : "bg-slate-800/40 border-slate-700/40",
+      bg:
+        stats.preparingOrdersCount > 0
+          ? "bg-red-500/10 border-red-500/20"
+          : "bg-slate-800/40 border-slate-700/40",
       targetRoute: "/kds",
       actionHint: "Kitchen KDS →",
     },
@@ -677,7 +790,9 @@ function Dashboard() {
                       <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 leading-tight group-hover:text-amber-500 transition-colors">
                         {card.label}
                       </span>
-                      <div className={`flex h-7 w-7 items-center justify-center rounded-lg border transition-transform duration-300 group-hover:scale-110 ${card.bg}`}>
+                      <div
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg border transition-transform duration-300 group-hover:scale-110 ${card.bg}`}
+                      >
                         <IconComp className={`h-3.5 w-3.5 ${card.color}`} />
                       </div>
                     </div>
@@ -688,7 +803,9 @@ function Dashboard() {
                         card.value
                       )}
                     </span>
-                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-snug">{card.sub}</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-snug">
+                      {card.sub}
+                    </p>
                     {card.urgent && (
                       <Badge className="mt-2 bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/25 text-[9px] font-bold px-1.5 py-0.5">
                         ⚡ Needs attention
@@ -752,7 +869,9 @@ function Dashboard() {
                       <IconComp className="h-4.5 w-4.5" style={{ width: "18px", height: "18px" }} />
                     </div>
                     <div className="min-w-0">
-                      <h4 className={`font-bold text-slate-800 dark:text-white text-sm transition-colors ${action.hoverText}`}>
+                      <h4
+                        className={`font-bold text-slate-800 dark:text-white text-sm transition-colors ${action.hoverText}`}
+                      >
                         {action.label}
                       </h4>
                       <p className="text-[11px] text-slate-500 truncate">{action.sub}</p>
@@ -776,9 +895,12 @@ function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
             <div>
               <CardTitle className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-amber-500 dark:text-amber-400" /> Hourly Dining Revenue Trend
+                <TrendingUp className="h-4 w-4 text-amber-500 dark:text-amber-400" /> Hourly Dining
+                Revenue Trend
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500 dark:text-slate-400">Live peak hours breakdown & sales velocity curve</CardDescription>
+              <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+                Live peak hours breakdown & sales velocity curve
+              </CardDescription>
             </div>
             <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20 font-bold text-xs">
               Peak: 8 PM - 10 PM
@@ -786,7 +908,11 @@ function Dashboard() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="h-56 w-full relative">
-              <svg className="w-full h-full overflow-visible" viewBox="0 0 500 180" preserveAspectRatio="none">
+              <svg
+                className="w-full h-full overflow-visible"
+                viewBox="0 0 500 180"
+                preserveAspectRatio="none"
+              >
                 <defs>
                   <linearGradient id="amberGlow" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
@@ -801,10 +927,46 @@ function Dashboard() {
                 </defs>
 
                 {/* SVG Grid Lines */}
-                <line x1="0" y1="30" x2="500" y2="30" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="75" x2="500" y2="75" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="120" x2="500" y2="120" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="165" x2="500" y2="165" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="0.5" strokeDasharray="4 4" />
+                <line
+                  x1="0"
+                  y1="30"
+                  x2="500"
+                  y2="30"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  strokeWidth="0.5"
+                  strokeDasharray="4 4"
+                />
+                <line
+                  x1="0"
+                  y1="75"
+                  x2="500"
+                  y2="75"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  strokeWidth="0.5"
+                  strokeDasharray="4 4"
+                />
+                <line
+                  x1="0"
+                  y1="120"
+                  x2="500"
+                  y2="120"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  strokeWidth="0.5"
+                  strokeDasharray="4 4"
+                />
+                <line
+                  x1="0"
+                  y1="165"
+                  x2="500"
+                  y2="165"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  strokeWidth="0.5"
+                  strokeDasharray="4 4"
+                />
 
                 {/* Smooth Gradient Area Fill */}
                 <path
@@ -838,7 +1000,9 @@ function Dashboard() {
               <span>12 PM (Lunch)</span>
               <span>3 PM</span>
               <span>6 PM</span>
-              <span className="text-amber-600 dark:text-amber-400 font-extrabold">9 PM (Dinner Rush)</span>
+              <span className="text-amber-600 dark:text-amber-400 font-extrabold">
+                9 PM (Dinner Rush)
+              </span>
               <span>11 PM</span>
             </div>
           </CardContent>
@@ -848,21 +1012,32 @@ function Dashboard() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur-xl shadow-2xl flex flex-col justify-between">
           <CardHeader className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
             <CardTitle className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <PieChart className="h-4 w-4 text-emerald-500 dark:text-emerald-400" /> Category Revenue Share
+              <PieChart className="h-4 w-4 text-emerald-500 dark:text-emerald-400" /> Category
+              Revenue Share
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 dark:text-slate-400">Sales split across culinary categories</CardDescription>
+            <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+              Sales split across culinary categories
+            </CardDescription>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
             {[
               { cat: "Biryani & Rice Specialties", pct: 42, color: "bg-amber-500", val: "₹18,480" },
-              { cat: "Tandoor & Starters", pct: 28, color: "bg-orange-500", val: "bg-orange-500", val2: "₹12,320" },
+              {
+                cat: "Tandoor & Starters",
+                pct: 28,
+                color: "bg-orange-500",
+                val: "bg-orange-500",
+                val2: "₹12,320",
+              },
               { cat: "Rich Curries & Breads", pct: 18, color: "bg-emerald-500", val2: "₹7,920" },
               { cat: "Beverages & Desserts", pct: 12, color: "bg-purple-500", val2: "₹5,280" },
             ].map((item: any) => (
               <div key={item.cat} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-700 dark:text-slate-200">{item.cat}</span>
-                  <span className="text-amber-600 dark:text-amber-300 font-extrabold">{item.val2 || item.val} ({item.pct}%)</span>
+                  <span className="text-amber-600 dark:text-amber-300 font-extrabold">
+                    {item.val2 || item.val} ({item.pct}%)
+                  </span>
                 </div>
                 <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800/60">
                   <div
@@ -891,7 +1066,11 @@ function Dashboard() {
               </CardDescription>
             </div>
             <Link to="/admin/tables">
-              <Button size="sm" variant="outline" className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs"
+              >
                 Manage Tables
               </Button>
             </Link>
@@ -900,16 +1079,26 @@ function Dashboard() {
             {loading ? (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-16 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-16 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"
+                  />
                 ))}
               </div>
             ) : tables.length === 0 ? (
-               <div className="text-center py-10 text-slate-500">
+              <div className="text-center py-10 text-slate-500">
                 <QrCode className="h-10 w-10 mx-auto mb-3 text-slate-400 dark:text-slate-700" />
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-400">No tables configured</p>
-                <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Set up your floor plan to see live status</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-400">
+                  No tables configured
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                  Set up your floor plan to see live status
+                </p>
                 <Link to="/admin/tables" className="mt-3 inline-block">
-                  <Button size="sm" className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
+                  <Button
+                    size="sm"
+                    className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400"
+                  >
                     <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Tables
                   </Button>
                 </Link>
@@ -937,10 +1126,14 @@ function Dashboard() {
                         className={`rounded-xl border p-3 transition-all flex flex-col justify-between gap-2 ${s.border} ${s.bg}`}
                       >
                         <div className="flex items-start justify-between gap-1">
-                          <span className={`font-bold text-xs leading-tight ${s.text}`}>{tbl.label}</span>
+                          <span className={`font-bold text-xs leading-tight ${s.text}`}>
+                            {tbl.label}
+                          </span>
                           <div className={`h-2 w-2 rounded-full shrink-0 mt-0.5 ${s.dot}`} />
                         </div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-600">{tbl.seats} seats</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-600">
+                          {tbl.seats} seats
+                        </div>
                       </div>
                     );
                   })}
@@ -954,13 +1147,19 @@ function Dashboard() {
         <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
             <div>
-              <CardTitle className="text-base font-bold text-slate-800 dark:text-white">Recent Orders</CardTitle>
+              <CardTitle className="text-base font-bold text-slate-800 dark:text-white">
+                Recent Orders
+              </CardTitle>
               <CardDescription className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
                 Latest tickets from today's service.
               </CardDescription>
             </div>
             <Link to="/admin/orders">
-              <Button size="sm" variant="outline" className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs"
+              >
                 All Orders
               </Button>
             </Link>
@@ -968,7 +1167,10 @@ function Dashboard() {
           <CardContent className="pt-4 space-y-2">
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-10 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse" />
+                <div
+                  key={i}
+                  className="h-10 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse"
+                />
               ))
             ) : recentOrders.length === 0 ? (
               <div className="text-center py-8 text-slate-500">
@@ -994,7 +1196,8 @@ function Dashboard() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="text-xs font-bold text-slate-850 dark:text-white">
-                      {currencySymbol}{Number(order.grand_total || 0).toFixed(0)}
+                      {currencySymbol}
+                      {Number(order.grand_total || 0).toFixed(0)}
                     </span>
                     <Badge
                       className={`text-[9px] font-bold px-1.5 py-0 capitalize border ${getOrderStatusBadge(order.status)}`}

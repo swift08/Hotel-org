@@ -41,7 +41,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   useEffect(() => {
     const msg = error?.message?.toLowerCase() || "";
-    if (msg.includes("unauthorized") || msg.includes("sign in") || msg.includes("no authorization")) {
+    if (
+      msg.includes("unauthorized") ||
+      msg.includes("sign in") ||
+      msg.includes("no authorization")
+    ) {
       if (typeof window !== "undefined") {
         window.location.href = "/auth/login";
       }
@@ -49,7 +53,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   const msg = error?.message?.toLowerCase() || "";
-  const isAuthErr = msg.includes("unauthorized") || msg.includes("sign in") || msg.includes("no authorization");
+  const isAuthErr =
+    msg.includes("unauthorized") || msg.includes("sign in") || msg.includes("no authorization");
 
   if (isAuthErr) {
     return (
@@ -59,7 +64,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             <span className="text-xl font-bold">🔒</span>
           </div>
           <h1 className="text-xl font-bold text-white">Authentication Required</h1>
-          <p className="text-sm text-slate-400">Please sign in to access your Rasoi restaurant management console.</p>
+          <p className="text-sm text-slate-400">
+            Please sign in to access your Rasoi restaurant management console.
+          </p>
           <a
             href="/auth/login"
             className="inline-flex items-center justify-center rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400 shadow-lg shadow-amber-500/20"
@@ -116,7 +123,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Rasoi — Operating System for Modern Restaurants" },
       {
         property: "og:description",
-        content: "Complete restaurant operating platform: Rasoi Admin, Rasoi KDS, Rasoi QR, Rasoi Pay, and Rasoi Reports.",
+        content:
+          "Complete restaurant operating platform: Rasoi Admin, Rasoi KDS, Rasoi QR, Rasoi Pay, and Rasoi Reports.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

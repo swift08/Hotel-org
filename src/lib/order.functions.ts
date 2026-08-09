@@ -23,9 +23,8 @@ export const collectPayment = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import(
-      "@/lib/db.server"
-    );
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "payments.collect");
@@ -47,10 +46,7 @@ export const collectPayment = createServerFn({ method: "POST" })
       .eq("order_id", data.orderId)
       .eq("status", "paid");
 
-    const previouslyPaid = (existingPayments ?? []).reduce(
-      (sum, p) => sum + Number(p.amount),
-      0,
-    );
+    const previouslyPaid = (existingPayments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
     const totalAfterThis = previouslyPaid + data.amount;
     const grandTotal = Number(order.grand_total);
 
@@ -123,9 +119,8 @@ export const issueRefund = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import(
-      "@/lib/db.server"
-    );
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "payments.refund");
@@ -213,9 +208,8 @@ export const generateInvoice = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import(
-      "@/lib/db.server"
-    );
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "billing.print");
@@ -229,23 +223,28 @@ export const generateInvoice = createServerFn({ method: "POST" })
     if (existingInvoice) return existingInvoice;
 
     // Fetch order + items + settings for invoice snapshot
-    const [{ data: order }, { data: items }, { data: settings }, { data: business }, { data: payments }] =
-      await Promise.all([
-        supabase
-          .from("orders")
-          .select("*")
-          .eq("id", data.orderId)
-          .eq("business_id", data.businessId)
-          .maybeSingle(),
-        supabase.from("order_items").select("*").eq("order_id", data.orderId),
-        supabase
-          .from("business_settings")
-          .select("legal_name, gstin, address_line1, city, state, postal_code, phone, invoice_prefix")
-          .eq("business_id", data.businessId)
-          .maybeSingle(),
-        supabase.from("businesses").select("name, currency").eq("id", data.businessId).maybeSingle(),
-        supabase.from("payments").select("*").eq("order_id", data.orderId).eq("status", "paid"),
-      ]);
+    const [
+      { data: order },
+      { data: items },
+      { data: settings },
+      { data: business },
+      { data: payments },
+    ] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("*")
+        .eq("id", data.orderId)
+        .eq("business_id", data.businessId)
+        .maybeSingle(),
+      supabase.from("order_items").select("*").eq("order_id", data.orderId),
+      supabase
+        .from("business_settings")
+        .select("legal_name, gstin, address_line1, city, state, postal_code, phone, invoice_prefix")
+        .eq("business_id", data.businessId)
+        .maybeSingle(),
+      supabase.from("businesses").select("name, currency").eq("id", data.businessId).maybeSingle(),
+      supabase.from("payments").select("*").eq("order_id", data.orderId).eq("status", "paid"),
+    ]);
 
     if (!order) throw new Error("Order not found.");
 
@@ -323,7 +322,11 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
     } else if (data.toStatus === "refunded") {
       assertPerm(perms, "orders.refund");
     } else {
-      if (!perms.includes("orders.edit") && !perms.includes("kds.view") && !perms.includes("kds.manage")) {
+      if (
+        !perms.includes("orders.edit") &&
+        !perms.includes("kds.view") &&
+        !perms.includes("kds.manage")
+      ) {
         assertPerm(perms, "orders.edit");
       }
     }

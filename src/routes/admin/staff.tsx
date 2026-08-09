@@ -1,29 +1,47 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { getMyContext, listStaff, updateStaffRole, createStaffMember, updateStaffMemberDetails } from "@/lib/business.functions";
+import {
+  getMyContext,
+  listStaff,
+  updateStaffRole,
+  createStaffMember,
+  updateStaffMemberDetails,
+} from "@/lib/business.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  Users, 
-  UserPlus, 
-  ShieldCheck, 
-  ShieldAlert, 
-  CheckCircle2, 
-  XCircle, 
-  Lock, 
-  User, 
+import {
+  Users,
+  UserPlus,
+  ShieldCheck,
+  ShieldAlert,
+  CheckCircle2,
+  XCircle,
+  Lock,
+  User,
   Loader2,
   Settings2,
   Eye,
   EyeOff,
-  BadgeCheck
+  BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -98,7 +116,9 @@ function StaffManagement() {
     }
   };
 
-  const [permissionsMatrix, setPermissionsMatrix] = useState<Record<string, Record<string, boolean>>>({});
+  const [permissionsMatrix, setPermissionsMatrix] = useState<
+    Record<string, Record<string, boolean>>
+  >({});
 
   useEffect(() => {
     fetchStaffData();
@@ -121,13 +141,24 @@ function StaffManagement() {
           initialMatrix[pk.key] = {
             owner: true,
             manager: !pk.key.startsWith("settings") && pk.key !== "reports.financial",
-            waiter: ["orders.view", "orders.create", "orders.edit", "menu.view", "tables.manage"].includes(pk.key),
-            cashier: ["orders.view", "orders.create", "payments.collect", "menu.view"].includes(pk.key),
+            waiter: [
+              "orders.view",
+              "orders.create",
+              "orders.edit",
+              "menu.view",
+              "tables.manage",
+            ].includes(pk.key),
+            cashier: ["orders.view", "orders.create", "payments.collect", "menu.view"].includes(
+              pk.key,
+            ),
             chef: pk.key.startsWith("kds.") || pk.key === "menu.view" || pk.key === "orders.view",
           };
         });
         setPermissionsMatrix(initialMatrix);
-        localStorage.setItem(`rbac_custom_permissions_${businessId}`, JSON.stringify(initialMatrix));
+        localStorage.setItem(
+          `rbac_custom_permissions_${businessId}`,
+          JSON.stringify(initialMatrix),
+        );
       }
     }
   }, [context?.membership?.business_id]);
@@ -155,7 +186,10 @@ function StaffManagement() {
 
     setPermissionsMatrix(updated);
     if (context?.membership?.business_id) {
-      localStorage.setItem(`rbac_custom_permissions_${context.membership.business_id}`, JSON.stringify(updated));
+      localStorage.setItem(
+        `rbac_custom_permissions_${context.membership.business_id}`,
+        JSON.stringify(updated),
+      );
     }
     toast.success(`Permission updated for ${roleKey.toUpperCase()}`);
   };
@@ -182,7 +216,10 @@ function StaffManagement() {
   const handleSaveStaffDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStaff || !context?.membership?.business_id) return;
-    const finalRole = newRole === "custom" ? (customRoleTitle.trim().toLowerCase().replace(/\s+/g, "_") || selectedStaff.role) : newRole;
+    const finalRole =
+      newRole === "custom"
+        ? customRoleTitle.trim().toLowerCase().replace(/\s+/g, "_") || selectedStaff.role
+        : newRole;
 
     setUpdatingStaffDetails(true);
     try {
@@ -209,7 +246,10 @@ function StaffManagement() {
   const handleCreateStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!addFullName || !addEmail || !context?.membership?.business_id) return;
-    const finalRole = addRole === "custom" ? (customRoleTitle.trim().toLowerCase().replace(/\s+/g, "_") || "staff") : addRole;
+    const finalRole =
+      addRole === "custom"
+        ? customRoleTitle.trim().toLowerCase().replace(/\s+/g, "_") || "staff"
+        : addRole;
     setCreatingStaff(true);
     try {
       await createStaffMember({
@@ -222,7 +262,9 @@ function StaffManagement() {
           password: addPassword || "RasoiStaff123",
         },
       });
-      toast.success(`Successfully added ${addFullName} as ${finalRole.toUpperCase().replace(/_/g, " ")}!`);
+      toast.success(
+        `Successfully added ${addFullName} as ${finalRole.toUpperCase().replace(/_/g, " ")}!`,
+      );
       setAddModalOpen(false);
       setAddFullName("");
       setAddEmail("");
@@ -238,16 +280,24 @@ function StaffManagement() {
     }
   };
 
-  const canViewStaff = !context || context.permissions?.includes("staff.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canViewStaff =
+    !context ||
+    context.permissions?.includes("staff.view") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
 
   if (!loading && context && !canViewStaff) {
     return (
       <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
         <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
-        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`staff.view`) to access Staff & Roles.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          You do not have permission (`staff.view`) to access Staff & Roles.
+        </p>
         <Link to="/admin/dashboard">
-          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+          <Button variant="outline" className="mt-4">
+            Return to Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -276,10 +326,16 @@ function StaffManagement() {
 
       <Tabs defaultValue="members" className="space-y-6">
         <TabsList className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 p-1 rounded-xl shadow-sm">
-          <TabsTrigger value="members" className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-lg text-xs">
+          <TabsTrigger
+            value="members"
+            className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-lg text-xs"
+          >
             Team Members ({staffList.length})
           </TabsTrigger>
-          <TabsTrigger value="matrix" className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-lg text-xs">
+          <TabsTrigger
+            value="matrix"
+            className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-lg text-xs"
+          >
             RBAC Permission Matrix
           </TabsTrigger>
         </TabsList>
@@ -293,7 +349,9 @@ function StaffManagement() {
           ) : (
             <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-xl">
               <CardHeader>
-                <CardTitle className="text-lg text-slate-800 dark:text-white font-bold">Active Staff Members</CardTitle>
+                <CardTitle className="text-lg text-slate-800 dark:text-white font-bold">
+                  Active Staff Members
+                </CardTitle>
                 <CardDescription className="text-slate-500 dark:text-slate-400">
                   Every user assigned to {context?.business?.name}.
                 </CardDescription>
@@ -310,7 +368,9 @@ function StaffManagement() {
                           <h4 className="font-bold text-slate-800 dark:text-white text-sm">
                             {m.profile?.display_name || "Unnamed User"}
                           </h4>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{m.profile?.phone || "No phone attached"}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {m.profile?.phone || "No phone attached"}
+                          </p>
                         </div>
                       </div>
 
@@ -340,7 +400,9 @@ function StaffManagement() {
         <TabsContent value="matrix">
           <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-xl overflow-hidden">
             <CardHeader>
-              <CardTitle className="text-lg text-slate-800 dark:text-white font-bold">Role-Based Access Control (RBAC)</CardTitle>
+              <CardTitle className="text-lg text-slate-800 dark:text-white font-bold">
+                Role-Based Access Control (RBAC)
+              </CardTitle>
               <CardDescription className="text-slate-500 dark:text-slate-400">
                 Server-side enforced granular permission matrix evaluated on every request.
               </CardDescription>
@@ -392,8 +454,8 @@ function StaffManagement() {
                               roleKey === "owner"
                                 ? "Owner has full access"
                                 : isEditable
-                                ? `Toggle permission for ${roleKey}`
-                                : `Role permissions (managed by Owner)`
+                                  ? `Toggle permission for ${roleKey}`
+                                  : `Role permissions (managed by Owner)`
                             }
                           >
                             {isAllowed ? (
@@ -410,7 +472,9 @@ function StaffManagement() {
                       <tr key={pk.key} className="hover:bg-slate-800/20 transition-colors">
                         <td className="p-4 font-medium text-white">
                           <div className="font-bold text-sm">{pk.label}</div>
-                          <div className="text-[10px] text-slate-500 font-mono mt-0.5">{pk.key}</div>
+                          <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                            {pk.key}
+                          </div>
                         </td>
                         {renderCell("owner")}
                         {renderCell("manager")}
@@ -494,7 +558,9 @@ function StaffManagement() {
             <div className="flex items-center justify-between p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
               <div>
                 <p className="text-xs font-bold text-white">Account Active Status</p>
-                <p className="text-[11px] text-slate-400">Allow or revoke system login permissions</p>
+                <p className="text-[11px] text-slate-400">
+                  Allow or revoke system login permissions
+                </p>
               </div>
               <Switch checked={editIsActive} onCheckedChange={setEditIsActive} />
             </div>

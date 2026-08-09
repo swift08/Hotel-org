@@ -156,7 +156,11 @@ export async function computeFileHash(dataUrl: string): Promise<string> {
 
 // ==================== PRICE NORMALIZATION ====================
 
-export function normalizePrice(raw: string | number): { price: number; raw: string; confidence: "high" | "needs_review" } {
+export function normalizePrice(raw: string | number): {
+  price: number;
+  raw: string;
+  confidence: "high" | "needs_review";
+} {
   if (typeof raw === "number") {
     return { price: raw, raw: String(raw), confidence: "high" };
   }
@@ -177,7 +181,10 @@ export function normalizePrice(raw: string | number): { price: number; raw: stri
 
 // ==================== DIETARY DETECTION ====================
 
-export function detectDietaryType(name: string, description: string): "veg" | "non_veg" | "vegan" | "egg" | null {
+export function detectDietaryType(
+  name: string,
+  description: string,
+): "veg" | "non_veg" | "vegan" | "egg" | null {
   const combined = `${name} ${description}`.toLowerCase();
 
   if (
@@ -211,74 +218,277 @@ export function detectDietaryType(name: string, description: string): "veg" | "n
 
 const FOOD_VOCABULARY = new Set([
   // Breads & Parathas
-  "paratha", "naan", "roti", "kulcha", "bhature", "puri", "chapati", "rumali",
-  "tandoori", "missi", "laccha", "stuffed", "plain", "butter", "garlic",
+  "paratha",
+  "naan",
+  "roti",
+  "kulcha",
+  "bhature",
+  "puri",
+  "chapati",
+  "rumali",
+  "tandoori",
+  "missi",
+  "laccha",
+  "stuffed",
+  "plain",
+  "butter",
+  "garlic",
   // Rice & Biryani
-  "rice", "biryani", "pulao", "jeera", "fried", "khichdi", "tahri",
+  "rice",
+  "biryani",
+  "pulao",
+  "jeera",
+  "fried",
+  "khichdi",
+  "tahri",
   // Dal & Lentils
-  "dal", "daal", "tadka", "fry", "makhani", "tarka",
+  "dal",
+  "daal",
+  "tadka",
+  "fry",
+  "makhani",
+  "tarka",
   // Vegetables
-  "aloo", "gobhi", "gobi", "palak", "matar", "mushroom", "paneer", "bhindi",
-  "baingan", "shimla", "mirch", "pyaz", "mooli", "arbi", "lauki", "tinda",
-  "karela", "mix", "veg", "vegetable", "sabzi", "sabji",
+  "aloo",
+  "gobhi",
+  "gobi",
+  "palak",
+  "matar",
+  "mushroom",
+  "paneer",
+  "bhindi",
+  "baingan",
+  "shimla",
+  "mirch",
+  "pyaz",
+  "mooli",
+  "arbi",
+  "lauki",
+  "tinda",
+  "karela",
+  "mix",
+  "veg",
+  "vegetable",
+  "sabzi",
+  "sabji",
   // Indian Curries & Gravies
-  "masala", "curry", "kadhai", "kadai", "korma", "tikka", "butter",
-  "lababdar", "makhani", "do pyaza", "dopayaza", "shahi", "mughlai",
-  "malai", "cream", "achari", "handi", "tawa",
+  "masala",
+  "curry",
+  "kadhai",
+  "kadai",
+  "korma",
+  "tikka",
+  "butter",
+  "lababdar",
+  "makhani",
+  "do pyaza",
+  "dopayaza",
+  "shahi",
+  "mughlai",
+  "malai",
+  "cream",
+  "achari",
+  "handi",
+  "tawa",
   // Chaap / Soya
-  "chaap", "soya", "keema",
+  "chaap",
+  "soya",
+  "keema",
   // Rajma / Chole / Kadhi
-  "rajma", "chole", "chhole", "chana", "kadhi", "pakoda", "pakora",
+  "rajma",
+  "chole",
+  "chhole",
+  "chana",
+  "kadhi",
+  "pakoda",
+  "pakora",
   // Chinese
-  "noodles", "chowmein", "chow", "mein", "manchurian", "schezwan",
-  "szechuan", "spring roll", "momos", "momo", "wonton",
-  "hakka", "singapore", "american",
+  "noodles",
+  "chowmein",
+  "chow",
+  "mein",
+  "manchurian",
+  "schezwan",
+  "szechuan",
+  "spring roll",
+  "momos",
+  "momo",
+  "wonton",
+  "hakka",
+  "singapore",
+  "american",
   // Snacks & Starters
-  "samosa", "tikki", "cutlet", "bhatura", "bhaji", "bhajia", "pav",
-  "chaat", "golgappa", "pani puri", "dahi", "papdi",
-  "roll", "wrap", "sandwich", "burger", "pizza", "fries", "toast",
-  "finger", "nugget", "popcorn",
+  "samosa",
+  "tikki",
+  "cutlet",
+  "bhatura",
+  "bhaji",
+  "bhajia",
+  "pav",
+  "chaat",
+  "golgappa",
+  "pani puri",
+  "dahi",
+  "papdi",
+  "roll",
+  "wrap",
+  "sandwich",
+  "burger",
+  "pizza",
+  "fries",
+  "toast",
+  "finger",
+  "nugget",
+  "popcorn",
   // Kebabs
-  "kebab", "seekh", "galouti", "shammi", "boti", "reshmi",
+  "kebab",
+  "seekh",
+  "galouti",
+  "shammi",
+  "boti",
+  "reshmi",
   // Tandoori
-  "tandoori", "tikka", "angara", "achari",
+  "tandoori",
+  "tikka",
+  "angara",
+  "achari",
   // Soups
-  "soup", "shorba", "rasam", "tomato", "sweet corn", "hot", "sour",
+  "soup",
+  "shorba",
+  "rasam",
+  "tomato",
+  "sweet corn",
+  "hot",
+  "sour",
   // South Indian
-  "dosa", "idli", "vada", "uttapam", "upma", "pongal", "appam",
+  "dosa",
+  "idli",
+  "vada",
+  "uttapam",
+  "upma",
+  "pongal",
+  "appam",
   // Desserts
-  "gulab", "jamun", "rasgulla", "rasmalai", "kheer", "halwa", "jalebi",
-  "kulfi", "rabri", "barfi", "ladoo", "laddu", "cake", "pastry",
-  "brownie", "sundae", "ice cream",
+  "gulab",
+  "jamun",
+  "rasgulla",
+  "rasmalai",
+  "kheer",
+  "halwa",
+  "jalebi",
+  "kulfi",
+  "rabri",
+  "barfi",
+  "ladoo",
+  "laddu",
+  "cake",
+  "pastry",
+  "brownie",
+  "sundae",
+  "ice cream",
   // Beverages
-  "lassi", "chaas", "buttermilk", "sharbat", "nimbu", "pani", "jaljeera",
-  "chai", "tea", "coffee", "cold", "hot", "milk", "shake", "smoothie",
-  "pepsi", "cola", "coke", "sprite", "fanta", "limca", "thums",
-  "mountain", "dew", "soda", "water", "juice", "fresh", "lime",
-  "mango", "orange", "pineapple", "watermelon",
+  "lassi",
+  "chaas",
+  "buttermilk",
+  "sharbat",
+  "nimbu",
+  "pani",
+  "jaljeera",
+  "chai",
+  "tea",
+  "coffee",
+  "cold",
+  "hot",
+  "milk",
+  "shake",
+  "smoothie",
+  "pepsi",
+  "cola",
+  "coke",
+  "sprite",
+  "fanta",
+  "limca",
+  "thums",
+  "mountain",
+  "dew",
+  "soda",
+  "water",
+  "juice",
+  "fresh",
+  "lime",
+  "mango",
+  "orange",
+  "pineapple",
+  "watermelon",
   // Raita & Accompaniments
-  "raita", "salad", "onion", "green", "papad", "pickle", "chutney",
+  "raita",
+  "salad",
+  "onion",
+  "green",
+  "papad",
+  "pickle",
+  "chutney",
   "achaar",
   // Cooking Methods
-  "fried", "roasted", "grilled", "steamed", "baked", "stuffed",
-  "dry", "gravy", "tawa", "handi", "dum",
+  "fried",
+  "roasted",
+  "grilled",
+  "steamed",
+  "baked",
+  "stuffed",
+  "dry",
+  "gravy",
+  "tawa",
+  "handi",
+  "dum",
   // Generic food words
-  "special", "classic", "premium", "chef", "house",
-  "combo", "thali", "platter", "plate",
+  "special",
+  "classic",
+  "premium",
+  "chef",
+  "house",
+  "combo",
+  "thali",
+  "platter",
+  "plate",
   // Ingredients commonly in dish names
-  "cheese", "corn", "potato", "onion", "capsicum", "tomato",
-  "ginger", "lemon", "honey", "mint",
+  "cheese",
+  "corn",
+  "potato",
+  "onion",
+  "capsicum",
+  "tomato",
+  "ginger",
+  "lemon",
+  "honey",
+  "mint",
   // Panner varieties
-  "bhurji", "khurchan",
+  "bhurji",
+  "khurchan",
   // Quick bites
-  "maggi", "pasta", "macaroni",
+  "maggi",
+  "pasta",
+  "macaroni",
   // Additional common items
-  "curd", "dahi", "bhel", "sev", "mixture",
-  "chilli", "pepper", "salt", "sweet",
-  "biryani", "pulao", "tahri",
+  "curd",
+  "dahi",
+  "bhel",
+  "sev",
+  "mixture",
+  "chilli",
+  "pepper",
+  "salt",
+  "sweet",
+  "biryani",
+  "pulao",
+  "tahri",
   // Chinese specific
-  "chilli", "dragon", "crispy", "golden",
-  "manchow", "wok",
+  "chilli",
+  "dragon",
+  "crispy",
+  "golden",
+  "manchow",
+  "wok",
 ]);
 
 // ==================== NON-MENU TEXT PATTERNS (BLOCKLIST) ====================
@@ -287,7 +497,11 @@ const FOOD_VOCABULARY = new Set([
  * Returns true if the text is clearly NOT a food item.
  * Uses pattern matching for restaurant metadata, contact info, decorative text, etc.
  */
-function isNonMenuText(text: string): { blocked: boolean; classification: TextClassification; reason: string } {
+function isNonMenuText(text: string): {
+  blocked: boolean;
+  classification: TextClassification;
+  reason: string;
+} {
   const lower = text.toLowerCase().trim();
   const original = text.trim();
 
@@ -305,12 +519,25 @@ function isNonMenuText(text: string): { blocked: boolean; classification: TextCl
   }
 
   // Addresses
-  if (/\b(?:road|street|lane|block|sector|nagar|colony|market|main|floor|plot|no\.|building|bldg|near|opp|opposite|behind|above|below|beside|next to)\b/i.test(original) && /\d/.test(original)) {
+  if (
+    /\b(?:road|street|lane|block|sector|nagar|colony|market|main|floor|plot|no\.|building|bldg|near|opp|opposite|behind|above|below|beside|next to)\b/i.test(
+      original,
+    ) &&
+    /\d/.test(original)
+  ) {
     return { blocked: true, classification: "CONTACT_INFO", reason: "Address detected" };
   }
-  if (/\b(?:delhi|mumbai|kolkata|chennai|bangalore|bengaluru|hyderabad|pune|jaipur|lucknow|ahmedabad|noida|gurgaon|gurugram|faridabad|ghaziabad)\b/i.test(original)) {
+  if (
+    /\b(?:delhi|mumbai|kolkata|chennai|bangalore|bengaluru|hyderabad|pune|jaipur|lucknow|ahmedabad|noida|gurgaon|gurugram|faridabad|ghaziabad)\b/i.test(
+      original,
+    )
+  ) {
     if (!/\b(?:biryani|kebab|chicken|special|style)\b/i.test(original)) {
-      return { blocked: true, classification: "CONTACT_INFO", reason: "City name in non-food context" };
+      return {
+        blocked: true,
+        classification: "CONTACT_INFO",
+        reason: "City name in non-food context",
+      };
     }
   }
   if (/\b\d{6}\b/.test(original) && !/₹|rs|price/i.test(original)) {
@@ -318,20 +545,36 @@ function isNonMenuText(text: string): { blocked: boolean; classification: TextCl
   }
 
   // Restaurant / Hotel / Menu branding
-  if (/\b(?:restaurant|hotel|cafe|dhaba|bhawan|palace|inn|lodge|motel)\b/i.test(original) && original.length < 50) {
+  if (
+    /\b(?:restaurant|hotel|cafe|dhaba|bhawan|palace|inn|lodge|motel)\b/i.test(original) &&
+    original.length < 50
+  ) {
     if (!/\b(?:style|special|wala|type)\b/i.test(original)) {
-      return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Restaurant/Hotel name" };
+      return {
+        blocked: true,
+        classification: "RESTAURANT_METADATA",
+        reason: "Restaurant/Hotel name",
+      };
     }
   }
 
   // Menu / Take Away headers
-  if (/\b(?:menu|take\s*away|home\s*delivery|dine\s*in|eat\s*in|order\s*online)\b/i.test(original) && !/\b(?:combo|thali|special|set)\b/i.test(original)) {
+  if (
+    /\b(?:menu|take\s*away|home\s*delivery|dine\s*in|eat\s*in|order\s*online)\b/i.test(original) &&
+    !/\b(?:combo|thali|special|set)\b/i.test(original)
+  ) {
     return { blocked: true, classification: "DECORATIVE_TEXT", reason: "Menu header text" };
   }
 
   // Pure Vegetarian / Non-Veg markers
-  if (/\b(?:100\s*%?\s*(?:pure\s+)?(?:veg|vegetarian)|pure\s+vegetarian|all\s+veg)\b/i.test(original)) {
-    return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Vegetarian declaration" };
+  if (
+    /\b(?:100\s*%?\s*(?:pure\s+)?(?:veg|vegetarian)|pure\s+vegetarian|all\s+veg)\b/i.test(original)
+  ) {
+    return {
+      blocked: true,
+      classification: "RESTAURANT_METADATA",
+      reason: "Vegetarian declaration",
+    };
   }
 
   // GST / FSSAI / Tax
@@ -340,24 +583,43 @@ function isNonMenuText(text: string): { blocked: boolean; classification: TextCl
   }
 
   // Email / Website / Social
-  if (/(?:@|www\.|\.com|\.in|\.org|http|facebook|instagram|twitter|youtube|zomato|swiggy)/i.test(original)) {
+  if (
+    /(?:@|www\.|\.com|\.in|\.org|http|facebook|instagram|twitter|youtube|zomato|swiggy)/i.test(
+      original,
+    )
+  ) {
     return { blocked: true, classification: "CONTACT_INFO", reason: "Website/Social media" };
   }
 
   // Owner / Manager names (no food words, short, title-case, no price)
-  if (/\b(?:owner|manager|proprietor|prop\.|chef|founder|director|mr\.|mrs\.|ms\.|shri|smt)\b/i.test(original)) {
-    return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Person title detected" };
+  if (
+    /\b(?:owner|manager|proprietor|prop\.|chef|founder|director|mr\.|mrs\.|ms\.|shri|smt)\b/i.test(
+      original,
+    )
+  ) {
+    return {
+      blocked: true,
+      classification: "RESTAURANT_METADATA",
+      reason: "Person title detected",
+    };
   }
 
   // Opening hours
-  if (/\b(?:am|pm|hrs|hours|timing|open|close|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(original) && /\d/.test(original)) {
+  if (
+    /\b(?:am|pm|hrs|hours|timing|open|close|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(
+      original,
+    ) &&
+    /\d/.test(original)
+  ) {
     if (!/\b(?:masala|tikka|biryani|naan|roti|dal|paneer|chicken|mutton)\b/i.test(original)) {
       return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Opening hours" };
     }
   }
 
   // Copyright / promotional
-  if (/\b(?:copyright|©|all rights|reserved|since|est\.|established|serving since)\b/i.test(original)) {
+  if (
+    /\b(?:copyright|©|all rights|reserved|since|est\.|established|serving since)\b/i.test(original)
+  ) {
     return { blocked: true, classification: "DECORATIVE_TEXT", reason: "Copyright/promotional" };
   }
 
@@ -375,12 +637,20 @@ function isNonMenuText(text: string): { blocked: boolean; classification: TextCl
   const alphaCount = (original.match(/[a-zA-Z]/g) || []).length;
   const totalLength = original.length;
   if (totalLength > 3 && alphaCount / totalLength < 0.3) {
-    return { blocked: true, classification: "UNKNOWN", reason: "Low alphabetic ratio — likely OCR noise" };
+    return {
+      blocked: true,
+      classification: "UNKNOWN",
+      reason: "Low alphabetic ratio — likely OCR noise",
+    };
   }
 
   // Person-like names: two capitalized words, no food vocabulary match
   if (/^[A-Z][a-z]+ [A-Z][a-z]+$/.test(original) && !hasAnyFoodWord(lower)) {
-    return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Looks like a person name" };
+    return {
+      blocked: true,
+      classification: "RESTAURANT_METADATA",
+      reason: "Looks like a person name",
+    };
   }
 
   return { blocked: false, classification: "UNKNOWN", reason: "" };
@@ -448,7 +718,10 @@ function foodPlausibilityScore(name: string): number {
  * Determines whether a text line is a menu CATEGORY heading.
  * Categories typically: ALL CAPS, no price, short, no digits, positioned before food items.
  */
-function isCategoryHeading(lineText: string, hasPrice: boolean): { isCategory: boolean; categoryName: string; confidence: number } {
+function isCategoryHeading(
+  lineText: string,
+  hasPrice: boolean,
+): { isCategory: boolean; categoryName: string; confidence: number } {
   const trimmed = lineText.trim();
   if (trimmed.length < 2 || trimmed.length > 50) {
     return { isCategory: false, categoryName: "", confidence: 0 };
@@ -480,15 +753,55 @@ function isCategoryHeading(lineText: string, hasPrice: boolean): { isCategory: b
 
   // Known category keywords
   const categoryKeywords = [
-    "paratha", "bread", "roti", "naan", "rice", "biryani", "pulao",
-    "vegetable", "veg", "dry", "gravy", "main course", "starter",
-    "appetizer", "soup", "shorba", "snack", "dessert", "sweet",
-    "beverage", "drink", "juice", "shake", "tandoor", "kebab",
-    "chinese", "noodle", "chowmein", "fried rice", "momos",
-    "roll", "rumali", "quick bite", "combo", "thali", "special",
-    "south indian", "dosa", "idli", "chaat",
-    "salad", "raita", "accompaniment", "extra", "add on",
-    "breakfast", "lunch", "dinner", "meal",
+    "paratha",
+    "bread",
+    "roti",
+    "naan",
+    "rice",
+    "biryani",
+    "pulao",
+    "vegetable",
+    "veg",
+    "dry",
+    "gravy",
+    "main course",
+    "starter",
+    "appetizer",
+    "soup",
+    "shorba",
+    "snack",
+    "dessert",
+    "sweet",
+    "beverage",
+    "drink",
+    "juice",
+    "shake",
+    "tandoor",
+    "kebab",
+    "chinese",
+    "noodle",
+    "chowmein",
+    "fried rice",
+    "momos",
+    "roll",
+    "rumali",
+    "quick bite",
+    "combo",
+    "thali",
+    "special",
+    "south indian",
+    "dosa",
+    "idli",
+    "chaat",
+    "salad",
+    "raita",
+    "accompaniment",
+    "extra",
+    "add on",
+    "breakfast",
+    "lunch",
+    "dinner",
+    "meal",
   ];
 
   const lowerStripped = stripped.toLowerCase();
@@ -554,9 +867,11 @@ function extractNamePriceVariants(lineText: string): PriceExtractionResult {
   };
 
   // Pattern 1: Triple Price (e.g., "Chicken Tikka 90 150 280")
-  const tripleMatch = text.match(/^(.*?)\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})$/i);
+  const tripleMatch = text.match(
+    /^(.*?)\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})$/i,
+  );
   if (tripleMatch && tripleMatch[1] && tripleMatch[2] && tripleMatch[3] && tripleMatch[4]) {
-    const name = tripleMatch[1].replace(/[._\-]+$/, "").trim();
+    const name = tripleMatch[1].replace(/[._-]+$/, "").trim();
     const p1 = parseInt(tripleMatch[2], 10);
     const p2 = parseInt(tripleMatch[3], 10);
     const p3 = parseInt(tripleMatch[4], 10);
@@ -574,15 +889,21 @@ function extractNamePriceVariants(lineText: string): PriceExtractionResult {
   }
 
   // Pattern 2: Dual Price (e.g., "Paneer Tikka 120 200")
-  const dualMatch = text.match(/^(.*?)\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})$/i);
+  const dualMatch = text.match(
+    /^(.*?)\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})$/i,
+  );
   if (dualMatch && dualMatch[1] && dualMatch[2] && dualMatch[3]) {
-    const candidateName = dualMatch[1].replace(/[._\-]+$/, "").trim();
+    const candidateName = dualMatch[1].replace(/[._-]+$/, "").trim();
     const p1 = parseInt(dualMatch[2], 10);
     const p2 = parseInt(dualMatch[3], 10);
 
     // Check if the first number is part of a brand name (e.g., "Chicken 65")
     const fullName = `${candidateName} ${p1}`;
-    if (isKnownDishNumber(fullName) && !text.toLowerCase().includes("half") && !text.toLowerCase().includes("full")) {
+    if (
+      isKnownDishNumber(fullName) &&
+      !text.toLowerCase().includes("half") &&
+      !text.toLowerCase().includes("full")
+    ) {
       return {
         cleanName: fullName,
         price: p2,
@@ -607,7 +928,7 @@ function extractNamePriceVariants(lineText: string): PriceExtractionResult {
   // Pattern 3: Single Price with currency symbol (e.g., "Paneer Tikka ₹190")
   const symbolMatch = text.match(/^(.*?)\s*(?:(?:₹|Rs\.?\s*|INR\s*))(\d{2,5})(?:\s*\/-\s*)?$/i);
   if (symbolMatch && symbolMatch[1] && symbolMatch[2]) {
-    const name = symbolMatch[1].replace(/[._\-]+$/, "").trim();
+    const name = symbolMatch[1].replace(/[._-]+$/, "").trim();
     const price = parseInt(symbolMatch[2], 10);
     return { cleanName: name, price, variants: [], hasPrice: true, displayOrder };
   }
@@ -615,13 +936,13 @@ function extractNamePriceVariants(lineText: string): PriceExtractionResult {
   // Pattern 4: Single Price without symbol (e.g., "Aloo Paratha 60")
   const singleMatch = text.match(/^(.*?)\s+(\d{2,4})(?:\s*\/-\s*)?$/);
   if (singleMatch && singleMatch[1] && singleMatch[2]) {
-    const rawName = singleMatch[1].replace(/[._\-]+$/, "").trim();
+    const rawName = singleMatch[1].replace(/[._-]+$/, "").trim();
     const price = parseInt(singleMatch[2], 10);
 
     // Check for nested price in name (e.g., "Paneer tikka 100 190" was already split wrong upstream)
     const trailingCheck = rawName.match(/^(.*?)\s+(\d{2,4})$/);
     if (trailingCheck && trailingCheck[1] && trailingCheck[2] && !isKnownDishNumber(rawName)) {
-      const actualName = trailingCheck[1].replace(/[._\-]+$/, "").trim();
+      const actualName = trailingCheck[1].replace(/[._-]+$/, "").trim();
       const halfPrice = parseInt(trailingCheck[2], 10);
       return {
         cleanName: actualName,
@@ -643,7 +964,7 @@ function extractNamePriceVariants(lineText: string): PriceExtractionResult {
 
   // No price detected
   return {
-    cleanName: text.replace(/[._\-]+$/, "").trim(),
+    cleanName: text.replace(/[._-]+$/, "").trim(),
     price: 0,
     variants: [],
     hasPrice: false,
@@ -657,7 +978,11 @@ function extractNamePriceVariants(lineText: string): PriceExtractionResult {
  * Detects column boundaries from OCR word bounding boxes.
  * Uses X-coordinate gap analysis to find vertical separators.
  */
-function detectColumns(words: OcrWord[]): { boundaries: number[]; count: number; imageWidth: number } {
+function detectColumns(words: OcrWord[]): {
+  boundaries: number[];
+  count: number;
+  imageWidth: number;
+} {
   if (words.length === 0) {
     return { boundaries: [0, 1000], count: 1, imageWidth: 1000 };
   }
@@ -693,7 +1018,8 @@ function detectColumns(words: OcrWord[]): { boundaries: number[]; count: number;
     } else {
       if (gapStart !== -1) {
         const gapWidth = (i - gapStart) * bucketSize;
-        if (gapWidth >= 30) { // Minimum 30px gap to be a column divider
+        if (gapWidth >= 30) {
+          // Minimum 30px gap to be a column divider
           gaps.push({
             start: gapStart * bucketSize,
             end: i * bucketSize,
@@ -716,7 +1042,10 @@ function detectColumns(words: OcrWord[]): { boundaries: number[]; count: number;
     const divider = (gap.start + gap.end) / 2;
     // Only accept if it divides the image into reasonable proportions (each column >= 15% width)
     const prevBoundary = boundaries[boundaries.length - 1] ?? 0;
-    if ((divider - prevBoundary) / imageWidth >= 0.15 && (imageWidth - divider) / imageWidth >= 0.15) {
+    if (
+      (divider - prevBoundary) / imageWidth >= 0.15 &&
+      (imageWidth - divider) / imageWidth >= 0.15
+    ) {
       boundaries.push(divider);
     }
   }
@@ -747,7 +1076,11 @@ function getWordColumn(word: OcrWord, boundaries: number[]): number {
 /**
  * Groups words into rows within each column, using Y-center proximity.
  */
-function clusterRowsPerColumn(words: OcrWord[], columnBoundaries: number[], columnCount: number): OcrRow[][] {
+function clusterRowsPerColumn(
+  words: OcrWord[],
+  columnBoundaries: number[],
+  columnCount: number,
+): OcrRow[][] {
   // Adaptive row threshold based on image height — not a hardcoded value
   const imageHeight = words.length > 0 ? Math.max(...words.map((w) => w.bbox.y1)) : 1000;
   const yThreshold = Math.max(8, Math.round(imageHeight * 0.008));
@@ -767,12 +1100,14 @@ function clusterRowsPerColumn(words: OcrWord[], columnBoundaries: number[], colu
 
     for (const word of colWords) {
       const wordYCenter = (word.bbox.y0 + word.bbox.y1) / 2;
-      let matchedRow = rows.find((r) => Math.abs(r.yCenter - wordYCenter) <= yThreshold);
+      const matchedRow = rows.find((r) => Math.abs(r.yCenter - wordYCenter) <= yThreshold);
 
       if (matchedRow) {
         matchedRow.words.push(word);
         // Recalculate yCenter as average
-        matchedRow.yCenter = matchedRow.words.reduce((sum, w) => sum + (w.bbox.y0 + w.bbox.y1) / 2, 0) / matchedRow.words.length;
+        matchedRow.yCenter =
+          matchedRow.words.reduce((sum, w) => sum + (w.bbox.y0 + w.bbox.y1) / 2, 0) /
+          matchedRow.words.length;
       } else {
         rows.push({ yCenter: wordYCenter, words: [word] });
       }
@@ -787,7 +1122,10 @@ function clusterRowsPerColumn(words: OcrWord[], columnBoundaries: number[], colu
     columns[col] = rows.map((r) => ({
       yCenter: r.yCenter,
       words: r.words,
-      lineText: r.words.map((w) => w.text).join(" ").trim(),
+      lineText: r.words
+        .map((w) => w.text)
+        .join(" ")
+        .trim(),
       column: col,
     }));
   }
@@ -857,13 +1195,29 @@ function buildMenuStructure(columns: OcrRow[][]): {
 
       // ---- STEP 2: Skip "Half / Full" header rows ----
       const lowerLine = lineText.toLowerCase();
-      if (/^\s*(?:half\s+full|full\s+half|s\.?\s*no|sr\.?\s*no|item\s+(?:name|price)|name\s+price)\s*$/i.test(lineText.trim())) {
-        excluded.push({ text: lineText, classification: "HEADER_FOOTER", reason: "Table header row" });
+      if (
+        /^\s*(?:half\s+full|full\s+half|s\.?\s*no|sr\.?\s*no|item\s+(?:name|price)|name\s+price)\s*$/i.test(
+          lineText.trim(),
+        )
+      ) {
+        excluded.push({
+          text: lineText,
+          classification: "HEADER_FOOTER",
+          reason: "Table header row",
+        });
         continue;
       }
       // Lines that are ONLY "Half" and "Full" with no food name
-      if (/^(?:half|full|quarter|small|medium|large|regular)(?:\s+(?:half|full|quarter|small|medium|large|regular))*\s*$/i.test(lineText.trim())) {
-        excluded.push({ text: lineText, classification: "HEADER_FOOTER", reason: "Variant header row" });
+      if (
+        /^(?:half|full|quarter|small|medium|large|regular)(?:\s+(?:half|full|quarter|small|medium|large|regular))*\s*$/i.test(
+          lineText.trim(),
+        )
+      ) {
+        excluded.push({
+          text: lineText,
+          classification: "HEADER_FOOTER",
+          reason: "Variant header row",
+        });
         continue;
       }
 
@@ -902,7 +1256,10 @@ function buildMenuStructure(columns: OcrRow[][]): {
         confidence = hasFoodWord ? "high" : "high"; // price + name = accept
       } else if (hasFoodWord && !extracted.hasPrice) {
         // Food word but no price — could be a category or price-less item
-        if (extracted.cleanName === extracted.cleanName.toUpperCase() && extracted.cleanName.length < 30) {
+        if (
+          extracted.cleanName === extracted.cleanName.toUpperCase() &&
+          extracted.cleanName.length < 30
+        ) {
           // ALL CAPS + no price → treat as category heading
           currentCategory = extracted.cleanName
             .toLowerCase()
@@ -924,7 +1281,11 @@ function buildMenuStructure(columns: OcrRow[][]): {
       } else if (!extracted.hasPrice && extracted.cleanName.length >= 3) {
         // No food word, no price, but has text — likely non-menu text or a category
         // Check if it looks like a category heading
-        if (extracted.cleanName === extracted.cleanName.toUpperCase() && extracted.cleanName.length < 30 && !/\d/.test(extracted.cleanName)) {
+        if (
+          extracted.cleanName === extracted.cleanName.toUpperCase() &&
+          extracted.cleanName.length < 30 &&
+          !/\d/.test(extracted.cleanName)
+        ) {
           currentCategory = extracted.cleanName
             .toLowerCase()
             .replace(/(?:^|\s)\w/g, (c) => c.toUpperCase());
@@ -1017,7 +1378,8 @@ export function calculateMenuQualityScore(items: ExtractedMenuItem[], categories
   const categoryBonus = categoriesCount > 1 ? 20 : categoriesCount === 1 ? 10 : 0;
 
   const score = Math.min(100, Math.round(priceScore + reviewScore + categoryBonus));
-  const rating: "High" | "Good" | "Needs Review" = score >= 85 ? "High" : score >= 65 ? "Good" : "Needs Review";
+  const rating: "High" | "Good" | "Needs Review" =
+    score >= 85 ? "High" : score >= 65 ? "Good" : "Needs Review";
 
   return { score, rating, verifiedPrices, needsReview };
 }
@@ -1055,7 +1417,7 @@ export function normalizeDishNameAndVariants(lineText: string) {
  */
 export async function extractMenuFromFiles(
   files: Array<{ name: string; url?: string; dataUrl?: string }>,
-  existingProducts: Array<{ id: string; name: string; base_price: number }> = []
+  existingProducts: Array<{ id: string; name: string; base_price: number }> = [],
 ): Promise<MenuExtractionResult> {
   console.log(`[MenuExtractor v2] Processing ${files.length} menu document(s)...`);
 
@@ -1065,7 +1427,7 @@ export async function extractMenuFromFiles(
     primaryFileHash = await computeFileHash(files[0].dataUrl);
   }
 
-  let allWords: OcrWord[] = [];
+  const allWords: OcrWord[] = [];
   let allExcluded: ExcludedTextBlock[] = [];
 
   // ---- STAGE 1-2: Run Tesseract OCR with bounding boxes ----
@@ -1092,12 +1454,16 @@ export async function extractMenuFromFiles(
         }
 
         if (words.length > 0) {
-          console.log(`[Tesseract OCR] Recognized ${words.length} spatial tokens from ${file.name}`);
+          console.log(
+            `[Tesseract OCR] Recognized ${words.length} spatial tokens from ${file.name}`,
+          );
           allWords.push(...words);
         } else {
           // Fallback: parse raw text into synthetic words
           const rawText = ocrResult?.text || "";
-          console.log(`[Tesseract OCR] No bounding boxes, using raw text fallback (${rawText.length} chars)`);
+          console.log(
+            `[Tesseract OCR] No bounding boxes, using raw text fallback (${rawText.length} chars)`,
+          );
           const lines = rawText.split("\n").filter((l) => l.trim().length > 0);
           let y = 0;
           for (const line of lines) {
@@ -1123,25 +1489,31 @@ export async function extractMenuFromFiles(
   // ---- STAGE 3: Column Detection ----
   console.log(`[Pipeline Stage 3] Detecting columns from ${allWords.length} words...`);
   const { boundaries: columnBoundaries, count: columnCount } = detectColumns(allWords);
-  console.log(`[Pipeline Stage 3] Detected ${columnCount} column(s): boundaries = [${columnBoundaries.map((b) => Math.round(b)).join(", ")}]`);
+  console.log(
+    `[Pipeline Stage 3] Detected ${columnCount} column(s): boundaries = [${columnBoundaries.map((b) => Math.round(b)).join(", ")}]`,
+  );
 
   // ---- STAGE 4: Row Clustering per Column ----
   console.log(`[Pipeline Stage 4] Clustering words into rows per column...`);
   const columns = clusterRowsPerColumn(allWords, columnBoundaries, columnCount);
   const totalRows = columns.reduce((sum, col) => sum + col.length, 0);
-  console.log(`[Pipeline Stage 4] Clustered into ${totalRows} rows across ${columnCount} column(s)`);
+  console.log(
+    `[Pipeline Stage 4] Clustered into ${totalRows} rows across ${columnCount} column(s)`,
+  );
 
   // ---- STAGES 5-6: Classification, Category Propagation, Food/Price Association ----
   console.log(`[Pipeline Stage 5-6] Classifying text blocks & building menu structure...`);
   const structured = buildMenuStructure(columns);
   allExcluded = structured.excluded;
-  console.log(`[Pipeline Stage 5-6] Found ${structured.categories.length} categories, ${structured.items.length} food items, excluded ${allExcluded.length} non-menu blocks`);
+  console.log(
+    `[Pipeline Stage 5-6] Found ${structured.categories.length} categories, ${structured.items.length} food items, excluded ${allExcluded.length} non-menu blocks`,
+  );
 
   // ---- STAGE 7: Build final ExtractedMenuItem[] with dedup & existing-product matching ----
   const extractedItems: ExtractedMenuItem[] = [];
   const seenBatchNames = new Set<string>();
   let variantsCount = 0;
-  let addonsCount = 0;
+  const addonsCount = 0;
   let needsReviewCount = 0;
   let duplicatesCount = 0;
 
@@ -1167,7 +1539,7 @@ export async function extractMenuFromFiles(
 
     // Check for existing product match
     const existingMatch = existingProducts.find(
-      (ep) => ep.name.toLowerCase().trim() === normalizedNameKey
+      (ep) => ep.name.toLowerCase().trim() === normalizedNameKey,
     );
 
     let isDuplicate = false;
@@ -1225,7 +1597,9 @@ export async function extractMenuFromFiles(
   const categories = structured.categories;
   const quality = calculateMenuQualityScore(extractedItems, categories.length);
 
-  console.log(`[MenuExtractor v2] COMPLETE: ${categories.length} categories, ${extractedItems.length} items, ${allExcluded.length} excluded, Quality: ${quality.score}% (${quality.rating})`);
+  console.log(
+    `[MenuExtractor v2] COMPLETE: ${categories.length} categories, ${extractedItems.length} items, ${allExcluded.length} excluded, Quality: ${quality.score}% (${quality.rating})`,
+  );
 
   return {
     categories,

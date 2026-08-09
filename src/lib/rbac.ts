@@ -16,13 +16,7 @@ export type StaffRole =
   | "bar_staff";
 
 export type WorkspaceType =
-  | "owner"
-  | "manager"
-  | "floor_ops"
-  | "waiter"
-  | "cashier"
-  | "kitchen"
-  | "bar";
+  "owner" | "manager" | "floor_ops" | "waiter" | "cashier" | "kitchen" | "bar";
 
 /**
  * Map each role to a workspace type for dashboard rendering
@@ -134,9 +128,7 @@ export const ROLE_NAV: Record<StaffRole, NavSection[]> = {
     },
     {
       section: "REPORTS",
-      items: [
-        { to: "/admin/reports", label: "Reports", icon: "bar-chart" },
-      ],
+      items: [{ to: "/admin/reports", label: "Reports", icon: "bar-chart" }],
     },
   ],
 
@@ -160,9 +152,7 @@ export const ROLE_NAV: Record<StaffRole, NavSection[]> = {
     },
     {
       section: "REPORTS",
-      items: [
-        { to: "/admin/reports", label: "Branch Reports", icon: "bar-chart" },
-      ],
+      items: [{ to: "/admin/reports", label: "Branch Reports", icon: "bar-chart" }],
     },
   ],
 
@@ -217,9 +207,7 @@ export const ROLE_NAV: Record<StaffRole, NavSection[]> = {
   kitchen_staff: [
     {
       section: "KITCHEN",
-      items: [
-        { to: "/admin/kds", label: "Kitchen Display", icon: "chef-hat", badge: "live" },
-      ],
+      items: [{ to: "/admin/kds", label: "Kitchen Display", icon: "chef-hat", badge: "live" }],
     },
   ],
 
@@ -238,17 +226,60 @@ export const ROLE_NAV: Record<StaffRole, NavSection[]> = {
 /**
  * Role display config — label, color badge, description
  */
-export const ROLE_DISPLAY: Record<StaffRole, { label: string; color: string; description: string }> = {
-  owner: { label: "OWNER", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", description: "Full business access" },
-  business_admin: { label: "ADMIN", color: "bg-amber-500/15 text-amber-400 border-amber-500/25", description: "Business administrator" },
-  general_manager: { label: "GM", color: "bg-blue-500/15 text-blue-300 border-blue-500/25", description: "General Manager" },
-  branch_manager: { label: "BRANCH MGR", color: "bg-indigo-500/15 text-indigo-300 border-indigo-500/25", description: "Branch Manager" },
-  floor_manager: { label: "FLOOR MGR", color: "bg-purple-500/15 text-purple-300 border-purple-500/25", description: "Floor Manager" },
-  waiter: { label: "WAITER", color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25", description: "Service Staff" },
-  cashier: { label: "CASHIER", color: "bg-green-500/15 text-green-300 border-green-500/25", description: "Billing & Payments" },
-  chef: { label: "CHEF", color: "bg-orange-500/15 text-orange-300 border-orange-500/25", description: "Kitchen Lead" },
-  kitchen_staff: { label: "KITCHEN", color: "bg-red-500/15 text-red-300 border-red-500/25", description: "Kitchen Staff" },
-  bar_staff: { label: "BAR", color: "bg-pink-500/15 text-pink-300 border-pink-500/25", description: "Bar Staff" },
+export const ROLE_DISPLAY: Record<
+  StaffRole,
+  { label: string; color: string; description: string }
+> = {
+  owner: {
+    label: "OWNER",
+    color: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    description: "Full business access",
+  },
+  business_admin: {
+    label: "ADMIN",
+    color: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+    description: "Business administrator",
+  },
+  general_manager: {
+    label: "GM",
+    color: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+    description: "General Manager",
+  },
+  branch_manager: {
+    label: "BRANCH MGR",
+    color: "bg-indigo-500/15 text-indigo-300 border-indigo-500/25",
+    description: "Branch Manager",
+  },
+  floor_manager: {
+    label: "FLOOR MGR",
+    color: "bg-purple-500/15 text-purple-300 border-purple-500/25",
+    description: "Floor Manager",
+  },
+  waiter: {
+    label: "WAITER",
+    color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
+    description: "Service Staff",
+  },
+  cashier: {
+    label: "CASHIER",
+    color: "bg-green-500/15 text-green-300 border-green-500/25",
+    description: "Billing & Payments",
+  },
+  chef: {
+    label: "CHEF",
+    color: "bg-orange-500/15 text-orange-300 border-orange-500/25",
+    description: "Kitchen Lead",
+  },
+  kitchen_staff: {
+    label: "KITCHEN",
+    color: "bg-red-500/15 text-red-300 border-red-500/25",
+    description: "Kitchen Staff",
+  },
+  bar_staff: {
+    label: "BAR",
+    color: "bg-pink-500/15 text-pink-300 border-pink-500/25",
+    description: "Bar Staff",
+  },
 };
 
 /**
@@ -258,7 +289,11 @@ export const ROLE_DISPLAY: Record<StaffRole, { label: string; color: string; des
  *
  * SECURITY: Do NOT use this to gate sensitive operations.
  */
-export const getCustomPermission = (role: string, permissionKey: string, _businessId?: string): boolean => {
+export const getCustomPermission = (
+  role: string,
+  permissionKey: string,
+  _businessId?: string,
+): boolean => {
   // Owner & Business Admin always have full access to everything
   if (role === "owner" || role === "business_admin") return true;
 

@@ -54,8 +54,34 @@ function runEngineTests() {
   // TEST 4: Quality Score Calculation Engine
   assertTest("TEST 4: Quality Score Calculation Engine", () => {
     const dummyItems = [
-      { id: "1", name: "Paneer Tikka", description: "", categoryName: "Starters", price: 200, rawPrice: "200", currency: "INR", dietary: "veg", prepTimeMinutes: 15, variants: [], addons: [], confidence: "high" },
-      { id: "2", name: "Chicken Tikka", description: "", categoryName: "Starters", price: 300, rawPrice: "300", currency: "INR", dietary: "non_veg", prepTimeMinutes: 15, variants: [], addons: [], confidence: "high" },
+      {
+        id: "1",
+        name: "Paneer Tikka",
+        description: "",
+        categoryName: "Starters",
+        price: 200,
+        rawPrice: "200",
+        currency: "INR",
+        dietary: "veg",
+        prepTimeMinutes: 15,
+        variants: [],
+        addons: [],
+        confidence: "high",
+      },
+      {
+        id: "2",
+        name: "Chicken Tikka",
+        description: "",
+        categoryName: "Starters",
+        price: 300,
+        rawPrice: "300",
+        currency: "INR",
+        dietary: "non_veg",
+        prepTimeMinutes: 15,
+        variants: [],
+        addons: [],
+        confidence: "high",
+      },
     ];
     const quality = calculateMenuQualityScore(dummyItems, 1);
     return quality.score === 100 && quality.rating === "High";

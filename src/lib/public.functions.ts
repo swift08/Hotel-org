@@ -23,16 +23,27 @@ export async function resolveTableCore(slug: string) {
   }
 
   const [{ data: business }, { data: settings }, { data: branch }] = await Promise.all([
-    supabaseAdmin.from("businesses").select("id, name, currency, is_active").eq("id", table.business_id).maybeSingle(),
+    supabaseAdmin
+      .from("businesses")
+      .select("id, name, currency, is_active")
+      .eq("id", table.business_id)
+      .maybeSingle(),
     supabaseAdmin
       .from("business_settings")
-      .select("tax_mode, default_tax_rate, service_charge_rate, cash_payment_enabled, online_payment_enabled, address_line2")
+      .select(
+        "tax_mode, default_tax_rate, service_charge_rate, cash_payment_enabled, online_payment_enabled, address_line2",
+      )
       .eq("business_id", table.business_id)
       .maybeSingle(),
-    supabaseAdmin.from("branches").select("id, name, is_active").eq("id", table.branch_id).maybeSingle(),
+    supabaseAdmin
+      .from("branches")
+      .select("id, name, is_active")
+      .eq("id", table.branch_id)
+      .maybeSingle(),
   ]);
 
-  if (!business?.is_active || !branch?.is_active) return { ok: false as const, reason: "closed" as const };
+  if (!business?.is_active || !branch?.is_active)
+    return { ok: false as const, reason: "closed" as const };
 
   await supabaseAdmin
     .from("restaurant_tables")
@@ -40,12 +51,12 @@ export async function resolveTableCore(slug: string) {
     .eq("id", table.id);
 
   let diningSessionId: string | null = null;
-  const { data: activeSession } = await (supabaseAdmin as any)
+  const { data: activeSession } = (await (supabaseAdmin as any)
     .from("dining_sessions")
     .select("id, session_token")
     .eq("table_id", table.id)
     .eq("status", "active")
-    .maybeSingle() as any;
+    .maybeSingle()) as any;
 
   let sessionToken = "";
   if (activeSession) {
@@ -54,7 +65,7 @@ export async function resolveTableCore(slug: string) {
   } else {
     const crypto = await import("crypto");
     sessionToken = "sess_" + crypto.randomBytes(8).toString("hex");
-    const { data: newSession, error: sessErr } = await (supabaseAdmin as any)
+    const { data: newSession, error: sessErr } = (await (supabaseAdmin as any)
       .from("dining_sessions")
       .insert({
         business_id: table.business_id,
@@ -64,7 +75,7 @@ export async function resolveTableCore(slug: string) {
         status: "active",
       })
       .select("id")
-      .single() as any;
+      .single()) as any;
     if (sessErr || !newSession) {
       throw new Error("Could not initialize dining session.");
     }
@@ -160,7 +171,9 @@ export const getPublicMenu = createServerFn({ method: "POST" })
       };
       const start = parse(from);
       const end = parse(to);
-      return start <= end ? minutesNow >= start && minutesNow <= end : minutesNow >= start || minutesNow <= end;
+      return start <= end
+        ? minutesNow >= start && minutesNow <= end
+        : minutesNow >= start || minutesNow <= end;
     };
 
     return {
@@ -208,17 +221,19 @@ export const placeOrder = createServerFn({ method: "POST" })
     const { nextOrderNumber } = await import("@/lib/db.server");
 
     // Authoritative verification of dining session and its status
-    const { data: dbSession } = await (supabaseAdmin as any)
+    const { data: dbSession } = (await (supabaseAdmin as any)
       .from("dining_sessions")
       .select("id, status, table_id, business_id, branch_id, session_token")
       .eq("id", session["diningSessionId"])
-      .maybeSingle() as any;
+      .maybeSingle()) as any;
 
     if (!dbSession) {
       throw new Error("Dining session not found. Please scan the QR code again.");
     }
     if ((dbSession as any).status !== "active") {
-      throw new Error("This dining session has already been completed or settled. Further orders are not permitted.");
+      throw new Error(
+        "This dining session has already been completed or settled. Further orders are not permitted.",
+      );
     }
 
     const { data: table } = await supabaseAdmin
@@ -238,7 +253,8 @@ export const placeOrder = createServerFn({ method: "POST" })
       .eq("business_id", dbSession.business_id)
       .eq("idempotency_key", data.idempotencyKey)
       .maybeSingle();
-    if (existing) return { orderId: existing.id, orderNumber: existing.order_number, duplicate: true };
+    if (existing)
+      return { orderId: existing.id, orderNumber: existing.order_number, duplicate: true };
 
     const { data: settings } = await supabaseAdmin
       .from("business_settings")
@@ -343,13 +359,19 @@ export const placeOrder = createServerFn({ method: "POST" })
 
     if (orderError || !order) {
       // Race condition check
-      const { data: raced } = await (supabaseAdmin as any)
+      const { data: raced } = (await (supabaseAdmin as any)
         .from("orders")
         .select("id, order_number, dining_session_id")
         .eq("business_id", dbSession.business_id)
         .eq("idempotency_key", data.idempotencyKey)
-        .maybeSingle() as any;
-      if (raced) return { orderId: (raced as any).id, orderNumber: (raced as any).order_number, diningSessionId: (raced as any).dining_session_id, duplicate: true };
+        .maybeSingle()) as any;
+      if (raced)
+        return {
+          orderId: (raced as any).id,
+          orderNumber: (raced as any).order_number,
+          diningSessionId: (raced as any).dining_session_id,
+          duplicate: true,
+        };
       throw new Error(orderError?.message ?? "Could not place the order.");
     }
 
@@ -390,7 +412,12 @@ export const placeOrder = createServerFn({ method: "POST" })
       status: "queued",
     });
 
-    return { orderId: order.id, orderNumber: order.order_number, diningSessionId: dbSession.id, duplicate: false };
+    return {
+      orderId: order.id,
+      orderNumber: order.order_number,
+      diningSessionId: dbSession.id,
+      duplicate: false,
+    };
   });
 
 export const getPublicOrder = createServerFn({ method: "POST" })
@@ -425,7 +452,9 @@ export const getPublicOrder = createServerFn({ method: "POST" })
     const [{ data: items }, { data: events }] = await Promise.all([
       supabaseAdmin
         .from("order_items")
-        .select("id, product_name, variant_name, addons, quantity, line_total, special_instructions")
+        .select(
+          "id, product_name, variant_name, addons, quantity, line_total, special_instructions",
+        )
         .eq("order_id", (order as any).id),
       supabaseAdmin
         .from("order_events")
@@ -449,17 +478,21 @@ export const getPublicDiningSession = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { getCustomerSession } = await import("@/lib/cookie");
     const session = getCustomerSession();
-    if (!session || !session["diningSessionId"] || session["diningSessionId"] !== data.diningSessionId) {
+    if (
+      !session ||
+      !session["diningSessionId"] ||
+      session["diningSessionId"] !== data.diningSessionId
+    ) {
       throw new Error("Unauthorized: Invalid dining session context.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: dbSession } = await (supabaseAdmin as any)
+    const { data: dbSession } = (await (supabaseAdmin as any)
       .from("dining_sessions")
       .select("id, status")
       .eq("id", session["diningSessionId"])
-      .maybeSingle() as any;
+      .maybeSingle()) as any;
 
     if (!dbSession) throw new Error("Dining session not found.");
 
@@ -477,9 +510,17 @@ export const submitContactForm = createServerFn({ method: "POST" })
     z
       .object({
         fullName: z.string().trim().min(2, "Full name is required").max(100, "Name too long"),
-        businessName: z.string().trim().min(2, "Business name is required").max(120, "Business name too long"),
+        businessName: z
+          .string()
+          .trim()
+          .min(2, "Business name is required")
+          .max(120, "Business name too long"),
         workEmail: z.string().trim().email("Invalid email address").max(150),
-        phoneNumber: z.string().trim().min(7, "Phone number too short").max(20, "Phone number too long"),
+        phoneNumber: z
+          .string()
+          .trim()
+          .min(7, "Phone number too short")
+          .max(20, "Phone number too long"),
         businessType: z.string().trim().min(1, "Please select a business type").max(50),
         numberOfOutlets: z.string().trim().min(1, "Please select number of outlets").max(50),
         message: z.string().trim().max(1000, "Message cannot exceed 1000 characters").optional(),
@@ -506,7 +547,8 @@ export const submitContactForm = createServerFn({ method: "POST" })
 
     return {
       ok: true as const,
-      message: "Thank you! Our ADMARK DIGITALS hospitality operations team will contact you within 24 hours.",
+      message:
+        "Thank you! Our ADMARK DIGITALS hospitality operations team will contact you within 24 hours.",
       referenceId: `LEAD-${Date.now().toString(36).toUpperCase()}`,
     };
   });

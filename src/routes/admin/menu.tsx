@@ -1,31 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { getMyContext } from "@/lib/business.functions";
-import { 
-  getMenu, 
-  saveCategory, 
-  saveProduct, 
-  setProductAvailability, 
+import {
+  getMenu,
+  saveCategory,
+  saveProduct,
+  setProductAvailability,
   setProductState,
   saveVariant,
   saveAddonGroup,
-  saveAddon
+  saveAddon,
 } from "@/lib/menu.functions";
 import { listMenuImports } from "@/lib/menu-import.functions";
-import { 
-  MenuSquare, 
-  Plus, 
-  Search, 
-  Edit3, 
+import {
+  MenuSquare,
+  Plus,
+  Search,
+  Edit3,
   Eye,
-  ShieldAlert, 
-  EyeOff, 
-  CheckCircle2, 
-  XCircle, 
-  Tag, 
-  Clock, 
-  ChefHat, 
-  Layers, 
+  ShieldAlert,
+  EyeOff,
+  CheckCircle2,
+  XCircle,
+  Tag,
+  Clock,
+  ChefHat,
+  Layers,
   DollarSign,
   Loader2,
   Filter,
@@ -34,7 +34,7 @@ import {
   Sparkles,
   FileText,
   UploadCloud,
-  History
+  History,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -42,8 +42,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { MenuImportModal } from "@/components/menu/MenuImportModal";
@@ -104,17 +117,20 @@ function MenuCMS() {
       const fileName = `${context?.membership?.business_id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: true
-        });
+      const { data, error } = await supabase.storage.from(bucketName).upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
 
       if (error) {
-        if (error.message.includes("bucket not found") || error.message.includes("does not exist")) {
+        if (
+          error.message.includes("bucket not found") ||
+          error.message.includes("does not exist")
+        ) {
           await supabase.storage.createBucket(bucketName, { public: true });
-          const retry = await supabase.storage.from(bucketName).upload(filePath, file, { upsert: true });
+          const retry = await supabase.storage
+            .from(bucketName)
+            .upload(filePath, file, { upsert: true });
           if (retry.error) throw retry.error;
           const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
           return publicUrlData.publicUrl;
@@ -290,16 +306,24 @@ function MenuCMS() {
 
   const currencySymbol = context?.business?.currency === "INR" ? "₹" : "$";
 
-  const canViewMenu = !context || context.permissions?.includes("menu.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canViewMenu =
+    !context ||
+    context.permissions?.includes("menu.view") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
 
   if (!loading && context && !canViewMenu) {
     return (
       <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
         <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
-        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`menu.view`) to access Menu Management.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          You do not have permission (`menu.view`) to access Menu Management.
+        </p>
         <Link to="/admin/dashboard">
-          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+          <Button variant="outline" className="mt-4">
+            Return to Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -409,7 +433,9 @@ function MenuCMS() {
           All Items
           <span
             className={`rounded-full px-1.5 text-[10px] font-bold min-w-[18px] text-center ${
-              selectedCategory === "all" ? "bg-amber-500/20 text-amber-700 dark:text-amber-400" : "bg-slate-150 dark:bg-slate-800 text-slate-500"
+              selectedCategory === "all"
+                ? "bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                : "bg-slate-150 dark:bg-slate-800 text-slate-500"
             }`}
           >
             {products.length}
@@ -430,7 +456,9 @@ function MenuCMS() {
               {c.name}
               <span
                 className={`rounded-full px-1.5 text-[10px] font-bold min-w-[18px] text-center ${
-                  selectedCategory === c.id ? "bg-amber-500/20 text-amber-700 dark:text-amber-400" : "bg-slate-150 dark:bg-slate-800 text-slate-500"
+                  selectedCategory === c.id
+                    ? "bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                    : "bg-slate-150 dark:bg-slate-800 text-slate-500"
                 }`}
               >
                 {count}
@@ -444,15 +472,21 @@ function MenuCMS() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-44 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 animate-pulse" />
+            <div
+              key={i}
+              className="h-44 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 animate-pulse"
+            />
           ))}
         </div>
       ) : filteredProducts.length === 0 ? (
         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400 shadow-md">
           <UploadCloud className="h-12 w-12 mx-auto mb-3 text-amber-500 animate-pulse" />
-          <h3 className="text-xl font-extrabold text-slate-800 dark:text-white mb-1">No menu yet</h3>
+          <h3 className="text-xl font-extrabold text-slate-800 dark:text-white mb-1">
+            No menu yet
+          </h3>
           <p className="text-xs max-w-md mx-auto mb-6 text-slate-600 dark:text-slate-400">
-            Upload your existing menu photo or PDF and Rasoi will turn it into an editable digital menu.
+            Upload your existing menu photo or PDF and Rasoi will turn it into an editable digital
+            menu.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Button
@@ -480,7 +514,10 @@ function MenuCMS() {
             const tag = p.food_tags?.[0] || "veg";
 
             return (
-              <Card key={p.id} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-lg text-slate-800 dark:text-slate-100 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5 transition-all overflow-hidden">
+              <Card
+                key={p.id}
+                className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-lg text-slate-800 dark:text-slate-100 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5 transition-all overflow-hidden"
+              >
                 {p.images?.[0] ? (
                   <div className="h-36 w-full overflow-hidden relative">
                     <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
@@ -512,9 +549,13 @@ function MenuCMS() {
                             VEGAN
                           </Badge>
                         )}
-                        <h3 className="font-bold text-base text-slate-800 dark:text-white">{p.name}</h3>
+                        <h3 className="font-bold text-base text-slate-800 dark:text-white">
+                          {p.name}
+                        </h3>
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{p.description || "No description."}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                        {p.description || "No description."}
+                      </p>
                     </div>
 
                     <div className="flex flex-col items-end gap-1 shrink-0">
@@ -522,7 +563,9 @@ function MenuCMS() {
                         checked={p.is_available}
                         onCheckedChange={() => handleToggleStock(p.id, p.is_available)}
                       />
-                      <span className={`text-[10px] font-bold ${p.is_available ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>
+                      <span
+                        className={`text-[10px] font-bold ${p.is_available ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}
+                      >
                         {p.is_available ? "In Stock" : "Out of Stock"}
                       </span>
                     </div>
@@ -531,7 +574,8 @@ function MenuCMS() {
                   {/* Pricing & Prep Time */}
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">
-                      {currencySymbol}{Number(p.base_price).toFixed(2)}
+                      {currencySymbol}
+                      {Number(p.base_price).toFixed(2)}
                     </span>
                     <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5 text-slate-500 dark:text-slate-500" />
@@ -554,7 +598,8 @@ function MenuCMS() {
                         return (
                           <div className="w-full p-2.5 rounded-xl border border-dashed border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-400 dark:text-slate-600">
                             <span className="text-[11px] italic font-medium flex items-center gap-1">
-                              <Layers className="h-3.5 w-3.5 opacity-40" /> Standard Portion (Single Price)
+                              <Layers className="h-3.5 w-3.5 opacity-40" /> Standard Portion (Single
+                              Price)
                             </span>
                           </div>
                         );
@@ -571,7 +616,8 @@ function MenuCMS() {
                                 key={v.id}
                                 className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 shadow-md border-none"
                               >
-                                {v.name}: {currencySymbol}{Number(v.price).toFixed(2)}
+                                {v.name}: {currencySymbol}
+                                {Number(v.price).toFixed(2)}
                               </Badge>
                             ))}
                           </div>
@@ -618,7 +664,9 @@ function MenuCMS() {
           </DialogHeader>
           <form onSubmit={handleSaveCategory} className="space-y-4 pt-2">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Category Name *</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Category Name *
+              </Label>
               <Input
                 placeholder="e.g. Starters, Main Course, Drinks"
                 value={catName}
@@ -628,7 +676,9 @@ function MenuCMS() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Description</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Description
+              </Label>
               <Input
                 placeholder="Freshly prepared tandoori and sizzler items"
                 value={catDesc}
@@ -637,7 +687,10 @@ function MenuCMS() {
               />
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400">
+              <Button
+                type="submit"
+                className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400"
+              >
                 Save Category
               </Button>
             </DialogFooter>
@@ -649,12 +702,16 @@ function MenuCMS() {
       <Dialog open={prodModalOpen} onOpenChange={setProdModalOpen}>
         <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-slate-900 dark:text-white">{prodId ? "Edit Menu Item" : "Add Menu Item"}</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">
+              {prodId ? "Edit Menu Item" : "Add Menu Item"}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveProduct} className="space-y-4 pt-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Item Name *</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Item Name *
+                </Label>
                 <Input
                   placeholder="e.g. Butter Chicken"
                   value={prodName}
@@ -665,7 +722,9 @@ function MenuCMS() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Category</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Category
+                </Label>
                 <Select value={prodCatId} onValueChange={setProdCatId}>
                   <SelectTrigger className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     <SelectValue placeholder="Select Category" />
@@ -681,7 +740,9 @@ function MenuCMS() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Base Price ({currencySymbol}) *</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Base Price ({currencySymbol}) *
+                </Label>
                 <Input
                   type="number"
                   min={0}
@@ -694,7 +755,9 @@ function MenuCMS() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Food Tag</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Food Tag
+                </Label>
                 <Select value={prodFoodTag} onValueChange={setProdFoodTag}>
                   <SelectTrigger className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     <SelectValue />
@@ -709,7 +772,9 @@ function MenuCMS() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Prep Time (mins)</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Prep Time (mins)
+                </Label>
                 <Input
                   type="number"
                   min={1}
@@ -720,7 +785,9 @@ function MenuCMS() {
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Description</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Description
+                </Label>
                 <Input
                   placeholder="Short description for customer menu"
                   value={prodDesc}
@@ -731,11 +798,17 @@ function MenuCMS() {
 
               {/* Photo Upload & Preview Widget */}
               <div className="space-y-2 sm:col-span-2 border-t border-slate-200 dark:border-slate-800/80 pt-4 mt-2">
-                <Label className="text-xs font-bold text-amber-600 dark:text-amber-400">Dish Photo</Label>
+                <Label className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                  Dish Photo
+                </Label>
                 <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                   {prodImages?.[0] ? (
                     <div className="h-16 w-16 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 relative group">
-                      <img src={prodImages[0]} alt="Preview" className="h-full w-full object-cover" />
+                      <img
+                        src={prodImages[0]}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
                       <button
                         type="button"
                         onClick={() => setProdImages([])}
@@ -788,7 +861,10 @@ function MenuCMS() {
             </div>
 
             <DialogFooter>
-              <Button type="submit" className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 w-full sm:w-auto">
+              <Button
+                type="submit"
+                className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 w-full sm:w-auto"
+              >
                 Save Item
               </Button>
             </DialogFooter>
@@ -800,11 +876,15 @@ function MenuCMS() {
       <Dialog open={variantModalOpen} onOpenChange={setVariantModalOpen}>
         <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
           <DialogHeader>
-            <DialogTitle className="text-slate-900 dark:text-white">Add Variant for {selectedProductForVariant?.name}</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">
+              Add Variant for {selectedProductForVariant?.name}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveVariant} className="space-y-4 pt-2">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Variant Name *</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Variant Name *
+              </Label>
               <Input
                 placeholder="e.g. Small / Medium / Large / Half / Full"
                 value={variantName}
@@ -814,7 +894,9 @@ function MenuCMS() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Variant Price ({currencySymbol}) *</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Variant Price ({currencySymbol}) *
+              </Label>
               <Input
                 type="number"
                 min={0}
@@ -825,7 +907,10 @@ function MenuCMS() {
               />
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400">
+              <Button
+                type="submit"
+                className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400"
+              >
                 Save Variant
               </Button>
             </DialogFooter>

@@ -26,10 +26,14 @@ async function main() {
     }
 
     if (res.summary.fail > 0) {
-      console.error(`\n❌ SECURITY AUDIT FAILED WITH ${res.summary.fail} DEFECT(S)! Deployment blocked.`);
+      console.error(
+        `\n❌ SECURITY AUDIT FAILED WITH ${res.summary.fail} DEFECT(S)! Deployment blocked.`,
+      );
       process.exit(1);
     } else {
-      console.log(`\n🎉 ALL ${res.summary.total} SECURITY ASSERTIONS PASSED 100%! System is production secure.`);
+      console.log(
+        `\n🎉 ALL ${res.summary.total} SECURITY ASSERTIONS PASSED 100%! System is production secure.`,
+      );
       process.exit(0);
     }
   } catch (err) {

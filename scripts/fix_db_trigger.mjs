@@ -1,9 +1,10 @@
-import pg from 'pg';
+import pg from "pg";
 
 const { Client } = pg;
 
 // Connection string for Supabase PostgreSQL
-const connectionString = "postgresql://postgres:Harshi0812_@db.pzyiffaaeqrpbzwymbmv.supabase.co:5432/postgres";
+const connectionString =
+  "postgresql://postgres:Harshi0812_@db.pzyiffaaeqrpbzwymbmv.supabase.co:5432/postgres";
 
 async function fixTrigger() {
   console.log("==================================================================");
@@ -20,13 +21,13 @@ async function fixTrigger() {
   let client = null;
   for (const connStr of connectionStrings) {
     try {
-      console.log(`Connecting to: ${connStr.split('@')[1]}...`);
+      console.log(`Connecting to: ${connStr.split("@")[1]}...`);
       client = new Client({ connectionString: connStr, ssl: { rejectUnauthorized: false } });
       await client.connect();
       console.log("✅ Connected to PostgreSQL successfully!");
       break;
     } catch (err) {
-      console.log(`Failed connecting to ${connStr.split('@')[1]}: ${err.message}`);
+      console.log(`Failed connecting to ${connStr.split("@")[1]}: ${err.message}`);
       client = null;
     }
   }
@@ -37,7 +38,9 @@ async function fixTrigger() {
   }
 
   try {
-    console.log("\nRecreating enforce_order_status_transition() function without invalid 'rejected' enum literal...");
+    console.log(
+      "\nRecreating enforce_order_status_transition() function without invalid 'rejected' enum literal...",
+    );
     const sql = `
 CREATE OR REPLACE FUNCTION public.enforce_order_status_transition()
 RETURNS trigger LANGUAGE plpgsql AS $$
@@ -59,7 +62,9 @@ BEGIN
 END; $$;
 `;
     await client.query(sql);
-    console.log("✅ Successfully replaced enforce_order_status_transition() function in PostgreSQL!");
+    console.log(
+      "✅ Successfully replaced enforce_order_status_transition() function in PostgreSQL!",
+    );
 
     // Also check track_price_change
     console.log("\nRecreating track_price_change() function with base_price...");

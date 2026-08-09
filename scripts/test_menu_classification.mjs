@@ -7,40 +7,178 @@
 // (In production these are in src/lib/ocr/extractor.ts)
 
 const FOOD_VOCABULARY = new Set([
-  "paratha", "naan", "roti", "kulcha", "bhature", "puri", "chapati", "rumali",
-  "tandoori", "missi", "laccha", "stuffed", "plain", "butter", "garlic",
-  "rice", "biryani", "pulao", "jeera", "fried", "khichdi",
-  "dal", "daal", "tadka", "fry", "makhani", "tarka",
-  "aloo", "gobhi", "gobi", "palak", "matar", "mushroom", "paneer", "bhindi",
-  "baingan", "shimla", "mirch", "pyaz", "mooli", "arbi", "lauki",
-  "masala", "curry", "kadhai", "kadai", "korma", "tikka", "butter",
-  "lababdar", "makhani", "do pyaza", "shahi", "mughlai",
-  "malai", "cream", "achari", "handi", "tawa",
-  "chaap", "soya", "keema",
-  "rajma", "chole", "chhole", "chana", "kadhi", "pakoda", "pakora",
-  "noodles", "chowmein", "chow", "mein", "manchurian", "schezwan",
-  "hakka", "singapore", "american",
-  "samosa", "tikki", "cutlet", "bhatura", "bhaji",
-  "roll", "wrap", "sandwich", "burger",
-  "kebab", "seekh", "galouti", "shammi",
-  "soup", "shorba", "rasam", "tomato",
-  "dosa", "idli", "vada", "uttapam",
-  "gulab", "jamun", "rasgulla", "rasmalai", "kheer", "halwa", "jalebi",
-  "kulfi", "rabri", "barfi", "ladoo",
-  "lassi", "chaas", "buttermilk", "sharbat", "nimbu", "jaljeera",
-  "chai", "tea", "coffee", "cold", "hot", "milk", "shake",
-  "pepsi", "cola", "coke", "sprite", "fanta", "limca",
-  "soda", "water", "juice", "fresh", "lime",
-  "raita", "salad", "onion", "green", "papad", "pickle", "chutney",
-  "special", "classic", "premium", "chef", "house",
-  "combo", "thali", "platter", "plate",
-  "cheese", "corn", "potato", "capsicum",
-  "maggi", "pasta", "macaroni",
-  "curd", "dahi", "bhel", "sev",
-  "chilli", "dragon", "crispy", "golden",
-  "manchow", "wok", "spring roll",
-  "veg", "vegetable",
-  "dry", "gravy",
+  "paratha",
+  "naan",
+  "roti",
+  "kulcha",
+  "bhature",
+  "puri",
+  "chapati",
+  "rumali",
+  "tandoori",
+  "missi",
+  "laccha",
+  "stuffed",
+  "plain",
+  "butter",
+  "garlic",
+  "rice",
+  "biryani",
+  "pulao",
+  "jeera",
+  "fried",
+  "khichdi",
+  "dal",
+  "daal",
+  "tadka",
+  "fry",
+  "makhani",
+  "tarka",
+  "aloo",
+  "gobhi",
+  "gobi",
+  "palak",
+  "matar",
+  "mushroom",
+  "paneer",
+  "bhindi",
+  "baingan",
+  "shimla",
+  "mirch",
+  "pyaz",
+  "mooli",
+  "arbi",
+  "lauki",
+  "masala",
+  "curry",
+  "kadhai",
+  "kadai",
+  "korma",
+  "tikka",
+  "butter",
+  "lababdar",
+  "makhani",
+  "do pyaza",
+  "shahi",
+  "mughlai",
+  "malai",
+  "cream",
+  "achari",
+  "handi",
+  "tawa",
+  "chaap",
+  "soya",
+  "keema",
+  "rajma",
+  "chole",
+  "chhole",
+  "chana",
+  "kadhi",
+  "pakoda",
+  "pakora",
+  "noodles",
+  "chowmein",
+  "chow",
+  "mein",
+  "manchurian",
+  "schezwan",
+  "hakka",
+  "singapore",
+  "american",
+  "samosa",
+  "tikki",
+  "cutlet",
+  "bhatura",
+  "bhaji",
+  "roll",
+  "wrap",
+  "sandwich",
+  "burger",
+  "kebab",
+  "seekh",
+  "galouti",
+  "shammi",
+  "soup",
+  "shorba",
+  "rasam",
+  "tomato",
+  "dosa",
+  "idli",
+  "vada",
+  "uttapam",
+  "gulab",
+  "jamun",
+  "rasgulla",
+  "rasmalai",
+  "kheer",
+  "halwa",
+  "jalebi",
+  "kulfi",
+  "rabri",
+  "barfi",
+  "ladoo",
+  "lassi",
+  "chaas",
+  "buttermilk",
+  "sharbat",
+  "nimbu",
+  "jaljeera",
+  "chai",
+  "tea",
+  "coffee",
+  "cold",
+  "hot",
+  "milk",
+  "shake",
+  "pepsi",
+  "cola",
+  "coke",
+  "sprite",
+  "fanta",
+  "limca",
+  "soda",
+  "water",
+  "juice",
+  "fresh",
+  "lime",
+  "raita",
+  "salad",
+  "onion",
+  "green",
+  "papad",
+  "pickle",
+  "chutney",
+  "special",
+  "classic",
+  "premium",
+  "chef",
+  "house",
+  "combo",
+  "thali",
+  "platter",
+  "plate",
+  "cheese",
+  "corn",
+  "potato",
+  "capsicum",
+  "maggi",
+  "pasta",
+  "macaroni",
+  "curd",
+  "dahi",
+  "bhel",
+  "sev",
+  "chilli",
+  "dragon",
+  "crispy",
+  "golden",
+  "manchow",
+  "wok",
+  "spring roll",
+  "veg",
+  "vegetable",
+  "dry",
+  "gravy",
   "mix",
 ]);
 
@@ -68,23 +206,50 @@ function isNonMenuText(text) {
   if (/^\+?\d[\d\s\-()]{8,}$/.test(original.replace(/\s/g, "")))
     return { blocked: true, classification: "CONTACT_INFO", reason: "Phone number pattern" };
 
-  if (/\b(?:road|street|lane|block|sector|nagar|colony|market|main|floor|plot|no\.|building)\b/i.test(original) && /\d/.test(original))
+  if (
+    /\b(?:road|street|lane|block|sector|nagar|colony|market|main|floor|plot|no\.|building)\b/i.test(
+      original,
+    ) &&
+    /\d/.test(original)
+  )
     return { blocked: true, classification: "CONTACT_INFO", reason: "Address detected" };
 
-  if (/\b(?:delhi|mumbai|kolkata|chennai|bangalore)\b/i.test(original) && !/\b(?:biryani|kebab|chicken|special|style)\b/i.test(original))
-    return { blocked: true, classification: "CONTACT_INFO", reason: "City name in non-food context" };
+  if (
+    /\b(?:delhi|mumbai|kolkata|chennai|bangalore)\b/i.test(original) &&
+    !/\b(?:biryani|kebab|chicken|special|style)\b/i.test(original)
+  )
+    return {
+      blocked: true,
+      classification: "CONTACT_INFO",
+      reason: "City name in non-food context",
+    };
 
   if (/\b\d{6}\b/.test(original) && !/₹|rs|price/i.test(original))
     return { blocked: true, classification: "CONTACT_INFO", reason: "PIN code detected" };
 
-  if (/\b(?:restaurant|hotel|cafe|dhaba|bhawan|palace)\b/i.test(original) && original.length < 50 && !/\b(?:style|special|wala|type)\b/i.test(original))
-    return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Restaurant/Hotel name" };
+  if (
+    /\b(?:restaurant|hotel|cafe|dhaba|bhawan|palace)\b/i.test(original) &&
+    original.length < 50 &&
+    !/\b(?:style|special|wala|type)\b/i.test(original)
+  )
+    return {
+      blocked: true,
+      classification: "RESTAURANT_METADATA",
+      reason: "Restaurant/Hotel name",
+    };
 
-  if (/\b(?:menu|take\s*away|home\s*delivery|dine\s*in)\b/i.test(original) && !/\b(?:combo|thali|special|set)\b/i.test(original))
+  if (
+    /\b(?:menu|take\s*away|home\s*delivery|dine\s*in)\b/i.test(original) &&
+    !/\b(?:combo|thali|special|set)\b/i.test(original)
+  )
     return { blocked: true, classification: "DECORATIVE_TEXT", reason: "Menu header text" };
 
   if (/\b(?:100\s*%?\s*(?:pure\s+)?(?:veg|vegetarian)|pure\s+vegetarian)\b/i.test(original))
-    return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Vegetarian declaration" };
+    return {
+      blocked: true,
+      classification: "RESTAURANT_METADATA",
+      reason: "Vegetarian declaration",
+    };
 
   if (/\b(?:gst|fssai|lic|license|tin|pan|tax)\b/i.test(original))
     return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Tax/License info" };
@@ -93,14 +258,22 @@ function isNonMenuText(text) {
     return { blocked: true, classification: "CONTACT_INFO", reason: "Website/Social media" };
 
   if (/\b(?:owner|manager|proprietor|prop\.|chef|founder|mr\.|mrs\.)\b/i.test(original))
-    return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Person title detected" };
+    return {
+      blocked: true,
+      classification: "RESTAURANT_METADATA",
+      reason: "Person title detected",
+    };
 
   const alphaCount = (original.match(/[a-zA-Z]/g) || []).length;
   if (original.length > 3 && alphaCount / original.length < 0.3)
     return { blocked: true, classification: "UNKNOWN", reason: "OCR artifact" };
 
   if (/^[A-Z][a-z]+ [A-Z][a-z]+$/.test(original) && !hasAnyFoodWord(lower))
-    return { blocked: true, classification: "RESTAURANT_METADATA", reason: "Looks like a person name" };
+    return {
+      blocked: true,
+      classification: "RESTAURANT_METADATA",
+      reason: "Looks like a person name",
+    };
 
   return { blocked: false, classification: "UNKNOWN", reason: "" };
 }
@@ -117,7 +290,9 @@ function extractNamePriceVariants(lineText) {
     }
   }
 
-  const dualMatch = text.match(/^(.*?)\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})$/i);
+  const dualMatch = text.match(
+    /^(.*?)\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})\s+(?:(?:₹|Rs\.?\s*|INR\s*)?)(\d{2,4})$/i,
+  );
   if (dualMatch && dualMatch[1] && dualMatch[2] && dualMatch[3]) {
     return {
       cleanName: dualMatch[1].replace(/[._\-]+$/, "").trim(),

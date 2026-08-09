@@ -1,33 +1,52 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { getMyContext } from "@/lib/business.functions";
-import { listTables, createTables, updateTable, regenerateTableQr, clearTableAndCompleteOrders } from "@/lib/tables.functions";
+import {
+  listTables,
+  createTables,
+  updateTable,
+  regenerateTableQr,
+  clearTableAndCompleteOrders,
+} from "@/lib/tables.functions";
 import { supabase } from "@/integrations/supabase/client";
 import QRCode from "qrcode";
-import { 
-  QrCode, 
-  Plus, 
-  Download, 
-  Printer, 
-  RefreshCw, 
-  Eye, 
-  CheckCircle2, 
-  XCircle, 
-  AlertCircle, 
-  Users, 
+import {
+  QrCode,
+  Plus,
+  Download,
+  Printer,
+  RefreshCw,
+  Eye,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Users,
   Loader2,
   ExternalLink,
   ShieldAlert,
   Copy,
-  Check
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/tables")({
@@ -86,7 +105,10 @@ function TablesManager() {
       // Pre-generate QR data URLs for quick render
       const qrMap: Record<string, string> = {};
       for (const t of tbls || []) {
-        const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/q/${t.qr_slug}` : `/q/${t.qr_slug}`;
+        const publicUrl =
+          typeof window !== "undefined"
+            ? `${window.location.origin}/q/${t.qr_slug}`
+            : `/q/${t.qr_slug}`;
         try {
           const url = await QRCode.toDataURL(publicUrl, { width: 300, margin: 2 });
           qrMap[t.id] = url;
@@ -98,7 +120,11 @@ function TablesManager() {
     } catch (err: any) {
       console.error("fetchTablesData error:", err);
       const msg = err?.message?.toLowerCase() || "";
-      if (msg.includes("unauthorized") || msg.includes("sign in") || msg.includes("no authorization")) {
+      if (
+        msg.includes("unauthorized") ||
+        msg.includes("sign in") ||
+        msg.includes("no authorization")
+      ) {
         if (typeof window !== "undefined") {
           window.location.href = "/auth/login";
         }
@@ -128,10 +154,12 @@ function TablesManager() {
         },
         (payload: any) => {
           if (payload.eventType === "UPDATE") {
-            toast.info(`Table ${payload.new?.label || ""} state changed to ${String(payload.new?.state || "").toUpperCase()}`);
+            toast.info(
+              `Table ${payload.new?.label || ""} state changed to ${String(payload.new?.state || "").toUpperCase()}`,
+            );
           }
           fetchTablesData();
-        }
+        },
       )
       .subscribe();
 
@@ -181,10 +209,14 @@ function TablesManager() {
         },
       });
       toast.success("QR code regenerated! Old QR code is permanently retired.");
-      
+
       // Update selected table locally
       if (selectedTable && updated) {
-        const newTable = { ...selectedTable, qr_slug: updated.qr_slug, qr_version: updated.qr_version };
+        const newTable = {
+          ...selectedTable,
+          qr_slug: updated.qr_slug,
+          qr_version: updated.qr_version,
+        };
         setSelectedTable(newTable);
         const publicUrl = `${window.location.origin}/q/${updated.qr_slug}`;
         const dataUrl = await QRCode.toDataURL(publicUrl, { width: 400, margin: 2 });
@@ -263,7 +295,10 @@ function TablesManager() {
     const activeBranchId = context?.membership?.branch_id || context?.branches?.[0]?.id;
     if (!context?.membership?.business_id || !activeBranchId) return;
     const startIdx = tables.length + 1;
-    const labels = Array.from({ length: bulkCount }, (_, i) => `${bulkPrefix}${(startIdx + i).toString().padStart(2, "0")}`);
+    const labels = Array.from(
+      { length: bulkCount },
+      (_, i) => `${bulkPrefix}${(startIdx + i).toString().padStart(2, "0")}`,
+    );
     try {
       await createTables({
         data: {
@@ -288,30 +323,66 @@ function TablesManager() {
   const getTableCardStyle = (state: string) => {
     switch (state) {
       case "occupied":
-        return { border: "border-amber-500/40", glow: "shadow-amber-500/5", dot: "bg-amber-400", dotRing: "ring-amber-400/30" };
+        return {
+          border: "border-amber-500/40",
+          glow: "shadow-amber-500/5",
+          dot: "bg-amber-400",
+          dotRing: "ring-amber-400/30",
+        };
       case "payment_pending":
-        return { border: "border-red-500/40", glow: "shadow-red-500/5", dot: "bg-red-400", dotRing: "ring-red-400/30" };
+        return {
+          border: "border-red-500/40",
+          glow: "shadow-red-500/5",
+          dot: "bg-red-400",
+          dotRing: "ring-red-400/30",
+        };
       case "reserved":
-        return { border: "border-purple-500/40", glow: "shadow-purple-500/5", dot: "bg-purple-400", dotRing: "ring-purple-400/30" };
+        return {
+          border: "border-purple-500/40",
+          glow: "shadow-purple-500/5",
+          dot: "bg-purple-400",
+          dotRing: "ring-purple-400/30",
+        };
       case "disabled":
-        return { border: "border-slate-700/40", glow: "", dot: "bg-slate-600", dotRing: "ring-slate-600/30" };
+        return {
+          border: "border-slate-700/40",
+          glow: "",
+          dot: "bg-slate-600",
+          dotRing: "ring-slate-600/30",
+        };
       case "available":
       default:
-        return { border: "border-emerald-500/30", glow: "shadow-emerald-500/5", dot: "bg-emerald-400", dotRing: "ring-emerald-400/30" };
+        return {
+          border: "border-emerald-500/30",
+          glow: "shadow-emerald-500/5",
+          dot: "bg-emerald-400",
+          dotRing: "ring-emerald-400/30",
+        };
     }
   };
 
-  const canView = !context || context.permissions?.includes("tables.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
-  const canManage = context?.permissions?.includes("tables.manage") || context?.membership?.role === "owner" || context?.membership?.role === "business_admin";
+  const canView =
+    !context ||
+    context.permissions?.includes("tables.view") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
+  const canManage =
+    context?.permissions?.includes("tables.manage") ||
+    context?.membership?.role === "owner" ||
+    context?.membership?.role === "business_admin";
 
   if (!loading && context && !canView) {
     return (
       <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
         <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
-        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`tables.view`) to access Tables & QRs.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          You do not have permission (`tables.view`) to access Tables & QRs.
+        </p>
         <Link to="/admin/dashboard">
-          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+          <Button variant="outline" className="mt-4">
+            Return to Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -326,7 +397,8 @@ function TablesManager() {
             Tables & QR Codes
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Permanent unique QR code resolution per table. Download PNG or print bulk table stand sheets.
+            Permanent unique QR code resolution per table. Download PNG or print bulk table stand
+            sheets.
           </p>
         </div>
 
@@ -388,9 +460,15 @@ function TablesManager() {
                 </div>
                 <div className="text-2xl font-black text-amber-600 my-1">{t.label}</div>
                 {printedQrMap[t.id] && (
-                  <img src={printedQrMap[t.id]} alt={`QR ${t.label}`} className="h-40 w-40 border border-gray-300 rounded-lg p-1" />
+                  <img
+                    src={printedQrMap[t.id]}
+                    alt={`QR ${t.label}`}
+                    className="h-40 w-40 border border-gray-300 rounded-lg p-1"
+                  />
                 )}
-                <div className="text-[11px] font-medium text-gray-700">Scan to View Digital Menu & Order</div>
+                <div className="text-[11px] font-medium text-gray-700">
+                  Scan to View Digital Menu & Order
+                </div>
               </div>
             ))}
           </div>
@@ -401,15 +479,25 @@ function TablesManager() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 animate-pulse" />
+                <div
+                  key={i}
+                  className="h-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 animate-pulse"
+                />
               ))}
             </div>
           ) : tables.length === 0 ? (
             <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400">
               <QrCode className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-500" />
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Tables Configured</h3>
-              <p className="text-xs mb-4">Create tables to generate unique QR codes for your customers.</p>
-              <Button onClick={() => setBulkModalOpen(true)} className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">
+                No Tables Configured
+              </h3>
+              <p className="text-xs mb-4">
+                Create tables to generate unique QR codes for your customers.
+              </p>
+              <Button
+                onClick={() => setBulkModalOpen(true)}
+                className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400"
+              >
                 Bulk Create Tables
               </Button>
             </Card>
@@ -421,19 +509,29 @@ function TablesManager() {
                 const cardStyle = getTableCardStyle(t.state);
 
                 return (
-                  <Card key={t.id} className={`border ${cardStyle.border} bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-lg ${cardStyle.glow} text-slate-800 dark:text-slate-100 flex flex-col justify-between hover:shadow-lg dark:hover:shadow-xl transition-all`}>
+                  <Card
+                    key={t.id}
+                    className={`border ${cardStyle.border} bg-white dark:bg-slate-900/80 backdrop-blur shadow-md dark:shadow-lg ${cardStyle.glow} text-slate-800 dark:text-slate-100 flex flex-col justify-between hover:shadow-lg dark:hover:shadow-xl transition-all`}
+                  >
                     <CardContent className="p-5 space-y-4">
                       {/* Top Header */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className={`h-2.5 w-2.5 rounded-full shrink-0 ring-2 ${cardStyle.dot} ${cardStyle.dotRing}`} />
-                          <h3 className="font-extrabold text-lg text-slate-800 dark:text-white">{t.label}</h3>
+                          <div
+                            className={`h-2.5 w-2.5 rounded-full shrink-0 ring-2 ${cardStyle.dot} ${cardStyle.dotRing}`}
+                          />
+                          <h3 className="font-extrabold text-lg text-slate-800 dark:text-white">
+                            {t.label}
+                          </h3>
                           <Badge className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-[10px] font-medium border border-slate-200 dark:border-slate-700">
                             {t.seats}p
                           </Badge>
                         </div>
 
-                        <Select value={t.state} onValueChange={(val) => handleChangeState(t.id, val)}>
+                        <Select
+                          value={t.state}
+                          onValueChange={(val) => handleChangeState(t.id, val)}
+                        >
                           <SelectTrigger className="h-7 w-28 text-[11px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200">
                             <SelectValue />
                           </SelectTrigger>
@@ -450,7 +548,11 @@ function TablesManager() {
                       {/* QR Thumbnail Preview */}
                       <div className="flex items-center justify-center p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-150 dark:border-slate-800/80">
                         {qrUrl ? (
-                          <img src={qrUrl} alt={t.label} className="h-28 w-28 rounded-lg border border-slate-200 bg-white p-1" />
+                          <img
+                            src={qrUrl}
+                            alt={t.label}
+                            className="h-28 w-28 rounded-lg border border-slate-200 bg-white p-1"
+                          />
                         ) : (
                           <div className="h-28 w-28 flex items-center justify-center text-slate-400 dark:text-slate-500">
                             <QrCode className="h-8 w-8" />
@@ -462,11 +564,15 @@ function TablesManager() {
                       <div className="space-y-1 text-xs text-slate-500 dark:text-slate-400">
                         <div className="flex items-center justify-between">
                           <span>Total Customer Scans:</span>
-                          <span className="font-bold text-slate-800 dark:text-white">{t.scan_count || 0}</span>
+                          <span className="font-bold text-slate-800 dark:text-white">
+                            {t.scan_count || 0}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>QR Version:</span>
-                          <span className="font-bold text-amber-600 dark:text-amber-400">v{t.qr_version}</span>
+                          <span className="font-bold text-amber-600 dark:text-amber-400">
+                            v{t.qr_version}
+                          </span>
                         </div>
                         <div className="pt-1">
                           <a
@@ -517,13 +623,17 @@ function TablesManager() {
         <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-sm rounded-2xl p-6 shadow-2xl">
           <DialogHeader className="space-y-1 text-center">
             <div className="flex items-center justify-center gap-2">
-              <DialogTitle className="text-xl font-extrabold text-white">{selectedTable?.label}</DialogTitle>
+              <DialogTitle className="text-xl font-extrabold text-white">
+                {selectedTable?.label}
+              </DialogTitle>
               <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 text-[10px] font-bold px-2 py-0.5">
                 v{selectedTable?.qr_version || 1}
               </Badge>
             </div>
             <DialogDescription className="text-xs text-slate-400">
-              Scans automatically resolve to <span className="text-slate-200 font-medium">{context?.business?.name}</span> - {selectedTable?.label}
+              Scans automatically resolve to{" "}
+              <span className="text-slate-200 font-medium">{context?.business?.name}</span> -{" "}
+              {selectedTable?.label}
             </DialogDescription>
           </DialogHeader>
 
@@ -584,7 +694,8 @@ function TablesManager() {
                 <div className="flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
                   <p className="text-[11px] text-red-200 font-medium leading-tight">
-                    Confirm regenerating QR code? Current physical printout will be permanently retired.
+                    Confirm regenerating QR code? Current physical printout will be permanently
+                    retired.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 pt-1">
@@ -647,7 +758,10 @@ function TablesManager() {
               />
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400">
+              <Button
+                type="submit"
+                className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400"
+              >
                 Create Table
               </Button>
             </DialogFooter>
@@ -702,7 +816,10 @@ function TablesManager() {
             </div>
 
             <DialogFooter>
-              <Button type="submit" className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 w-full">
+              <Button
+                type="submit"
+                className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 w-full"
+              >
                 Generate {bulkCount} Tables
               </Button>
             </DialogFooter>

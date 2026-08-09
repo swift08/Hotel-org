@@ -39,7 +39,9 @@
 
 .magic-bento-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08), 0 0 25px rgba(245, 158, 11, 0.15);
+  box-shadow:
+    0 16px 36px rgba(15, 23, 42, 0.08),
+    0 0 25px rgba(245, 158, 11, 0.15);
   border-color: rgba(245, 158, 11, 0.4);
 }
 
@@ -81,7 +83,6 @@
   text-align: justify;
   text-justify: inter-word;
 }
-
 
 .magic-bento-card__bullets {
   display: flex;
@@ -153,7 +154,7 @@
 
 /* Border glow effect */
 .magic-bento-card--border-glow::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   padding: 2px;
@@ -194,7 +195,7 @@
 }
 
 .particle::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -2px;
   left: -2px;

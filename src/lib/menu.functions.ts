@@ -71,7 +71,8 @@ export const saveCategory = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "menu.edit");
@@ -87,7 +88,11 @@ export const saveCategory = createServerFn({ method: "POST" })
     };
 
     const query = data.id
-      ? supabase.from("menu_categories").update(payload).eq("id", data.id).eq("business_id", data.businessId)
+      ? supabase
+          .from("menu_categories")
+          .update(payload)
+          .eq("id", data.id)
+          .eq("business_id", data.businessId)
       : supabase.from("menu_categories").insert(payload);
     const { data: row, error } = await query.select("id, name, state, is_active").single();
     if (error) throw new Error(error.message);
@@ -120,8 +125,16 @@ export const saveProduct = createServerFn({ method: "POST" })
         prepTimeMinutes: z.number().int().min(0).max(240).optional(),
         foodTags: z.array(z.string().max(20)).max(8).optional(),
         station: z.enum(["kitchen", "bar"]).optional(),
-        availableFrom: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
-        availableTo: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
+        availableFrom: z
+          .string()
+          .regex(/^\d{2}:\d{2}$/)
+          .nullable()
+          .optional(),
+        availableTo: z
+          .string()
+          .regex(/^\d{2}:\d{2}$/)
+          .nullable()
+          .optional(),
         state: z.enum(["draft", "published"]).optional(),
         images: z.array(z.string()).max(10).optional(),
       })
@@ -129,7 +142,8 @@ export const saveProduct = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "menu.edit");
@@ -165,7 +179,11 @@ export const saveProduct = createServerFn({ method: "POST" })
     };
 
     const query = data.id
-      ? supabase.from("products").update(payload).eq("id", data.id).eq("business_id", data.businessId)
+      ? supabase
+          .from("products")
+          .update(payload)
+          .eq("id", data.id)
+          .eq("business_id", data.businessId)
       : supabase.from("products").insert(payload);
     const { data: row, error } = await query.select("id, name, base_price, state").single();
     if (error) throw new Error(error.message);
@@ -196,7 +214,8 @@ export const setProductAvailability = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "menu.edit");
@@ -235,7 +254,8 @@ export const setProductState = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, data.state === "published" ? "menu.publish" : "menu.edit");
@@ -268,7 +288,8 @@ export const archiveProduct = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "menu.delete");
@@ -320,7 +341,11 @@ export const saveVariant = createServerFn({ method: "POST" })
       is_default: data.isDefault ?? false,
     };
     const query = data.id
-      ? supabase.from("product_variants").update(payload).eq("id", data.id).eq("business_id", data.businessId)
+      ? supabase
+          .from("product_variants")
+          .update(payload)
+          .eq("id", data.id)
+          .eq("business_id", data.businessId)
       : supabase.from("product_variants").insert(payload);
     const { data: row, error } = await query.select("id, name, price, is_default").single();
     if (error) throw new Error(error.message);
@@ -378,9 +403,15 @@ export const saveAddonGroup = createServerFn({ method: "POST" })
       max_select: data.maxSelect ?? 1,
     };
     const query = data.id
-      ? supabase.from("addon_groups").update(payload).eq("id", data.id).eq("business_id", data.businessId)
+      ? supabase
+          .from("addon_groups")
+          .update(payload)
+          .eq("id", data.id)
+          .eq("business_id", data.businessId)
       : supabase.from("addon_groups").insert(payload);
-    const { data: row, error } = await query.select("id, name, is_required, min_select, max_select").single();
+    const { data: row, error } = await query
+      .select("id, name, is_required, min_select, max_select")
+      .single();
     if (error) throw new Error(error.message);
     return row;
   });
@@ -437,7 +468,11 @@ export const deleteAddonEntity = createServerFn({ method: "POST" })
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "menu.edit");
     const table = data.kind === "group" ? "addon_groups" : "addons";
-    const { error } = await supabase.from(table).delete().eq("id", data.id).eq("business_id", data.businessId);
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .eq("id", data.id)
+      .eq("business_id", data.businessId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -20,14 +20,15 @@ export const createMenuImportJob = createServerFn({ method: "POST" })
             type: z.string(),
             url: z.string().optional(),
             dataUrl: z.string().optional(),
-          })
+          }),
         ),
       })
-      .parse(input)
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);
@@ -76,11 +77,12 @@ export const processMenuImportJob = createServerFn({ method: "POST" })
         businessId: z.string().uuid(),
         importId: z.string().uuid(),
       })
-      .parse(input)
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);
@@ -151,7 +153,7 @@ export const updateMenuImportDraft = createServerFn({ method: "POST" })
         importId: z.string().uuid(),
         reviewData: z.any(),
       })
-      .parse(input)
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -172,7 +174,10 @@ export const updateMenuImportDraft = createServerFn({ method: "POST" })
     const summary = {
       categoriesCount: categories.length,
       itemsCount: items.length,
-      variantsCount: items.reduce((acc: number, item: any) => acc + (item.variants?.length || 0), 0),
+      variantsCount: items.reduce(
+        (acc: number, item: any) => acc + (item.variants?.length || 0),
+        0,
+      ),
       addonsCount: items.reduce((acc: number, item: any) => acc + (item.addons?.length || 0), 0),
       needsReviewCount,
       duplicatesCount,
@@ -205,11 +210,12 @@ export const publishMenuImport = createServerFn({ method: "POST" })
         businessId: z.string().uuid(),
         importId: z.string().uuid(),
       })
-      .parse(input)
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);
@@ -269,14 +275,21 @@ export const publishMenuImport = createServerFn({ method: "POST" })
       const n = name.toLowerCase();
       const c = catName.toLowerCase();
       if (c.includes("soup") || n.includes("shorba")) return ["/images/dishes/tamatar_shorba.webp"];
-      if (n.includes("paneer tikka") || n.includes("kebab")) return ["/images/dishes/paneer_tikka.webp"];
-      if (n.includes("chicken tikka") || n.includes("seekh")) return ["/images/dishes/chicken_tikka.webp"];
-      if (n.includes("butter chicken") || n.includes("makhani")) return ["/images/dishes/butter_chicken.webp"];
+      if (n.includes("paneer tikka") || n.includes("kebab"))
+        return ["/images/dishes/paneer_tikka.webp"];
+      if (n.includes("chicken tikka") || n.includes("seekh"))
+        return ["/images/dishes/chicken_tikka.webp"];
+      if (n.includes("butter chicken") || n.includes("makhani"))
+        return ["/images/dishes/butter_chicken.webp"];
       if (n.includes("mutton") || n.includes("rogan")) return ["/images/dishes/mutton_curry.webp"];
-      if (n.includes("paneer") || n.includes("dal")) return ["/images/dishes/paneer_butter_masala.webp"];
+      if (n.includes("paneer") || n.includes("dal"))
+        return ["/images/dishes/paneer_butter_masala.webp"];
       if (n.includes("dosa")) return ["/images/dishes/masala_dosa.webp"];
       if (n.includes("naan") || n.includes("roti")) return ["/images/dishes/garlic_naan.webp"];
-      if (n.includes("biryani") || n.includes("rice")) return n.includes("veg") ? ["/images/dishes/veg_biryani.webp"] : ["/images/dishes/mutton_biryani.webp"];
+      if (n.includes("biryani") || n.includes("rice"))
+        return n.includes("veg")
+          ? ["/images/dishes/veg_biryani.webp"]
+          : ["/images/dishes/mutton_biryani.webp"];
       if (n.includes("lassi") || n.includes("drink")) return ["/images/dishes/mango_lassi.webp"];
       if (n.includes("jamun") || n.includes("cake")) return ["/images/dishes/gulab_jamun.webp"];
       return ["/images/dishes/butter_chicken.webp"];
@@ -305,7 +318,9 @@ export const publishMenuImport = createServerFn({ method: "POST" })
       const foodTags = item.dietary ? [item.dietary] : ["veg"];
       const normName = (item.name || "").toLowerCase().trim();
 
-      const existingProd = existingProductMap.get(normName) || (item.duplicateInfo?.existingId ? { id: item.duplicateInfo.existingId } : null);
+      const existingProd =
+        existingProductMap.get(normName) ||
+        (item.duplicateInfo?.existingId ? { id: item.duplicateInfo.existingId } : null);
 
       let targetProductId: string | null = null;
 
@@ -347,7 +362,11 @@ export const publishMenuImport = createServerFn({ method: "POST" })
             is_available: true,
             images,
           };
-          const { data: newProd } = await supabase.from("products").insert(productPayload).select("id").single();
+          const { data: newProd } = await supabase
+            .from("products")
+            .insert(productPayload)
+            .select("id")
+            .single();
           if (newProd) {
             targetProductId = newProd.id;
             publishedCount++;
@@ -373,7 +392,11 @@ export const publishMenuImport = createServerFn({ method: "POST" })
           images,
         };
 
-        const { data: prod } = await supabase.from("products").insert(productPayload).select("id").single();
+        const { data: prod } = await supabase
+          .from("products")
+          .insert(productPayload)
+          .select("id")
+          .single();
         if (prod) {
           targetProductId = prod.id;
           publishedCount++;
@@ -518,11 +541,12 @@ export const rollbackMenuVersion = createServerFn({ method: "POST" })
         businessId: z.string().uuid(),
         versionId: z.string().uuid(),
       })
-      .parse(input)
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);

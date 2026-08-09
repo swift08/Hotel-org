@@ -15,10 +15,7 @@ const getSecret = () => {
 
 export function signPayload(payload: Record<string, any>): string {
   const data = JSON.stringify(payload);
-  const signature = crypto
-    .createHmac("sha256", getSecret())
-    .update(data)
-    .digest("base64url");
+  const signature = crypto.createHmac("sha256", getSecret()).update(data).digest("base64url");
   return `${data}.${signature}`;
 }
 
@@ -44,7 +41,10 @@ export function getCustomerSession(cookieName = "servio_customer_session") {
   return verifyPayload(rawCookie);
 }
 
-export function setCustomerSession(payload: Record<string, any>, cookieName = "servio_customer_session") {
+export function setCustomerSession(
+  payload: Record<string, any>,
+  cookieName = "servio_customer_session",
+) {
   const signed = signPayload(payload);
   tsSetCookie(cookieName, signed, {
     httpOnly: true,

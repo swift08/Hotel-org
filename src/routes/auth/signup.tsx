@@ -1,7 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Utensils, Lock, Mail, User, Phone, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
+import {
+  Utensils,
+  Lock,
+  Mail,
+  User,
+  Phone,
+  ArrowRight,
+  AlertCircle,
+  Loader2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +66,9 @@ function Signup() {
         toast.success("Account created successfully!");
         navigate({ to: "/onboarding" });
       } else {
-        toast.info("Account created! Please check your email inbox to confirm your account, or disable email confirmation in Supabase.");
+        toast.info(
+          "Account created! Please check your email inbox to confirm your account, or disable email confirmation in Supabase.",
+        );
         navigate({ to: "/auth/login" });
       }
     } catch (err: any) {
@@ -72,10 +85,16 @@ function Signup() {
         {/* Branding */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center justify-center">
-            <img src="/images/logo.webp" alt="Rasoi Logo" className="h-16 w-auto object-contain drop-shadow-lg" />
+            <img
+              src="/images/logo.webp"
+              alt="Rasoi Logo"
+              className="h-16 w-auto object-contain drop-shadow-lg"
+            />
           </Link>
           <h1 className="mt-4 text-xl font-bold text-white">Register Business Account</h1>
-          <p className="mt-1 text-sm text-slate-400">Start managing your restaurant, cafe or hotel</p>
+          <p className="mt-1 text-sm text-slate-400">
+            Start managing your restaurant, cafe or hotel
+          </p>
         </div>
 
         <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-2xl text-slate-100">

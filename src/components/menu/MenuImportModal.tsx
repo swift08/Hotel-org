@@ -22,12 +22,7 @@ import {
   Filter,
   ListChecks,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -130,7 +125,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
   // Extracted Data State
   const [categories, setCategories] = useState<ExtractedMenuCategory[]>([]);
   const [items, setItems] = useState<ExtractedMenuItem[]>([]);
-  const [excludedText, setExcludedText] = useState<Array<{ text: string; classification: string; reason: string }>>([]);
+  const [excludedText, setExcludedText] = useState<
+    Array<{ text: string; classification: string; reason: string }>
+  >([]);
   const [showExcluded, setShowExcluded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -187,7 +184,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
             type: file.type,
             dataUrl,
           };
-        })
+        }),
       );
 
       // Create server import job
@@ -218,7 +215,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
 
       const excludedCount = (reviewData.excludedText || []).length;
       setStep("review");
-      toast.success(`Extraction complete! Found ${reviewData.items?.length || 0} menu items across ${(reviewData.categories || []).length} categories.${excludedCount > 0 ? ` ${excludedCount} non-menu text blocks excluded.` : ""}`);
+      toast.success(
+        `Extraction complete! Found ${reviewData.items?.length || 0} menu items across ${(reviewData.categories || []).length} categories.${excludedCount > 0 ? ` ${excludedCount} non-menu text blocks excluded.` : ""}`,
+      );
     } catch (err: any) {
       toast.error(err?.message || "Failed to extract menu. Please try again.");
       setStep("upload");
@@ -240,11 +239,14 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
           return updated;
         }
         return item;
-      })
+      }),
     );
   };
 
-  const handleResolveDuplicate = (id: string, action: "keep_existing" | "use_imported" | "create_separate") => {
+  const handleResolveDuplicate = (
+    id: string,
+    action: "keep_existing" | "use_imported" | "create_separate",
+  ) => {
     setItems((prev) =>
       prev.map((item) => {
         if (item.id === id) {
@@ -258,7 +260,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
           return updated as any;
         }
         return item;
-      })
+      }),
     );
     toast.success(`Duplicate preference saved.`);
   };
@@ -272,16 +274,21 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
             currentVars.length === 0
               ? { name: "Half", price: Math.round(item.price * 0.6) }
               : currentVars.length === 1
-              ? { name: "Full", price: item.price }
-              : { name: `Option ${currentVars.length + 1}`, price: item.price };
+                ? { name: "Full", price: item.price }
+                : { name: `Option ${currentVars.length + 1}`, price: item.price };
           return { ...item, variants: [...currentVars, newVar] };
         }
         return item;
-      })
+      }),
     );
   };
 
-  const handleUpdateVariantInItem = (itemId: string, varIdx: number, field: "name" | "price", value: any) => {
+  const handleUpdateVariantInItem = (
+    itemId: string,
+    varIdx: number,
+    field: "name" | "price",
+    value: any,
+  ) => {
     setItems((prev) =>
       prev.map((item) => {
         if (item.id === itemId) {
@@ -292,7 +299,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
           return { ...item, variants: updatedVars };
         }
         return item;
-      })
+      }),
     );
   };
 
@@ -304,7 +311,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
           return { ...item, variants: updatedVars };
         }
         return item;
-      })
+      }),
     );
   };
 
@@ -351,7 +358,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
 
   const handleBulkAssignCategory = (catName: string) => {
     setItems((prev) =>
-      prev.map((item) => (selectedItemIds.has(item.id) ? { ...item, categoryName: catName } : item))
+      prev.map((item) =>
+        selectedItemIds.has(item.id) ? { ...item, categoryName: catName } : item,
+      ),
     );
     setSelectedItemIds(new Set());
     toast.success(`Assigned category to ${selectedItemIds.size} items.`);
@@ -389,7 +398,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
         },
       });
 
-      toast.success(`🎉 Menu Published! Version v${res.versionNum} with ${res.publishedCount} items is now active.`);
+      toast.success(
+        `🎉 Menu Published! Version v${res.versionNum} with ${res.publishedCount} items is now active.`,
+      );
       onPublishedSuccess();
       onOpenChange(false);
       // Reset state
@@ -407,7 +418,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
   };
 
   const filteredItems = items.filter(
-    (item) => selectedCategory === "all" || item.categoryName === selectedCategory
+    (item) => selectedCategory === "all" || item.categoryName === selectedCategory,
   );
 
   const needsReviewItems = items.filter((i) => i.confidence === "needs_review");
@@ -427,28 +438,40 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
               {step === "summary" && "Publish Menu Summary"}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {step === "upload" && "Upload a menu photo, scanned menu, or PDF to extract your digital menu."}
-              {step === "processing" && "Rasoi AI is detecting categories, items, prices, variants, and add-ons..."}
-              {step === "review" && "Compare original document (left) with extracted digital menu (right)."}
-              {step === "summary" && "Review final item counts and publish directly to customer QR menus."}
+              {step === "upload" &&
+                "Upload a menu photo, scanned menu, or PDF to extract your digital menu."}
+              {step === "processing" &&
+                "Rasoi AI is detecting categories, items, prices, variants, and add-ons..."}
+              {step === "review" &&
+                "Compare original document (left) with extracted digital menu (right)."}
+              {step === "summary" &&
+                "Review final item counts and publish directly to customer QR menus."}
             </p>
           </div>
 
           {/* Stepper Badges */}
           <div className="hidden md:flex items-center gap-2 text-xs font-bold">
-            <span className={`px-2.5 py-1 rounded-full ${step === "upload" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}>
+            <span
+              className={`px-2.5 py-1 rounded-full ${step === "upload" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}
+            >
               1. Upload
             </span>
             <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-            <span className={`px-2.5 py-1 rounded-full ${step === "processing" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}>
+            <span
+              className={`px-2.5 py-1 rounded-full ${step === "processing" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}
+            >
               2. Extract
             </span>
             <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-            <span className={`px-2.5 py-1 rounded-full ${step === "review" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}>
+            <span
+              className={`px-2.5 py-1 rounded-full ${step === "review" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}
+            >
               3. Review
             </span>
             <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-            <span className={`px-2.5 py-1 rounded-full ${step === "summary" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}>
+            <span
+              className={`px-2.5 py-1 rounded-full ${step === "summary" ? "bg-amber-500 text-slate-950" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}
+            >
               4. Publish
             </span>
           </div>
@@ -469,7 +492,8 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                 Drag & Drop your menu document here
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md">
-                Upload menu photos taken from phone, printed menus, scanned documents, or restaurant menu PDFs.
+                Upload menu photos taken from phone, printed menus, scanned documents, or restaurant
+                menu PDFs.
               </p>
 
               <div className="mt-6 flex items-center gap-3">
@@ -524,7 +548,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                 </div>
               </div>
             )}
-            
+
             <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-800">
               <Button
                 onClick={handleStartImport}
@@ -560,7 +584,8 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
               Analyzing Menu Document...
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
-              Extracting category headers, item names, prices, dietary symbols, variants, and add-ons using server-side vision AI.
+              Extracting category headers, item names, prices, dietary symbols, variants, and
+              add-ons using server-side vision AI.
             </p>
           </div>
         )}
@@ -582,7 +607,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                   >
                     <ZoomOut className="h-3.5 w-3.5 text-slate-500" />
                   </button>
-                  <span className="text-[10px] font-mono text-slate-500">{(previewScale * 100).toFixed(0)}%</span>
+                  <span className="text-[10px] font-mono text-slate-500">
+                    {(previewScale * 100).toFixed(0)}%
+                  </span>
                   <button
                     onClick={() => setPreviewScale((s) => Math.min(2.5, s + 0.2))}
                     className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
@@ -605,7 +632,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                     />
                   </div>
                 ) : (
-                  <div className="p-8 text-center text-xs text-slate-500">Document preview active</div>
+                  <div className="p-8 text-center text-xs text-slate-500">
+                    Document preview active
+                  </div>
                 )}
               </div>
             </div>
@@ -618,11 +647,22 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-amber-500" />
                     <span className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-                      Menu Import Quality: {Math.round((items.filter(i => i.price > 0 && i.confidence === "high").length / Math.max(1, items.length)) * 100)}% — {items.filter(i => i.confidence === "needs_review").length === 0 ? "High Quality" : "Review Recommended"}
+                      Menu Import Quality:{" "}
+                      {Math.round(
+                        (items.filter((i) => i.price > 0 && i.confidence === "high").length /
+                          Math.max(1, items.length)) *
+                          100,
+                      )}
+                      % —{" "}
+                      {items.filter((i) => i.confidence === "needs_review").length === 0
+                        ? "High Quality"
+                        : "Review Recommended"}
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    {items.length} items detected across {categories.length} categories. {items.filter(i => i.confidence === "high").length} verified automatically. Review required before publishing.
+                    {items.length} items detected across {categories.length} categories.{" "}
+                    {items.filter((i) => i.confidence === "high").length} verified automatically.
+                    Review required before publishing.
                   </p>
                 </div>
 
@@ -650,8 +690,12 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                   </Select>
 
                   {needsReviewItems.length > 0 && (
-                    <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10">
-                      <AlertTriangle className="mr-1 h-3 w-3" /> {needsReviewItems.length} Needs Review
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10"
+                    >
+                      <AlertTriangle className="mr-1 h-3 w-3" /> {needsReviewItems.length} Needs
+                      Review
                     </Badge>
                   )}
                 </div>
@@ -675,7 +719,12 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                     <ListChecks className="h-4 w-4" /> {selectedItemIds.size} item(s) selected
                   </span>
                   <div className="flex items-center gap-2">
-                    <Button onClick={handleBulkDelete} size="sm" variant="destructive" className="h-7 text-[11px]">
+                    <Button
+                      onClick={handleBulkDelete}
+                      size="sm"
+                      variant="destructive"
+                      className="h-7 text-[11px]"
+                    >
                       Delete Selected
                     </Button>
                   </div>
@@ -714,11 +763,15 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-xs font-bold text-amber-600 dark:text-amber-400">₹</span>
+                          <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                            ₹
+                          </span>
                           <Input
                             type="number"
                             value={item.price}
-                            onChange={(e) => handleUpdateItemField(item.id, "price", Number(e.target.value))}
+                            onChange={(e) =>
+                              handleUpdateItemField(item.id, "price", Number(e.target.value))
+                            }
                             className="h-8 w-24 font-bold text-sm bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-right"
                           />
 
@@ -736,13 +789,17 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                         <Input
                           placeholder="Description..."
                           value={item.description}
-                          onChange={(e) => handleUpdateItemField(item.id, "description", e.target.value)}
+                          onChange={(e) =>
+                            handleUpdateItemField(item.id, "description", e.target.value)
+                          }
                           className="h-7 text-xs bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300"
                         />
 
                         <Select
                           value={item.categoryName}
-                          onValueChange={(val) => handleUpdateItemField(item.id, "categoryName", val)}
+                          onValueChange={(val) =>
+                            handleUpdateItemField(item.id, "categoryName", val)
+                          }
                         >
                           <SelectTrigger className="h-7 text-xs bg-white dark:bg-slate-950">
                             <SelectValue />
@@ -781,7 +838,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                 <input
                                   type="text"
                                   value={v.name}
-                                  onChange={(e) => handleUpdateVariantInItem(item.id, vIdx, "name", e.target.value)}
+                                  onChange={(e) =>
+                                    handleUpdateVariantInItem(item.id, vIdx, "name", e.target.value)
+                                  }
                                   className="w-16 font-bold bg-transparent border-none p-0 focus:outline-none text-slate-800 dark:text-slate-200 text-xs"
                                   placeholder="Variant"
                                 />
@@ -789,7 +848,14 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                 <input
                                   type="number"
                                   value={v.price}
-                                  onChange={(e) => handleUpdateVariantInItem(item.id, vIdx, "price", Number(e.target.value))}
+                                  onChange={(e) =>
+                                    handleUpdateVariantInItem(
+                                      item.id,
+                                      vIdx,
+                                      "price",
+                                      Number(e.target.value),
+                                    )
+                                  }
                                   className="w-14 font-bold bg-transparent border-none p-0 focus:outline-none text-slate-800 dark:text-slate-200 text-xs text-right"
                                 />
                                 <button
@@ -803,7 +869,8 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                           </div>
                         ) : (
                           <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">
-                            Single price item. Click "+ Add Half / Full Variant" if this item offers Half/Full portions.
+                            Single price item. Click "+ Add Half / Full Variant" if this item offers
+                            Half/Full portions.
                           </p>
                         )}
                       </div>
@@ -812,7 +879,8 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                       {item.confidenceReason && (
                         <div className="mt-2.5 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs text-amber-700 dark:text-amber-300">
                           <span className="flex items-center gap-1.5 font-bold">
-                            <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> {item.confidenceReason}
+                            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />{" "}
+                            {item.confidenceReason}
                           </span>
 
                           {item.isDuplicate && item.duplicateInfo && (
@@ -849,13 +917,20 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                       <ShieldAlert className="h-3.5 w-3.5 text-slate-400" />
                       Excluded / Unclassified Text ({excludedText.length} blocks)
                     </span>
-                    <ChevronRight className={`h-3.5 w-3.5 transition-transform ${showExcluded ? "rotate-90" : ""}`} />
+                    <ChevronRight
+                      className={`h-3.5 w-3.5 transition-transform ${showExcluded ? "rotate-90" : ""}`}
+                    />
                   </button>
                   {showExcluded && (
                     <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
                       {excludedText.map((block, idx) => (
-                        <div key={idx} className="px-4 py-2 flex items-start justify-between gap-3 text-xs">
-                          <span className="text-slate-600 dark:text-slate-300 font-mono break-all">{block.text}</span>
+                        <div
+                          key={idx}
+                          className="px-4 py-2 flex items-start justify-between gap-3 text-xs"
+                        >
+                          <span className="text-slate-600 dark:text-slate-300 font-mono break-all">
+                            {block.text}
+                          </span>
                           <span className="shrink-0 text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                             {block.reason}
                           </span>
@@ -917,7 +992,12 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
-              <Button onClick={() => setStep("review")} variant="outline" size="lg" className="text-xs">
+              <Button
+                onClick={() => setStep("review")}
+                variant="outline"
+                size="lg"
+                className="text-xs"
+              >
                 Back to Review
               </Button>
 

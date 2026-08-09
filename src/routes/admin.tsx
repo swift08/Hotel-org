@@ -29,11 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import {
-  ROLE_NAV,
-  ROLE_DISPLAY,
-  type StaffRole,
-} from "@/lib/rbac";
+import { ROLE_NAV, ROLE_DISPLAY, type StaffRole } from "@/lib/rbac";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -58,7 +54,10 @@ const isLogoUrl = (url: any) =>
   url &&
   typeof url === "string" &&
   url.trim().length > 0 &&
-  (url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:"));
+  (url.startsWith("/") ||
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("data:"));
 
 function AdminLayout() {
   const navigate = useNavigate();
@@ -107,7 +106,7 @@ function AdminLayout() {
       })
       .catch(() => navigate({ to: "/auth/login" }))
       .finally(() => setLoading(false));
-  }, []);
+  }, [navigate]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -120,7 +119,11 @@ function AdminLayout() {
       <BrandedLoadingScreen
         restaurantName={context?.business?.name || "RASOI"}
         subtitle="Loading workspace & live floor state..."
-        logoUrl={isLogoUrl(context?.settings?.address_line2) ? context.settings.address_line2 : "/images/logo.webp"}
+        logoUrl={
+          isLogoUrl(context?.settings?.address_line2)
+            ? context.settings.address_line2
+            : "/images/logo.webp"
+        }
       />
     );
   }
@@ -165,9 +168,7 @@ function AdminLayout() {
   const branchName = activeBranch?.name || "Main Branch";
   const userName = context?.profile?.full_name || context?.user?.email?.split("@")[0] || "User";
   const rawLogo = context?.settings?.address_line2;
-  const businessLogo = isLogoUrl(rawLogo)
-    ? rawLogo!.trim()
-    : "/images/logo.webp";
+  const businessLogo = isLogoUrl(rawLogo) ? rawLogo!.trim() : "/images/logo.webp";
 
   // ── Sidebar component (shared between mobile + desktop)
   const SidebarContent = () => (
@@ -184,8 +185,12 @@ function AdminLayout() {
             className="h-11 w-auto max-w-[150px] object-contain shrink-0 drop-shadow-sm"
           />
           <div className="min-w-0 flex-1 pl-1">
-            <p className="font-extrabold text-slate-800 dark:text-white text-xs truncate leading-tight">{businessName}</p>
-            <p className="text-[10px] text-amber-600 dark:text-amber-400/80 font-medium truncate">{branchName}</p>
+            <p className="font-extrabold text-slate-800 dark:text-white text-xs truncate leading-tight">
+              {businessName}
+            </p>
+            <p className="text-[10px] text-amber-600 dark:text-amber-400/80 font-medium truncate">
+              {branchName}
+            </p>
           </div>
         </div>
       </div>
@@ -224,7 +229,9 @@ function AdminLayout() {
                     )}
                     <Icon
                       className={`h-4 w-4 shrink-0 transition-colors ${
-                        isActive ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500 group-hover:text-slate-800 dark:group-hover:text-slate-350"
+                        isActive
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-slate-400 dark:text-slate-500 group-hover:text-slate-800 dark:group-hover:text-slate-350"
                       }`}
                     />
                     <span className="flex-1">{item.label}</span>
@@ -249,8 +256,12 @@ function AdminLayout() {
             {userName.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-slate-800 dark:text-white truncate">{userName}</p>
-            <Badge className={`text-[9px] font-bold px-1.5 py-0 border mt-0.5 ${roleDisplay.color}`}>
+            <p className="text-xs font-semibold text-slate-800 dark:text-white truncate">
+              {userName}
+            </p>
+            <Badge
+              className={`text-[9px] font-bold px-1.5 py-0 border mt-0.5 ${roleDisplay.color}`}
+            >
               {roleDisplay.label}
             </Badge>
           </div>
@@ -313,18 +324,26 @@ function AdminLayout() {
               <Menu className="h-4.5 w-4.5" />
             </button>
             <div className="hidden lg:flex items-center gap-2 text-xs text-slate-500">
-              <span className="font-black tracking-wider uppercase text-[11px] bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-md text-amber-700 dark:text-amber-400">RASOI</span>
+              <span className="font-black tracking-wider uppercase text-[11px] bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-md text-amber-700 dark:text-amber-400">
+                RASOI
+              </span>
               <span>›</span>
-              <span className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[160px]">{businessName}</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[160px]">
+                {businessName}
+              </span>
               <span>›</span>
-              <span className="truncate max-w-[120px] text-slate-500 dark:text-slate-500">{branchName}</span>
+              <span className="truncate max-w-[120px] text-slate-500 dark:text-slate-500">
+                {branchName}
+              </span>
             </div>
           </div>
 
           {/* Right: role badge + icons + user */}
           <div className="flex items-center gap-2">
             {/* Role badge — shows workspace type */}
-            <Badge className={`hidden sm:flex text-[10px] font-bold px-2 py-0.5 border ${roleDisplay.color}`}>
+            <Badge
+              className={`hidden sm:flex text-[10px] font-bold px-2 py-0.5 border ${roleDisplay.color}`}
+            >
               {roleDisplay.label}
             </Badge>
 

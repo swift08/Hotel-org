@@ -2,16 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
-import { 
-  ShieldAlert, 
-  Search, 
-  RefreshCw, 
-  Lock, 
-  User, 
-  Clock, 
-  FileText,
-  Loader2
-} from "lucide-react";
+import { ShieldAlert, Search, RefreshCw, Lock, User, Clock, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -61,19 +52,27 @@ function AuditLogsView() {
     (l) =>
       l.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
       l.entity_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (l.actor_role && l.actor_role.toLowerCase().includes(searchQuery.toLowerCase()))
+      (l.actor_role && l.actor_role.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
-  const canViewAudit = !context || context.permissions?.includes("audit.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canViewAudit =
+    !context ||
+    context.permissions?.includes("audit.view") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
 
   if (!loading && context && !canViewAudit) {
     return (
       <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
         <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
-        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`audit.view`) to access Audit Logs.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          You do not have permission (`audit.view`) to access Audit Logs.
+        </p>
         <Link to="/admin/dashboard">
-          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+          <Button variant="outline" className="mt-4">
+            Return to Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -98,7 +97,8 @@ function AuditLogsView() {
           size="sm"
           className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
         >
-          <RefreshCw className={`mr-2 h-4 w-4 shrink-0 ${loading ? "animate-spin" : ""}`} /> Refresh Logs
+          <RefreshCw className={`mr-2 h-4 w-4 shrink-0 ${loading ? "animate-spin" : ""}`} /> Refresh
+          Logs
         </Button>
       </div>
 
@@ -121,7 +121,9 @@ function AuditLogsView() {
       ) : filteredLogs.length === 0 ? (
         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400">
           <ShieldAlert className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-600" />
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Audit Records Found</h3>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">
+            No Audit Records Found
+          </h3>
           <p className="text-xs">No audit events match your search query.</p>
         </Card>
       ) : (
@@ -138,15 +140,24 @@ function AuditLogsView() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-750 dark:text-slate-300">
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr
+                    key={log.id}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                  >
                     <td className="p-4 font-mono text-slate-500 dark:text-slate-400">
                       {new Date(log.created_at).toLocaleString()}
                     </td>
-                    <td className="p-4 font-bold text-amber-600 dark:text-amber-400">{log.action}</td>
+                    <td className="p-4 font-bold text-amber-600 dark:text-amber-400">
+                      {log.action}
+                    </td>
                     <td className="p-4">
-                      <span className="font-mono text-slate-850 dark:text-white">{log.entity_type}</span>
+                      <span className="font-mono text-slate-850 dark:text-white">
+                        {log.entity_type}
+                      </span>
                       {log.entity_id && (
-                        <span className="text-[10px] text-slate-500 ml-1">({log.entity_id.slice(0, 8)})</span>
+                        <span className="text-[10px] text-slate-500 ml-1">
+                          ({log.entity_id.slice(0, 8)})
+                        </span>
                       )}
                     </td>
                     <td className="p-4">

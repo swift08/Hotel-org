@@ -66,7 +66,8 @@ export const ImportHistoryDrawer: React.FC<ImportHistoryDrawerProps> = ({
             <Clock className="h-5 w-5 text-amber-500" /> Menu Import & Version History
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
-            Audit history of physical & digital menu uploads, AI extractions, published versions, and rollbacks.
+            Audit history of physical & digital menu uploads, AI extractions, published versions,
+            and rollbacks.
           </DialogDescription>
         </DialogHeader>
 
@@ -74,8 +75,12 @@ export const ImportHistoryDrawer: React.FC<ImportHistoryDrawerProps> = ({
           {imports.length === 0 ? (
             <div className="p-8 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950/40">
               <FileText className="h-10 w-10 mx-auto text-slate-400 dark:text-slate-600 mb-2" />
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No import history found</p>
-              <p className="text-xs text-slate-500">Upload your first menu PDF or photograph to populate history.</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                No import history found
+              </p>
+              <p className="text-xs text-slate-500">
+                Upload your first menu PDF or photograph to populate history.
+              </p>
             </div>
           ) : (
             imports.map((imp) => {
@@ -94,7 +99,10 @@ export const ImportHistoryDrawer: React.FC<ImportHistoryDrawerProps> = ({
                         {files[0]?.name || "Menu Document"}
                       </span>
                       {files.length > 1 && (
-                        <Badge variant="outline" className="text-[10px] border-slate-300 dark:border-slate-700">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] border-slate-300 dark:border-slate-700"
+                        >
                           +{files.length - 1} more file(s)
                         </Badge>
                       )}
@@ -111,7 +119,8 @@ export const ImportHistoryDrawer: React.FC<ImportHistoryDrawerProps> = ({
                           </>
                         ) : (
                           <>
-                            <Sparkles className="mr-1 h-3 w-3" /> {imp.status?.toUpperCase() || "DRAFT"}
+                            <Sparkles className="mr-1 h-3 w-3" />{" "}
+                            {imp.status?.toUpperCase() || "DRAFT"}
                           </>
                         )}
                       </Badge>
@@ -120,7 +129,9 @@ export const ImportHistoryDrawer: React.FC<ImportHistoryDrawerProps> = ({
                     <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 font-mono">
                       <span>📅 {new Date(imp.created_at).toLocaleDateString()}</span>
                       <span>📂 {summary.itemsCount || 0} items detected</span>
-                      {summary.categoriesCount > 0 && <span>📁 {summary.categoriesCount} categories</span>}
+                      {summary.categoriesCount > 0 && (
+                        <span>📁 {summary.categoriesCount} categories</span>
+                      )}
                     </div>
                   </div>
 

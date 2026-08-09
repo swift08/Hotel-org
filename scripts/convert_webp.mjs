@@ -15,7 +15,9 @@ function convertDir(dir) {
       const outputPath = path.join(dir, outputName);
       console.log(`Converting ${file} -> ${outputName}...`);
       try {
-        execSync(`npx sharp-cli -i "${inputPath}" -o "${outputPath}" -f webp -q 85`, { stdio: "inherit" });
+        execSync(`npx sharp-cli -i "${inputPath}" -o "${outputPath}" -f webp -q 85`, {
+          stdio: "inherit",
+        });
       } catch (err) {
         console.error(`Failed to convert ${file}:`, err.message);
       }

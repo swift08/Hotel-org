@@ -27,16 +27,21 @@ export const getMyContext = createServerFn({ method: "GET" })
     }
     void requireMembership;
 
-    const [{ data: business }, { data: settings }, { data: branches }, permissions] = await Promise.all([
-      supabase.from("businesses").select("*").eq("id", membership.business_id).maybeSingle(),
-      supabase.from("business_settings").select("*").eq("business_id", membership.business_id).maybeSingle(),
-      supabase
-        .from("branches")
-        .select("id, name, city, is_active")
-        .eq("business_id", membership.business_id)
-        .order("created_at"),
-      resolvePermissions(supabase, membership.business_id, membership.role),
-    ]);
+    const [{ data: business }, { data: settings }, { data: branches }, permissions] =
+      await Promise.all([
+        supabase.from("businesses").select("*").eq("id", membership.business_id).maybeSingle(),
+        supabase
+          .from("business_settings")
+          .select("*")
+          .eq("business_id", membership.business_id)
+          .maybeSingle(),
+        supabase
+          .from("branches")
+          .select("id, name, city, is_active")
+          .eq("business_id", membership.business_id)
+          .order("created_at"),
+        resolvePermissions(supabase, membership.business_id, membership.role),
+      ]);
 
     return {
       onboarded: true as const,
@@ -95,7 +100,8 @@ export const createBusiness = createServerFn({ method: "POST" })
       })
       .select("id, name, slug")
       .single();
-    if (bizError || !business) throw new Error(bizError?.message ?? "Could not create the business.");
+    if (bizError || !business)
+      throw new Error(bizError?.message ?? "Could not create the business.");
 
     const { error: memberError } = await supabaseAdmin
       .from("memberships")
@@ -112,7 +118,8 @@ export const createBusiness = createServerFn({ method: "POST" })
       })
       .select("id, name")
       .single();
-    if (branchError || !branch) throw new Error(branchError?.message ?? "Could not create the branch.");
+    if (branchError || !branch)
+      throw new Error(branchError?.message ?? "Could not create the branch.");
 
     await supabaseAdmin
       .from("business_settings")
@@ -168,7 +175,8 @@ export const updateBusinessSettings = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "settings.manage");
@@ -246,7 +254,8 @@ export const updateStaffRole = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
     if (!membership.is_active) throw new Error("Your account is disabled.");
 
@@ -261,9 +270,12 @@ export const updateStaffRole = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!target) throw new Error("Staff member not found.");
     if (target.user_id === userId) throw new Error("You cannot change your own role.");
-    if (target.role === "owner" && membership.role !== "owner") throw new Error("Only an owner can modify another owner.");
-    if (data.role === "owner" && membership.role !== "owner") throw new Error("Only an owner can assign the owner role.");
-    if (data.role === "business_admin" && membership.role !== "owner") throw new Error("Only an owner can assign the admin role.");
+    if (target.role === "owner" && membership.role !== "owner")
+      throw new Error("Only an owner can modify another owner.");
+    if (data.role === "owner" && membership.role !== "owner")
+      throw new Error("Only an owner can assign the owner role.");
+    if (data.role === "business_admin" && membership.role !== "owner")
+      throw new Error("Only an owner can assign the admin role.");
 
     const { data: after, error } = await supabase
       .from("memberships")
@@ -306,7 +318,8 @@ export const updateStaffMemberDetails = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);
@@ -329,7 +342,11 @@ export const updateStaffMemberDetails = createServerFn({ method: "POST" })
     if (target.role === "owner" && membership.role !== "owner") {
       throw new Error("Only an owner can modify another owner.");
     }
-    if (data.role && (data.role === "owner" || data.role === "business_admin") && membership.role !== "owner") {
+    if (
+      data.role &&
+      (data.role === "owner" || data.role === "business_admin") &&
+      membership.role !== "owner"
+    ) {
       throw new Error("Only an owner can assign owner or admin roles.");
     }
 
@@ -342,8 +359,8 @@ export const updateStaffMemberDetails = createServerFn({ method: "POST" })
     }
 
     const patch: Record<string, any> = {};
-    if (data.role) patch['role'] = data.role;
-    if (data.isActive !== undefined) patch['is_active'] = data.isActive;
+    if (data.role) patch["role"] = data.role;
+    if (data.isActive !== undefined) patch["is_active"] = data.isActive;
 
     if (Object.keys(patch).length > 0) {
       await supabase
@@ -381,7 +398,8 @@ export const createStaffMember = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } =
+      await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);
@@ -396,7 +414,9 @@ export const createStaffMember = createServerFn({ method: "POST" })
 
     // Check if user already exists in auth
     const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
-    let staffUser = usersData?.users?.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
+    let staffUser = usersData?.users?.find(
+      (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
+    );
 
     if (!staffUser) {
       const { data: newUser, error: createErr } = await supabaseAdmin.auth.admin.createUser({
@@ -405,7 +425,8 @@ export const createStaffMember = createServerFn({ method: "POST" })
         email_confirm: true,
         user_metadata: { full_name: data.fullName },
       });
-      if (createErr || !newUser.user) throw new Error(createErr?.message || "Failed to create user account.");
+      if (createErr || !newUser.user)
+        throw new Error(createErr?.message || "Failed to create user account.");
       staffUser = newUser.user;
     }
 
@@ -463,7 +484,8 @@ export const setRolePermission = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { requireMembership, logAudit } = await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
-    if (membership.role !== "owner") throw new Error("Only the business owner can edit the permission matrix.");
+    if (membership.role !== "owner")
+      throw new Error("Only the business owner can edit the permission matrix.");
     if (data.role === "owner") throw new Error("Owner permissions cannot be reduced.");
 
     const { error } = await supabase.from("role_permissions").upsert(
@@ -499,8 +521,14 @@ export const getPermissionMatrix = createServerFn({ method: "GET" })
       await Promise.all([
         supabase.from("permissions").select("key, label, category").order("category"),
         supabase.from("role_default_permissions").select("role, permission_key"),
-        supabase.from("role_permissions").select("role, permission_key, allowed").eq("business_id", data.businessId),
-        supabase.from("discount_authorities").select("role, max_percent, unlimited, approval_required").eq("business_id", data.businessId),
+        supabase
+          .from("role_permissions")
+          .select("role, permission_key, allowed")
+          .eq("business_id", data.businessId),
+        supabase
+          .from("discount_authorities")
+          .select("role, max_percent, unlimited, approval_required")
+          .eq("business_id", data.businessId),
       ]);
     return {
       permissions: permissions ?? [],
@@ -526,7 +554,8 @@ export const setDiscountAuthority = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { requireMembership, logAudit } = await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
-    if (membership.role !== "owner") throw new Error("Only the business owner can change discount limits.");
+    if (membership.role !== "owner")
+      throw new Error("Only the business owner can change discount limits.");
 
     const { error } = await supabase.from("discount_authorities").upsert(
       {
@@ -548,7 +577,11 @@ export const setDiscountAuthority = createServerFn({ method: "POST" })
       action: "discount_authority.changed",
       entity_type: "discount_authority",
       entity_id: data.role,
-      after_state: { role: data.role, maxPercent: data.maxPercent, approvalRequired: data.approvalRequired },
+      after_state: {
+        role: data.role,
+        maxPercent: data.maxPercent,
+        approvalRequired: data.approvalRequired,
+      },
     });
     return { ok: true };
   });
@@ -560,7 +593,9 @@ export const listAuditLog = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data: rows, error } = await supabase
       .from("audit_logs")
-      .select("id, action, entity_type, entity_id, actor_role, actor_label, before_state, after_state, reason, created_at")
+      .select(
+        "id, action, entity_type, entity_id, actor_role, actor_label, before_state, after_state, reason, created_at",
+      )
       .eq("business_id", data.businessId)
       .order("created_at", { ascending: false })
       .limit(200);

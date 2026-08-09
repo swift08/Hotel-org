@@ -22,7 +22,7 @@
   position: relative;
   background: #ffffff;
   padding: 16px;
-  box-shadow: 
+  box-shadow:
     0 20px 40px -12px rgba(15, 23, 42, 0.08),
     0 0 40px rgba(245, 158, 11, 0.06),
     0 0 0 1px rgba(226, 232, 240, 0.8);
@@ -68,7 +68,11 @@
   transform: translate(-50%, -50%);
   width: 110%;
   height: 110%;
-  background: radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0) 70%);
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(245, 158, 11, 0.12),
+    rgba(245, 158, 11, 0) 70%
+  );
   pointer-events: none;
   z-index: -1;
   border-radius: 40px;

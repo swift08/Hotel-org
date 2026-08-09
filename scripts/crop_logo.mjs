@@ -50,7 +50,9 @@ fs.createReadStream(inputPath)
     const croppedWidth = maxX - minX + 1;
     const croppedHeight = maxY - minY + 1;
 
-    console.log(`Cropping logo from ${this.width}x${this.height} to ${croppedWidth}x${croppedHeight}`);
+    console.log(
+      `Cropping logo from ${this.width}x${this.height} to ${croppedWidth}x${croppedHeight}`,
+    );
 
     const cropped = new PNG({ width: croppedWidth, height: croppedHeight });
 
@@ -79,7 +81,10 @@ fs.createReadStream(inputPath)
       }
     }
 
-    cropped.pack().pipe(fs.createWriteStream(outputPath)).on("finish", () => {
-      console.log("Logo successfully cropped and transparent background applied!");
-    });
+    cropped
+      .pack()
+      .pipe(fs.createWriteStream(outputPath))
+      .on("finish", () => {
+        console.log("Logo successfully cropped and transparent background applied!");
+      });
   });

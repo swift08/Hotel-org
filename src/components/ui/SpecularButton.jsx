@@ -1,6 +1,6 @@
-import { useRef, useEffect } from 'react';
-import { Renderer, Program, Mesh, Triangle, Color } from 'ogl';
-import './SpecularButton.css';
+import { useRef, useEffect } from "react";
+import { Renderer, Program, Mesh, Triangle, Color } from "ogl";
+import "./SpecularButton.css";
 
 const PAD = 20;
 
@@ -63,15 +63,15 @@ void main() {
 `;
 
 const SpecularButton = ({
-  children = 'Get Started',
-  size = 'lg',
+  children = "Get Started",
+  size = "lg",
   radius = 18,
-  tint = '#ffffff',
+  tint = "#ffffff",
   tintOpacity = 0,
   blur = 0,
-  textColor = '#f5f5f5',
-  lineColor = '#ffffff',
-  baseColor = '#525252',
+  textColor = "#f5f5f5",
+  lineColor = "#ffffff",
+  baseColor = "#525252",
   intensity = 1,
   shineSize = 10,
   shineFade = 40,
@@ -82,15 +82,27 @@ const SpecularButton = ({
   autoAnimate = false,
   disabled = false,
   onClick,
-  className = '',
-  type = 'button',
-  style = {}
+  className = "",
+  type = "button",
+  style = {},
 }) => {
   const btnRef = useRef(null);
   const fxRef = useRef(null);
   const propsRef = useRef({});
 
-  propsRef.current = { radius, lineColor, baseColor, intensity, shineSize, shineFade, thickness, speed, followMouse, proximity, autoAnimate };
+  propsRef.current = {
+    radius,
+    lineColor,
+    baseColor,
+    intensity,
+    shineSize,
+    shineFade,
+    thickness,
+    speed,
+    followMouse,
+    proximity,
+    autoAnimate,
+  };
 
   useEffect(() => {
     const btn = btnRef.current;
@@ -124,8 +136,8 @@ const SpecularButton = ({
         uShineSize: { value: 0.17 },
         uShineFade: { value: 0.7 },
         uThickness: { value: 1 },
-        uBaseWidth: { value: dpr }
-      }
+        uBaseWidth: { value: dpr },
+      },
     });
 
     const mesh = new Mesh(gl, { geometry, program });
@@ -148,7 +160,7 @@ const SpecularButton = ({
 
     let pointerAngle = null;
     let proximityT = 0;
-    const onPointerMove = e => {
+    const onPointerMove = (e) => {
       const rect = btn.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
@@ -166,7 +178,7 @@ const SpecularButton = ({
       const t = Math.max(0, 1 - dist / Math.max(propsRef.current.proximity, 1));
       proximityT = t * t * (3 - 2 * t);
     };
-    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener("pointermove", onPointerMove);
 
     let angle = 2.4;
     let idleAngle = 2.4;
@@ -177,7 +189,7 @@ const SpecularButton = ({
     const lineC = new Color();
     const baseC = new Color();
 
-    const update = now => {
+    const update = (now) => {
       raf = requestAnimationFrame(update);
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
@@ -209,9 +221,9 @@ const SpecularButton = ({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener("pointermove", onPointerMove);
       if (gl.canvas && gl.canvas.parentNode === fx) fx.removeChild(gl.canvas);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, []);
 
@@ -221,14 +233,14 @@ const SpecularButton = ({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={`specular-button specular-button--${size}${className ? ` ${className}` : ''}`}
+      className={`specular-button specular-button--${size}${className ? ` ${className}` : ""}`}
       style={{
-        '--sb-radius': `${radius}px`,
-        '--sb-tint': tint,
-        '--sb-tint-opacity': tintOpacity,
-        '--sb-blur': `${blur}px`,
-        '--sb-text-color': textColor,
-        ...style
+        "--sb-radius": `${radius}px`,
+        "--sb-tint": tint,
+        "--sb-tint-opacity": tintOpacity,
+        "--sb-blur": `${blur}px`,
+        "--sb-text-color": textColor,
+        ...style,
       }}
     >
       <span ref={fxRef} className="specular-button__fx" aria-hidden="true" />

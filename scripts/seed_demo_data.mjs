@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = "https://pzyiffaaeqrpbzwymbmv.supabase.co";
-const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6eWlmZmFhZXFycGJ6d3ltYm12Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjE3NTQ4MywiZXhwIjoyMTAxNzUxNDgzfQ.5IfPZ7fgMbOgeIsT2X-mBr7OZvIYrzhceuSKzqYbr8M";
+const SERVICE_ROLE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6eWlmZmFhZXFycGJ6d3ltYm12Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjE3NTQ4MywiZXhwIjoyMTAxNzUxNDgzfQ.5IfPZ7fgMbOgeIsT2X-mBr7OZvIYrzhceuSKzqYbr8M";
 
 const adminSupabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
@@ -15,7 +16,8 @@ async function seedDemoDataForAllBusinesses() {
   }
 
   const { data: usersData } = await adminSupabase.auth.admin.listUsers();
-  const u = usersData?.users?.find(x => x.email === "info@kapilariverfront.com") || usersData?.users?.[0];
+  const u =
+    usersData?.users?.find((x) => x.email === "info@kapilariverfront.com") || usersData?.users?.[0];
 
   for (const biz of allBiz) {
     const businessId = biz.id;
@@ -45,7 +47,10 @@ async function seedDemoDataForAllBusinesses() {
     // Ensure branch
     let branchId = null;
     if (!branchId) {
-      const { data: bList } = await adminSupabase.from("branches").select("id").eq("business_id", businessId);
+      const { data: bList } = await adminSupabase
+        .from("branches")
+        .select("id")
+        .eq("business_id", businessId);
       if (bList && bList.length > 0) {
         branchId = bList[0].id;
       } else {
@@ -58,7 +63,11 @@ async function seedDemoDataForAllBusinesses() {
       }
 
       // Update membership branch_id
-      await adminSupabase.from("memberships").update({ branch_id: branchId }).eq("business_id", businessId).eq("user_id", u.id);
+      await adminSupabase
+        .from("memberships")
+        .update({ branch_id: branchId })
+        .eq("business_id", businessId)
+        .eq("user_id", u.id);
     }
 
     // Business settings
@@ -66,7 +75,7 @@ async function seedDemoDataForAllBusinesses() {
       business_id: businessId,
       legal_name: "Kapila Riverfront Bistro & Resort Pvt Ltd",
       tax_mode: "exclusive",
-      default_tax_rate: 5.00,
+      default_tax_rate: 5.0,
       cash_payment_enabled: true,
       online_payment_enabled: true,
     });
@@ -74,16 +83,76 @@ async function seedDemoDataForAllBusinesses() {
     // 10 Restaurant Tables
     console.log("Seeding tables...");
     const tableData = [
-      { label: "Table 01", seats: 2, state: "occupied", qr_key: `t01_${businessId.slice(0, 5)}`, display_order: 1 },
-      { label: "Table 02", seats: 4, state: "occupied", qr_key: `t02_${businessId.slice(0, 5)}`, display_order: 2 },
-      { label: "Table 03", seats: 2, state: "available", qr_key: `t03_${businessId.slice(0, 5)}`, display_order: 3 },
-      { label: "Table 04", seats: 6, state: "payment_pending", qr_key: `t04_${businessId.slice(0, 5)}`, display_order: 4 },
-      { label: "Table 05", seats: 4, state: "available", qr_key: `t05_${businessId.slice(0, 5)}`, display_order: 5 },
-      { label: "Table 06", seats: 2, state: "available", qr_key: `t06_${businessId.slice(0, 5)}`, display_order: 6 },
-      { label: "Table 07", seats: 8, state: "occupied", qr_key: `t07_${businessId.slice(0, 5)}`, display_order: 7 },
-      { label: "Table 08", seats: 4, state: "available", qr_key: `t08_${businessId.slice(0, 5)}`, display_order: 8 },
-      { label: "Table 09", seats: 2, state: "available", qr_key: `t09_${businessId.slice(0, 5)}`, display_order: 9 },
-      { label: "Table 10", seats: 6, state: "available", qr_key: `t10_${businessId.slice(0, 5)}`, display_order: 10 },
+      {
+        label: "Table 01",
+        seats: 2,
+        state: "occupied",
+        qr_key: `t01_${businessId.slice(0, 5)}`,
+        display_order: 1,
+      },
+      {
+        label: "Table 02",
+        seats: 4,
+        state: "occupied",
+        qr_key: `t02_${businessId.slice(0, 5)}`,
+        display_order: 2,
+      },
+      {
+        label: "Table 03",
+        seats: 2,
+        state: "available",
+        qr_key: `t03_${businessId.slice(0, 5)}`,
+        display_order: 3,
+      },
+      {
+        label: "Table 04",
+        seats: 6,
+        state: "payment_pending",
+        qr_key: `t04_${businessId.slice(0, 5)}`,
+        display_order: 4,
+      },
+      {
+        label: "Table 05",
+        seats: 4,
+        state: "available",
+        qr_key: `t05_${businessId.slice(0, 5)}`,
+        display_order: 5,
+      },
+      {
+        label: "Table 06",
+        seats: 2,
+        state: "available",
+        qr_key: `t06_${businessId.slice(0, 5)}`,
+        display_order: 6,
+      },
+      {
+        label: "Table 07",
+        seats: 8,
+        state: "occupied",
+        qr_key: `t07_${businessId.slice(0, 5)}`,
+        display_order: 7,
+      },
+      {
+        label: "Table 08",
+        seats: 4,
+        state: "available",
+        qr_key: `t08_${businessId.slice(0, 5)}`,
+        display_order: 8,
+      },
+      {
+        label: "Table 09",
+        seats: 2,
+        state: "available",
+        qr_key: `t09_${businessId.slice(0, 5)}`,
+        display_order: 9,
+      },
+      {
+        label: "Table 10",
+        seats: 6,
+        state: "available",
+        qr_key: `t10_${businessId.slice(0, 5)}`,
+        display_order: 10,
+      },
     ];
 
     for (const t of tableData) {
@@ -97,7 +166,7 @@ async function seedDemoDataForAllBusinesses() {
           qr_slug: t.qr_key,
           display_order: t.display_order,
         },
-        { onConflict: "business_id,label" }
+        { onConflict: "business_id,label" },
       );
     }
 
@@ -116,8 +185,13 @@ async function seedDemoDataForAllBusinesses() {
       const { data: cat } = await adminSupabase
         .from("menu_categories")
         .upsert(
-          { business_id: businessId, name: c.name, display_order: c.display_order, is_active: true },
-          { onConflict: "business_id,name" }
+          {
+            business_id: businessId,
+            name: c.name,
+            display_order: c.display_order,
+            is_active: true,
+          },
+          { onConflict: "business_id,name" },
         )
         .select("id, name")
         .single();
@@ -214,7 +288,7 @@ async function seedDemoDataForAllBusinesses() {
             tags: p.tags,
             is_available: p.is_available,
           },
-          { onConflict: "business_id,name" }
+          { onConflict: "business_id,name" },
         );
       }
     }

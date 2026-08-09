@@ -26,9 +26,12 @@ fs.createReadStream(inputPath)
       }
     }
 
-    iconPNG.pack().pipe(fs.createWriteStream(outputPath)).on("finish", () => {
-      console.log("Favicon PNG generated successfully!");
-      fs.copyFileSync(outputPath, icoPath);
-      console.log("Favicon ICO copied successfully!");
-    });
+    iconPNG
+      .pack()
+      .pipe(fs.createWriteStream(outputPath))
+      .on("finish", () => {
+        console.log("Favicon PNG generated successfully!");
+        fs.copyFileSync(outputPath, icoPath);
+        console.log("Favicon ICO copied successfully!");
+      });
   });

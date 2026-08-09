@@ -6,14 +6,14 @@ This document details all required public and server-side secret environment var
 
 ## Environment Variable Matrix
 
-| Variable Name | Type | Scope | Required | Vercel Environment | Description |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `VITE_SUPABASE_URL` | Public | Client & Server | **Yes** | Dev / Preview / Production | Public Supabase HTTPS endpoint URL. |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public | Client & Server | **Yes** | Dev / Preview / Production | Public Supabase anon publishable key for client requests. |
-| `VITE_SUPABASE_PROJECT_ID` | Public | Client & Server | **Yes** | Dev / Preview / Production | Supabase project ID identifier. |
-| `SUPABASE_URL` | Server Only | Server Functions | **Yes** | Dev / Preview / Production | Supabase HTTPS endpoint URL for server context. |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Secret (Server Only)** | Server Functions | **Yes** | Dev / Preview / Production | Supabase admin service role key for server operations (bypass RLS for server validation). **NEVER expose to client.** |
-| `SUPABASE_PROJECT_ID` | Server Only | Server Functions | **Yes** | Dev / Preview / Production | Server-side Supabase project ID identifier. |
+| Variable Name                   | Type                     | Scope            | Required | Vercel Environment         | Description                                                                                                           |
+| :------------------------------ | :----------------------- | :--------------- | :------- | :------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Public                   | Client & Server  | **Yes**  | Dev / Preview / Production | Public Supabase HTTPS endpoint URL.                                                                                   |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public                   | Client & Server  | **Yes**  | Dev / Preview / Production | Public Supabase anon publishable key for client requests.                                                             |
+| `VITE_SUPABASE_PROJECT_ID`      | Public                   | Client & Server  | **Yes**  | Dev / Preview / Production | Supabase project ID identifier.                                                                                       |
+| `SUPABASE_URL`                  | Server Only              | Server Functions | **Yes**  | Dev / Preview / Production | Supabase HTTPS endpoint URL for server context.                                                                       |
+| `SUPABASE_SERVICE_ROLE_KEY`     | **Secret (Server Only)** | Server Functions | **Yes**  | Dev / Preview / Production | Supabase admin service role key for server operations (bypass RLS for server validation). **NEVER expose to client.** |
+| `SUPABASE_PROJECT_ID`           | Server Only              | Server Functions | **Yes**  | Dev / Preview / Production | Server-side Supabase project ID identifier.                                                                           |
 
 ---
 

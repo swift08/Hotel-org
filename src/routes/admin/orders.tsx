@@ -29,16 +29,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
@@ -185,14 +177,14 @@ function AdminOrdersManager() {
             });
           }
           fetchOrders();
-        }
+        },
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [statusFilter, context?.membership?.business_id]);
+  }, [statusFilter, context?.membership?.business_id, fetchOrders]);
 
   const handleUpdateOrderStatus = async (orderId: string, nextStatus: string) => {
     if (!context?.membership?.business_id) return;
@@ -202,7 +194,7 @@ function AdminOrdersManager() {
           businessId: context.membership.business_id,
           orderId,
           toStatus: nextStatus,
-        }
+        },
       });
 
       // Automatically set table to occupied when order is accepted
@@ -240,7 +232,7 @@ function AdminOrdersManager() {
       }
 
       toast.success(`Order → ${nextStatus.toUpperCase()}`);
-      setSelectedOrder((prev: any) => prev ? { ...prev, status: nextStatus } : prev);
+      setSelectedOrder((prev: any) => (prev ? { ...prev, status: nextStatus } : prev));
       fetchOrders();
     } catch (err: any) {
       toast.error(err?.message || "Failed to update order status");
@@ -256,7 +248,7 @@ function AdminOrdersManager() {
           orderId: selectedOrder.id,
           method: paymentMethod as any,
           amount: Number(selectedOrder.grand_total),
-        }
+        },
       });
 
       await supabase
@@ -285,7 +277,9 @@ function AdminOrdersManager() {
         .eq("table_id", selectedOrder.table_id || "")
         .eq("status", "active");
 
-      toast.success(`Payment collected! Order completed & Table ${selectedOrder.table_label || ""} freed (Available).`);
+      toast.success(
+        `Payment collected! Order completed & Table ${selectedOrder.table_label || ""} freed (Available).`,
+      );
       setPayModalOpen(false);
       setDrawerOpen(false);
       fetchOrders();
@@ -304,7 +298,7 @@ function AdminOrdersManager() {
         data: {
           businessId: context.membership.business_id,
           orderId: selectedOrder.id,
-        }
+        },
       });
       setInvoice(inv);
     } catch (err: any) {
@@ -326,26 +320,40 @@ function AdminOrdersManager() {
     );
   });
 
-  const statusCounts = STATUS_TABS.reduce((acc, tab) => {
-    acc[tab.value] = tab.value === "all"
-      ? orders.length
-      : orders.filter((o) => o.status === tab.value).length;
-    return acc;
-  }, {} as Record<string, number>);
+  const statusCounts = STATUS_TABS.reduce(
+    (acc, tab) => {
+      acc[tab.value] =
+        tab.value === "all" ? orders.length : orders.filter((o) => o.status === tab.value).length;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const getStatusConf = (s: string) =>
-    STATUS_CONFIG[s] || { badge: "bg-slate-700 text-slate-400 border-slate-700", dot: "bg-slate-500", label: s };
+    STATUS_CONFIG[s] || {
+      badge: "bg-slate-700 text-slate-400 border-slate-700",
+      dot: "bg-slate-500",
+      label: s,
+    };
 
-  const canViewOrders = !context || context.permissions?.includes("orders.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canViewOrders =
+    !context ||
+    context.permissions?.includes("orders.view") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
 
   if (!loading && context && !canViewOrders) {
     return (
       <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
         <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
-        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`orders.view`) to access Live Orders.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          You do not have permission (`orders.view`) to access Live Orders.
+        </p>
         <Link to="/admin/dashboard">
-          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+          <Button variant="outline" className="mt-4">
+            Return to Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -396,7 +404,9 @@ function AdminOrdersManager() {
                 {count > 0 && (
                   <span
                     className={`rounded-full px-1.5 py-0 text-[10px] font-bold min-w-[18px] text-center ${
-                      isActive ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                      isActive
+                        ? "bg-amber-500/20 text-amber-600 dark:text-amber-400"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-500"
                     }`}
                   >
                     {count}
@@ -434,13 +444,18 @@ function AdminOrdersManager() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-40 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
+              <div
+                key={i}
+                className="h-40 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse"
+              />
             ))}
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <ShoppingBag className="h-12 w-12 text-slate-400 dark:text-slate-700 mb-4" />
-            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">No orders found</h3>
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">
+              No orders found
+            </h3>
             <p className="text-sm text-slate-500 dark:text-slate-600 mt-1">
               {searchQuery ? "Try a different search term." : "No orders match this status filter."}
             </p>
@@ -478,7 +493,9 @@ function AdminOrdersManager() {
                       </div>
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <Badge className={`text-[10px] font-bold px-2 py-0 capitalize ${sc.badge}`}>
-                          <span className={`mr-1 inline-block h-1.5 w-1.5 rounded-full ${sc.dot}`} />
+                          <span
+                            className={`mr-1 inline-block h-1.5 w-1.5 rounded-full ${sc.dot}`}
+                          />
                           {sc.label}
                         </Badge>
                         <Badge
@@ -498,31 +515,43 @@ function AdminOrdersManager() {
                       {ord.order_items?.slice(0, 3).map((item: any) => (
                         <div key={item.id} className="flex justify-between items-center gap-2">
                           <span className="truncate">
-                            <span className="text-amber-650 dark:text-amber-400 font-bold">{item.quantity}×</span>{" "}
+                            <span className="text-amber-650 dark:text-amber-400 font-bold">
+                              {item.quantity}×
+                            </span>{" "}
                             {item.product_name}
                           </span>
                           <span className="font-semibold shrink-0">
-                            {currencySymbol}{Number(item.line_total).toFixed(0)}
+                            {currencySymbol}
+                            {Number(item.line_total).toFixed(0)}
                           </span>
                         </div>
                       ))}
                       {itemCount > 3 && (
-                        <p className="text-[10px] text-slate-500 dark:text-slate-600 italic">+ {itemCount - 3} more items</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-600 italic">
+                          + {itemCount - 3} more items
+                        </p>
                       )}
                     </div>
 
                     {/* Total + action */}
-                    <div className="flex items-center justify-between">                     {itemCount > 3 && (
-                        <p className="text-[10px] text-slate-600 italic">+ {itemCount - 3} more items</p>
+                    <div className="flex items-center justify-between">
+                      {" "}
+                      {itemCount > 3 && (
+                        <p className="text-[10px] text-slate-600 italic">
+                          + {itemCount - 3} more items
+                        </p>
                       )}
                     </div>
 
                     {/* Total + action */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] text-slate-600 uppercase tracking-wide">Grand Total</p>
+                        <p className="text-[10px] text-slate-600 uppercase tracking-wide">
+                          Grand Total
+                        </p>
                         <p className="text-lg font-black text-amber-400">
-                          {currencySymbol}{Number(ord.grand_total).toFixed(2)}
+                          {currencySymbol}
+                          {Number(ord.grand_total).toFixed(2)}
                         </p>
                       </div>
                       <Button
@@ -583,53 +612,72 @@ function AdminOrdersManager() {
           <div className="px-6 py-5 space-y-6">
             {/* Status Timeline */}
             <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Order Progress</p>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                Order Progress
+              </p>
               <div className="flex items-center gap-0">
-                {["pending", "accepted", "preparing", "ready", "served", "completed"].map((s, idx, arr) => {
-                  const statusOrder = ["pending", "accepted", "preparing", "ready", "served", "completed"];
-                  const currentIdx = statusOrder.indexOf(selectedOrder?.status);
-                  const reached = statusOrder.indexOf(s) <= currentIdx;
-                  const isCurrent = s === selectedOrder?.status;
-                  const sc = getStatusConf(s);
-                  return (
-                    <div key={s} className="flex items-center flex-1">
-                      <div className="flex flex-col items-center gap-1">
-                        <div
-                          className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                            isCurrent
-                              ? `${sc.dot} border-current ring-2 ring-current/30`
-                              : reached
-                              ? "bg-slate-600 border-slate-600"
-                              : "bg-transparent border-slate-700"
-                          }`}
-                        >
-                          {reached && <div className="h-1.5 w-1.5 rounded-full bg-white/80" />}
+                {["pending", "accepted", "preparing", "ready", "served", "completed"].map(
+                  (s, idx, arr) => {
+                    const statusOrder = [
+                      "pending",
+                      "accepted",
+                      "preparing",
+                      "ready",
+                      "served",
+                      "completed",
+                    ];
+                    const currentIdx = statusOrder.indexOf(selectedOrder?.status);
+                    const reached = statusOrder.indexOf(s) <= currentIdx;
+                    const isCurrent = s === selectedOrder?.status;
+                    const sc = getStatusConf(s);
+                    return (
+                      <div key={s} className="flex items-center flex-1">
+                        <div className="flex flex-col items-center gap-1">
+                          <div
+                            className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                              isCurrent
+                                ? `${sc.dot} border-current ring-2 ring-current/30`
+                                : reached
+                                  ? "bg-slate-600 border-slate-600"
+                                  : "bg-transparent border-slate-700"
+                            }`}
+                          >
+                            {reached && <div className="h-1.5 w-1.5 rounded-full bg-white/80" />}
+                          </div>
+                          <span
+                            className={`text-[9px] font-semibold capitalize leading-none ${
+                              isCurrent
+                                ? "text-white"
+                                : reached
+                                  ? "text-slate-500"
+                                  : "text-slate-700"
+                            }`}
+                          >
+                            {s}
+                          </span>
                         </div>
-                        <span className={`text-[9px] font-semibold capitalize leading-none ${
-                          isCurrent ? "text-white" : reached ? "text-slate-500" : "text-slate-700"
-                        }`}>
-                          {s}
-                        </span>
+                        {idx < arr.length - 1 && (
+                          <div
+                            className={`flex-1 h-0.5 mx-0.5 -mt-4 ${
+                              statusOrder.indexOf(arr[idx + 1]!) <= currentIdx
+                                ? "bg-slate-600"
+                                : "bg-slate-800"
+                            }`}
+                          />
+                        )}
                       </div>
-                      {idx < arr.length - 1 && (
-                        <div
-                          className={`flex-1 h-0.5 mx-0.5 -mt-4 ${
-                            statusOrder.indexOf(arr[idx + 1]!) <= currentIdx
-                              ? "bg-slate-600"
-                              : "bg-slate-800"
-                          }`}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </div>
             </div>
 
             {/* Customer info */}
             {selectedOrder?.customer_name && (
               <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-1.5 text-xs">
-                <p className="text-slate-500 uppercase tracking-wide font-semibold text-[10px] mb-2">Customer</p>
+                <p className="text-slate-500 uppercase tracking-wide font-semibold text-[10px] mb-2">
+                  Customer
+                </p>
                 <div className="flex items-center gap-2 text-slate-300">
                   <User className="h-3.5 w-3.5 text-slate-600" />
                   {selectedOrder.customer_name}
@@ -650,13 +698,18 @@ function AdminOrdersManager() {
               </p>
               <div className="border border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-800">
                 {selectedOrder?.order_items?.map((item: any) => (
-                  <div key={item.id} className="px-4 py-3 bg-slate-950/60 flex items-start justify-between gap-3">
+                  <div
+                    key={item.id}
+                    className="px-4 py-3 bg-slate-950/60 flex items-start justify-between gap-3"
+                  >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-white">
                         {item.quantity}× {item.product_name}
                       </p>
                       {item.variant_name && (
-                        <p className="text-[11px] text-slate-500 mt-0.5">Variant: {item.variant_name}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Variant: {item.variant_name}
+                        </p>
                       )}
                       {item.special_instructions && (
                         <p className="text-[11px] text-amber-400 mt-0.5 font-medium">
@@ -665,7 +718,8 @@ function AdminOrdersManager() {
                       )}
                     </div>
                     <span className="font-bold text-amber-400 text-sm shrink-0">
-                      {currencySymbol}{Number(item.line_total).toFixed(2)}
+                      {currencySymbol}
+                      {Number(item.line_total).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -676,22 +730,32 @@ function AdminOrdersManager() {
             <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-2 text-sm">
               <div className="flex justify-between text-slate-400">
                 <span>Subtotal</span>
-                <span>{currencySymbol}{Number(selectedOrder?.subtotal || 0).toFixed(2)}</span>
+                <span>
+                  {currencySymbol}
+                  {Number(selectedOrder?.subtotal || 0).toFixed(2)}
+                </span>
               </div>
               {Number(selectedOrder?.discount_total || 0) > 0 && (
                 <div className="flex justify-between text-emerald-400">
                   <span>Discount</span>
-                  <span>-{currencySymbol}{Number(selectedOrder?.discount_total).toFixed(2)}</span>
+                  <span>
+                    -{currencySymbol}
+                    {Number(selectedOrder?.discount_total).toFixed(2)}
+                  </span>
                 </div>
               )}
               <div className="flex justify-between text-slate-400">
                 <span>Tax (GST)</span>
-                <span>{currencySymbol}{Number(selectedOrder?.tax_total || 0).toFixed(2)}</span>
+                <span>
+                  {currencySymbol}
+                  {Number(selectedOrder?.tax_total || 0).toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between text-base font-extrabold text-white pt-2 border-t border-slate-800">
                 <span>Grand Total</span>
                 <span className="text-amber-400">
-                  {currencySymbol}{Number(selectedOrder?.grand_total || 0).toFixed(2)}
+                  {currencySymbol}
+                  {Number(selectedOrder?.grand_total || 0).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -703,26 +767,28 @@ function AdminOrdersManager() {
                   Update Status
                 </p>
                 <div className="grid grid-cols-3 gap-2">
-                  {["accepted", "preparing", "ready", "served", "completed", "cancelled"].map((s) => {
-                    const sc = getStatusConf(s);
-                    return (
-                      <Button
-                        key={s}
-                        id={`status-btn-${s}`}
-                        onClick={() => handleUpdateOrderStatus(selectedOrder?.id, s)}
-                        size="sm"
-                        variant="outline"
-                        disabled={selectedOrder?.status === s}
-                        className={`border-slate-800 bg-slate-950/80 text-xs capitalize h-8 ${
-                          s === "cancelled"
-                            ? "text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
-                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                        } disabled:opacity-40`}
-                      >
-                        {s}
-                      </Button>
-                    );
-                  })}
+                  {["accepted", "preparing", "ready", "served", "completed", "cancelled"].map(
+                    (s) => {
+                      const sc = getStatusConf(s);
+                      return (
+                        <Button
+                          key={s}
+                          id={`status-btn-${s}`}
+                          onClick={() => handleUpdateOrderStatus(selectedOrder?.id, s)}
+                          size="sm"
+                          variant="outline"
+                          disabled={selectedOrder?.status === s}
+                          className={`border-slate-800 bg-slate-950/80 text-xs capitalize h-8 ${
+                            s === "cancelled"
+                              ? "text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
+                              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                          } disabled:opacity-40`}
+                        >
+                          {s}
+                        </Button>
+                      );
+                    },
+                  )}
                 </div>
               </div>
             )}
@@ -756,19 +822,20 @@ function AdminOrdersManager() {
       <Dialog open={payModalOpen} onOpenChange={setPayModalOpen}>
         <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold">
-              Collect Payment
-            </DialogTitle>
+            <DialogTitle className="text-lg font-bold">Collect Payment</DialogTitle>
             <DialogDescription className="text-slate-400 text-sm">
               Order #{selectedOrder?.order_number} ·{" "}
               <span className="text-amber-400 font-bold">
-                {currencySymbol}{Number(selectedOrder?.grand_total || 0).toFixed(2)}
+                {currencySymbol}
+                {Number(selectedOrder?.grand_total || 0).toFixed(2)}
               </span>
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-2 space-y-3">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Payment Method</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+              Payment Method
+            </p>
             <div className="grid grid-cols-2 gap-2">
               {PAYMENT_METHODS.map((pm) => {
                 const Icon = pm.icon;
@@ -784,7 +851,9 @@ function AdminOrdersManager() {
                         : "border-slate-700 bg-slate-950/60 text-slate-400 hover:border-slate-600 hover:text-slate-200"
                     }`}
                   >
-                    <Icon className={`h-4 w-4 ${isSelected ? "text-amber-400" : "text-slate-500"}`} />
+                    <Icon
+                      className={`h-4 w-4 ${isSelected ? "text-amber-400" : "text-slate-500"}`}
+                    />
                     {pm.label}
                   </button>
                 );
@@ -812,15 +881,15 @@ function AdminOrdersManager() {
             </DialogTitle>
             <DialogDescription className="text-xs text-gray-500">
               TAX INVOICE —{" "}
-              {context?.settings?.gstin
-                ? `GSTIN: ${context.settings.gstin}`
-                : "GST INVOICE"}
+              {context?.settings?.gstin ? `GSTIN: ${context.settings.gstin}` : "GST INVOICE"}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3 py-2 text-xs">
             <div className="flex justify-between text-gray-600 font-semibold">
-              <span>Invoice: {generatingInvoice ? "Generating..." : invoice?.invoice_number || "Draft"}</span>
+              <span>
+                Invoice: {generatingInvoice ? "Generating..." : invoice?.invoice_number || "Draft"}
+              </span>
               <span>Table: {selectedOrder?.table_label || "Counter"}</span>
             </div>
             <div className="flex justify-between text-[11px] text-gray-400">
@@ -835,21 +904,29 @@ function AdminOrdersManager() {
             <div className="border-t border-b border-gray-200 py-2 space-y-1.5 font-mono">
               {selectedOrder?.order_items?.map((item: any) => (
                 <div key={item.id} className="flex justify-between">
-                  <span>{item.quantity}× {item.product_name}</span>
-                  <span>{currencySymbol}{Number(item.line_total).toFixed(2)}</span>
+                  <span>
+                    {item.quantity}× {item.product_name}
+                  </span>
+                  <span>
+                    {currencySymbol}
+                    {Number(item.line_total).toFixed(2)}
+                  </span>
                 </div>
               ))}
             </div>
 
             <div className="space-y-1 text-right font-mono">
               <div className="text-gray-600">
-                Subtotal: {currencySymbol}{Number(selectedOrder?.subtotal || 0).toFixed(2)}
+                Subtotal: {currencySymbol}
+                {Number(selectedOrder?.subtotal || 0).toFixed(2)}
               </div>
               <div className="text-gray-600">
-                GST: {currencySymbol}{Number(selectedOrder?.tax_total || 0).toFixed(2)}
+                GST: {currencySymbol}
+                {Number(selectedOrder?.tax_total || 0).toFixed(2)}
               </div>
               <div className="text-sm font-extrabold pt-1 border-t border-black">
-                Total: {currencySymbol}{Number(selectedOrder?.grand_total || 0).toFixed(2)}
+                Total: {currencySymbol}
+                {Number(selectedOrder?.grand_total || 0).toFixed(2)}
               </div>
             </div>
 

@@ -70,10 +70,7 @@ export const ORDER_STATUS_FLOW = [
 ] as const;
 
 export type OrderStatus =
-  | (typeof ORDER_STATUS_FLOW)[number]
-  | "cancelled"
-  | "refunded"
-  | "payment_failed";
+  (typeof ORDER_STATUS_FLOW)[number] | "cancelled" | "refunded" | "payment_failed";
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   pending: "New",

@@ -1,24 +1,30 @@
-import { useRef, useEffect } from 'react';
-import './CursorGrid.css';
+import { useRef, useEffect } from "react";
+import "./CursorGrid.css";
 
 const FALLOFF_CURVES = {
-  linear: t => t,
-  smooth: t => t * t * (3 - 2 * t),
-  sharp: t => t * t * t
+  linear: (t) => t,
+  smooth: (t) => t * t * (3 - 2 * t),
+  sharp: (t) => t * t * t,
 };
 
-const hexToRgb = hex => {
-  const h = hex.replace('#', '');
-  const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+const hexToRgb = (hex) => {
+  const h = hex.replace("#", "");
+  const v =
+    h.length === 3
+      ? h
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : h;
   const num = parseInt(v.slice(0, 6), 16);
   return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
 };
 
 const CursorGrid = ({
   cellSize = 70,
-  color = '#EAB308',
+  color = "#EAB308",
   radius = 140,
-  falloff = 'smooth',
+  falloff = "smooth",
   holdTime = 400,
   fadeDuration = 800,
   lineWidth = 1.2,
@@ -28,7 +34,7 @@ const CursorGrid = ({
   cellRadius = 0,
   clickPulse = true,
   pulseSpeed = 600,
-  className = ''
+  className = "",
 }) => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
@@ -48,7 +54,7 @@ const CursorGrid = ({
     gridOpacity,
     cellRadius,
     clickPulse,
-    pulseSpeed
+    pulseSpeed,
   };
 
   useEffect(() => {
@@ -56,7 +62,7 @@ const CursorGrid = ({
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     let cols = 0;
@@ -89,7 +95,7 @@ const CursorGrid = ({
       touched = new Float64Array(cols * rows);
     };
 
-    const cellCenter = i => {
+    const cellCenter = (i) => {
       const p = propsRef.current;
       const cx = offX + (i % cols) * p.cellSize + p.cellSize / 2;
       const cy = offY + Math.floor(i / cols) * p.cellSize + p.cellSize / 2;
@@ -122,7 +128,7 @@ const CursorGrid = ({
       }
     };
 
-    const draw = now => {
+    const draw = (now) => {
       const p = propsRef.current;
       const dt = Math.min(now - lastFrame, 50);
       lastFrame = now;
@@ -226,12 +232,12 @@ const CursorGrid = ({
     };
     wakeRef.current = wake;
 
-    const toLocal = e => {
+    const toLocal = (e) => {
       const rect = canvas.getBoundingClientRect();
       return [e.clientX - rect.left, e.clientY - rect.top];
     };
 
-    const onPointerMove = e => {
+    const onPointerMove = (e) => {
       const [x, y] = toLocal(e);
       if (x >= -50 && x <= w + 50 && y >= -50 && y <= h + 50) {
         energize(x, y);
@@ -239,7 +245,7 @@ const CursorGrid = ({
       }
     };
 
-    const onPointerDown = e => {
+    const onPointerDown = (e) => {
       if (!propsRef.current.clickPulse) return;
       const [x, y] = toLocal(e);
       if (x >= -50 && x <= w + 50 && y >= -50 && y <= h + 50) {
@@ -256,16 +262,15 @@ const CursorGrid = ({
     rebuild();
     wake();
 
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onPointerDown);
     };
-
   }, [cellSize]);
 
   useEffect(() => {
@@ -273,7 +278,7 @@ const CursorGrid = ({
   }, [gridOpacity, color, lineWidth, maxOpacity, fillOpacity, cellRadius]);
 
   return (
-    <div ref={containerRef} className={`cursor-grid${className ? ` ${className}` : ''}`}>
+    <div ref={containerRef} className={`cursor-grid${className ? ` ${className}` : ""}`}>
       <canvas ref={canvasRef} className="cursor-grid__canvas" />
     </div>
   );

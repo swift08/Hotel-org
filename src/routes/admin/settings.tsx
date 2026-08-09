@@ -1,23 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { getMyContext, updateBusinessSettings } from "@/lib/business.functions";
-import { 
-  Settings, 
-  Building2, 
-  Receipt, 
-  Percent, 
-  DollarSign, 
-  CheckCircle2, 
-  Save, 
+import {
+  Settings,
+  Building2,
+  Receipt,
+  Percent,
+  DollarSign,
+  CheckCircle2,
+  Save,
   Loader2,
   ArrowLeft,
-  ShieldAlert
+  ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
@@ -25,7 +31,10 @@ const isLogoUrl = (url: any) =>
   url &&
   typeof url === "string" &&
   url.trim().length > 0 &&
-  (url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:"));
+  (url.startsWith("/") ||
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("data:"));
 
 export const Route = createFileRoute("/admin/settings")({
   component: BusinessSettingsPage,
@@ -127,16 +136,24 @@ function BusinessSettingsPage() {
     );
   }
 
-  const canManageSettings = !context || context.permissions?.includes("settings.manage") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canManageSettings =
+    !context ||
+    context.permissions?.includes("settings.manage") ||
+    context.membership?.role === "owner" ||
+    context.membership?.role === "business_admin";
 
   if (!loading && context && !canManageSettings) {
     return (
       <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
         <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
-        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`settings.manage`) to access Business Settings.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          You do not have permission (`settings.manage`) to access Business Settings.
+        </p>
         <Link to="/admin/dashboard">
-          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+          <Button variant="outline" className="mt-4">
+            Return to Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -179,7 +196,9 @@ function BusinessSettingsPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs text-slate-600 dark:text-slate-300">Legal Business Name</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">
+                  Legal Business Name
+                </Label>
                 <Input
                   placeholder="e.g. Royal Spice Hospitality Pvt Ltd"
                   value={legalName}
@@ -229,7 +248,9 @@ function BusinessSettingsPage() {
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs text-slate-600 dark:text-slate-300">Business Logo URL</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">
+                  Business Logo URL
+                </Label>
                 <div className="flex items-center gap-4">
                   <Input
                     placeholder="e.g. /images/logo.png or external link"
@@ -239,7 +260,11 @@ function BusinessSettingsPage() {
                   />
                   {isLogoUrl(logoUrl) && (
                     <div className="h-10 w-28 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                      <img src={logoUrl} alt="Logo Preview" className="h-full w-auto object-contain" />
+                      <img
+                        src={logoUrl}
+                        alt="Logo Preview"
+                        className="h-full w-auto object-contain"
+                      />
                     </div>
                   )}
                 </div>
@@ -268,14 +293,20 @@ function BusinessSettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
-                    <SelectItem value="exclusive">Tax Exclusive (Prices + GST added at checkout)</SelectItem>
-                    <SelectItem value="inclusive">Tax Exclusive (Prices + GST added at checkout)</SelectItem>
+                    <SelectItem value="exclusive">
+                      Tax Exclusive (Prices + GST added at checkout)
+                    </SelectItem>
+                    <SelectItem value="inclusive">
+                      Tax Exclusive (Prices + GST added at checkout)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-600 dark:text-slate-300">Default Tax Rate (%)</Label>
+                <Label className="text-xs text-slate-600 dark:text-slate-300">
+                  Default Tax Rate (%)
+                </Label>
                 <Input
                   type="number"
                   step="0.5"
@@ -291,24 +322,26 @@ function BusinessSettingsPage() {
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-sm text-slate-850 dark:text-white">Cash & Manual Counter Payments</div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Allow customers and cashiers to settle bills via Cash or UPI at table.</p>
+                  <div className="font-bold text-sm text-slate-850 dark:text-white">
+                    Cash & Manual Counter Payments
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Allow customers and cashiers to settle bills via Cash or UPI at table.
+                  </p>
                 </div>
-                <Switch
-                  checked={cashPaymentEnabled}
-                  onCheckedChange={setCashPaymentEnabled}
-                />
+                <Switch checked={cashPaymentEnabled} onCheckedChange={setCashPaymentEnabled} />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-sm text-slate-850 dark:text-white">Razorpay Online Gateways</div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Enable direct online payment via Razorpay on table QR checkout.</p>
+                  <div className="font-bold text-sm text-slate-850 dark:text-white">
+                    Razorpay Online Gateways
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Enable direct online payment via Razorpay on table QR checkout.
+                  </p>
                 </div>
-                <Switch
-                  checked={onlinePaymentEnabled}
-                  onCheckedChange={setOnlinePaymentEnabled}
-                />
+                <Switch checked={onlinePaymentEnabled} onCheckedChange={setOnlinePaymentEnabled} />
               </div>
             </div>
           </CardContent>
