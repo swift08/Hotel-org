@@ -6,31 +6,44 @@ const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 const adminSupabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 async function seedDemoDataForAllBusinesses() {
-  console.log("🌱 Seeding rich demo data into ALL businesses for info@kapilariverfront.com...");
+  console.log("🌱 Seeding rich demo data into ALL businesses in the database...");
 
-  const { data: usersData } = await adminSupabase.auth.admin.listUsers();
-  const u = usersData?.users?.find(x => x.email === "info@kapilariverfront.com");
-
-  if (!u) {
-    console.error("User info@kapilariverfront.com not found!");
+  const { data: allBiz } = await adminSupabase.from("businesses").select("*");
+  if (!allBiz || allBiz.length === 0) {
+    console.error("No businesses found!");
     return;
   }
 
-  const { data: memberships } = await adminSupabase
-    .from("memberships")
-    .select("business_id, branch_id")
-    .eq("user_id", u.id);
+  const { data: usersData } = await adminSupabase.auth.admin.listUsers();
+  const u = usersData?.users?.find(x => x.email === "info@kapilariverfront.com") || usersData?.users?.[0];
 
-  console.log(`Found ${memberships.length} memberships for user.`);
-
-  for (const m of memberships) {
-    const businessId = m.business_id;
+  for (const biz of allBiz) {
+    const businessId = biz.id;
     console.log(`\n========================================`);
-    console.log(`Seeding business ID: ${businessId}`);
+    console.log(`Seeding business: ${biz.name} (${businessId})`);
     console.log(`========================================`);
 
+    // Ensure membership if user exists
+    if (u) {
+      const { data: existingMem } = await adminSupabase
+        .from("memberships")
+        .select("id")
+        .eq("business_id", businessId)
+        .eq("user_id", u.id)
+        .maybeSingle();
+
+      if (!existingMem) {
+        await adminSupabase.from("memberships").insert({
+          business_id: businessId,
+          user_id: u.id,
+          role: "owner",
+          is_active: true,
+        });
+      }
+    }
+
     // Ensure branch
-    let branchId = m.branch_id;
+    let branchId = null;
     if (!branchId) {
       const { data: bList } = await adminSupabase.from("branches").select("id").eq("business_id", businessId);
       if (bList && bList.length > 0) {
