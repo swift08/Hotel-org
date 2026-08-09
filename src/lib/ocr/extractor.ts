@@ -420,7 +420,7 @@ function parseSpatialOCRLayout(ocrData: any) {
         confidenceReason = normalized.confidenceReason;
       }
 
-      dishes.push({
+      const dishRecord: any = {
         name: rawItemName || lineText,
         desc,
         priceStr: String(basePrice),
@@ -428,9 +428,10 @@ function parseSpatialOCRLayout(ocrData: any) {
         prep: 15,
         variants,
         confidence,
-        confidenceReason,
         sourceText: lineText,
-      });
+      };
+      if (confidenceReason) dishRecord.confidenceReason = confidenceReason;
+      dishes.push(dishRecord);
     }
   }
 
@@ -467,7 +468,7 @@ function parseRawTextLines(rawText: string) {
 
     const normalized = normalizeDishNameAndVariants(line);
     if (normalized.cleanName.length > 2) {
-      dishes.push({
+      const dishRecord: any = {
         name: normalized.cleanName,
         desc: `Freshly prepared ${normalized.cleanName.toLowerCase()} with authentic spices`,
         priceStr: String(normalized.basePrice),
@@ -475,9 +476,10 @@ function parseRawTextLines(rawText: string) {
         prep: 15,
         variants: normalized.variants,
         confidence: normalized.confidence,
-        confidenceReason: normalized.confidenceReason,
         sourceText: line,
-      });
+      };
+      if (normalized.confidenceReason) dishRecord.confidenceReason = normalized.confidenceReason;
+      dishes.push(dishRecord);
     }
   }
 
@@ -522,8 +524,9 @@ export async function extractMenuFromFiles(
         const { data: ocrResult } = await worker.recognize(fileSource);
         await worker.terminate();
 
-        if (ocrResult && (ocrResult.words?.length || ocrResult.text?.trim().length > 10)) {
-          console.log(`[Tesseract OCR Engine] Recognized ${ocrResult.words?.length || 0} spatial tokens from ${file.name}`);
+        const words = (ocrResult as any)?.words || [];
+        if (ocrResult && (words.length || ocrResult.text?.trim().length > 10)) {
+          console.log(`[Tesseract OCR Engine] Recognized ${words.length} spatial tokens from ${file.name}`);
           const parsed = parseSpatialOCRLayout(ocrResult);
 
           for (const cat of parsed.categories) {
