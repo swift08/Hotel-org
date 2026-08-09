@@ -383,8 +383,22 @@ export const publishMenuImport = createServerFn({ method: "POST" })
       if (targetProductId) {
         // Insert / Update variants if present
         if (item.variants && item.variants.length > 0) {
-          for (let vIdx = 0; vIdx < item.variants.length; vIdx++) {
-            const v = item.variants[vIdx];
+          // Delete existing variants for this product to prevent duplicate rows!
+          await supabase.from("product_variants").delete().eq("product_id", targetProductId);
+
+          // Deduplicate item.variants array by lowercase variant name
+          const seenVarNames = new Set<string>();
+          const uniqueVars: any[] = [];
+          for (const v of item.variants) {
+            const key = (v.name || "").toLowerCase().trim();
+            if (!seenVarNames.has(key)) {
+              seenVarNames.add(key);
+              uniqueVars.push(v);
+            }
+          }
+
+          for (let vIdx = 0; vIdx < uniqueVars.length; vIdx++) {
+            const v = uniqueVars[vIdx];
             await supabase.from("product_variants").insert({
               business_id: data.businessId,
               product_id: targetProductId,

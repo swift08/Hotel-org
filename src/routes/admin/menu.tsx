@@ -524,23 +524,35 @@ function MenuCMS() {
                   </div>
 
                   {/* Prominently Highlighted Portion Sizes & Variants */}
-                  {itemVariants.length > 0 && (
-                    <div className="mt-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 flex items-center justify-between gap-2 shadow-sm">
-                      <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0">
-                        <Layers className="h-3.5 w-3.5 text-amber-500" /> Portion Sizes:
-                      </span>
-                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                        {itemVariants.map((v) => (
-                          <Badge
-                            key={v.id}
-                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 shadow-md border-none"
-                          >
-                            {v.name}: {currencySymbol}{Number(v.price).toFixed(2)}
-                          </Badge>
-                        ))}
+                  {(() => {
+                    const seenVarNames = new Set<string>();
+                    const uniqueVariants = itemVariants.filter((v) => {
+                      const key = (v.name || "").toLowerCase().trim();
+                      if (seenVarNames.has(key)) return false;
+                      seenVarNames.add(key);
+                      return true;
+                    });
+
+                    if (uniqueVariants.length === 0) return null;
+
+                    return (
+                      <div className="mt-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 flex items-center justify-between gap-2 shadow-sm">
+                        <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0">
+                          <Layers className="h-3.5 w-3.5 text-amber-500" /> Portion Sizes:
+                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                          {uniqueVariants.map((v) => (
+                            <Badge
+                              key={v.id}
+                              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 shadow-md border-none"
+                            >
+                              {v.name}: {currencySymbol}{Number(v.price).toFixed(2)}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
