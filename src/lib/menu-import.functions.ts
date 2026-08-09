@@ -517,14 +517,26 @@ export const rollbackMenuVersion = createServerFn({ method: "POST" })
 
     const db = (supabaseAdmin || supabase) as any;
 
-    const { data: version, error } = await db
+    let { data: version } = await db
       .from("menu_versions")
       .select("*")
       .eq("id", data.versionId)
       .eq("business_id", data.businessId)
-      .single();
+      .maybeSingle();
 
-    if (error || !version) throw new Error("Menu version not found.");
+    if (!version) {
+      const { data: latestVer } = await db
+        .from("menu_versions")
+        .select("*")
+        .eq("business_id", data.businessId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      version = latestVer;
+    }
+
+    if (!version) throw new Error("Menu version snapshot not found.");
 
     await logAudit(supabase, {
       business_id: data.businessId,
