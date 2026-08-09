@@ -180,7 +180,7 @@ function parseRawOCRText(rawText: string) {
 
     // Check Triple price pattern: "Chicken Tikka 90 150 280"
     const triplePriceMatch = line.match(/^(.*?)\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})$/i);
-    if (triplePriceMatch) {
+    if (triplePriceMatch && triplePriceMatch[1] && triplePriceMatch[2] && triplePriceMatch[3] && triplePriceMatch[4]) {
       const name = triplePriceMatch[1].trim();
       const p1 = parseInt(triplePriceMatch[2], 10);
       const p2 = parseInt(triplePriceMatch[3], 10);
@@ -212,7 +212,7 @@ function parseRawOCRText(rawText: string) {
 
     // Check Dual price pattern: "Chicken Tikka 120 200" or "Chicken Tikka ₹120 ₹200"
     const dualPriceMatch = line.match(/^(.*?)\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})$/i);
-    if (dualPriceMatch) {
+    if (dualPriceMatch && dualPriceMatch[1] && dualPriceMatch[2] && dualPriceMatch[3]) {
       const name = dualPriceMatch[1].trim();
       const p1 = parseInt(dualPriceMatch[2], 10);
       const p2 = parseInt(dualPriceMatch[3], 10);
