@@ -132,50 +132,24 @@ function Index() {
               {/* Desktop Buttons */}
               <div className="d-none d-md-flex align-items-center" style={{ gap: 12 }}>
                 {userContext?.onboarded ? (
-                  <SpecularButton
-                    size="sm"
-                    radius={24}
-                    tint="#f59e0b"
-                    tintOpacity={1}
-                    textColor="#ffffff"
-                    lineColor="#ffffff"
-                    baseColor="#d97706"
-                    onClick={() => navigate({ to: "/admin/dashboard" })}
-                  >
-                    Go to Dashboard <ArrowRight size={16} />
-                  </SpecularButton>
+                  <Link to="/admin/dashboard" style={{ textDecoration: "none" }}>
+                    <button className="bg-gradient-to-r from-amber-500 via-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-6 py-2.5 rounded-full shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center gap-2 text-sm">
+                      Go to Dashboard <ArrowRight size={16} />
+                    </button>
+                  </Link>
                 ) : (
                   <>
                     <Link to="/auth/login" style={{ textDecoration: "none" }}>
-                      <SpecularButton
-                        size="sm"
-                        radius={24}
-                        tint="#ffffff"
-                        tintOpacity={1}
-                        textColor="#0f172a"
-                        lineColor="#0284c7"
-                        baseColor="#cbd5e1"
-                      >
+                      <button className="bg-slate-100/90 hover:bg-slate-200/90 text-slate-800 font-bold px-5 py-2.5 rounded-full border border-slate-200/80 shadow-sm hover:shadow transition-all duration-200 flex items-center gap-2 text-sm">
                         <User size={15} /> Login
-                      </SpecularButton>
+                      </button>
                     </Link>
 
                     <Link to="/auth/signup" style={{ textDecoration: "none" }}>
-                      <SpecularButton
-                        className="breathe-glow-amber"
-                        size="sm"
-                        radius={24}
-                        tint="#f59e0b"
-                        tintOpacity={1}
-                        textColor="#ffffff"
-                        lineColor="#ffffff"
-                        baseColor="#d97706"
-                      >
+                      <button className="bg-gradient-to-r from-amber-500 via-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-6 py-2.5 rounded-full shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center gap-2 text-sm">
                         Request Demo
-                      </SpecularButton>
+                      </button>
                     </Link>
-
-
                   </>
                 )}
               </div>
@@ -353,19 +327,9 @@ function Index() {
 
               <div className="d-flex align-items-center flex-wrap gap-3">
                 <Link to="/auth/signup" style={{ textDecoration: "none" }}>
-                  <SpecularButton
-                    className="breathe-glow-blue"
-                    size="lg"
-                    radius={12}
-                    tint="#0284c7"
-                    tintOpacity={1}
-                    textColor="#ffffff"
-                    lineColor="#38bdf8"
-                    baseColor="#0369a1"
-                    intensity={1.2}
-                  >
-                    <Monitor size={18} /> Request for Demo
-                  </SpecularButton>
+                  <button className="bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-base sm:text-lg px-8 py-3.5 rounded-xl shadow-xl shadow-sky-500/30 hover:shadow-sky-500/45 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center gap-3 border border-sky-400/30">
+                    <Monitor size={20} /> Request for Demo
+                  </button>
                 </Link>
 
 

@@ -138,8 +138,8 @@ const SpecularButton = ({
       const h = rect.height;
       sizeRef.w = w;
       sizeRef.h = h;
-      renderer.setSize(w + PAD * 2, h + PAD * 2);
-      program.uniforms.uCenter.value = [(PAD + w / 2) * dpr, (PAD + h / 2) * dpr];
+      renderer.setSize(w, h);
+      program.uniforms.uCenter.value = [(w / 2) * dpr, (h / 2) * dpr];
       program.uniforms.uHalfSize.value = [(w / 2) * dpr, (h / 2) * dpr];
     };
     const ro = new ResizeObserver(resize);
