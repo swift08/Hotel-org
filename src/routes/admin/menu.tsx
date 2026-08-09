@@ -475,7 +475,7 @@ function MenuCMS() {
                     <Utensils className="h-8 w-8 opacity-20" />
                   </div>
                 )}
-                <CardContent className="p-5 space-y-4">
+                <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   {/* Header: Name, Tag, Stock Switch */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
@@ -524,35 +524,45 @@ function MenuCMS() {
                   </div>
 
                   {/* Prominently Highlighted Portion Sizes & Variants */}
-                  {(() => {
-                    const seenVarNames = new Set<string>();
-                    const uniqueVariants = itemVariants.filter((v) => {
-                      const key = (v.name || "").toLowerCase().trim();
-                      if (seenVarNames.has(key)) return false;
-                      seenVarNames.add(key);
-                      return true;
-                    });
+                  <div className="min-h-[52px] flex items-center">
+                    {(() => {
+                      const seenVarNames = new Set<string>();
+                      const uniqueVariants = itemVariants.filter((v) => {
+                        const key = (v.name || "").toLowerCase().trim();
+                        if (seenVarNames.has(key)) return false;
+                        seenVarNames.add(key);
+                        return true;
+                      });
 
-                    if (uniqueVariants.length === 0) return null;
+                      if (uniqueVariants.length === 0) {
+                        return (
+                          <div className="w-full p-2.5 rounded-xl border border-dashed border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-400 dark:text-slate-600">
+                            <span className="text-[11px] italic font-medium flex items-center gap-1">
+                              <Layers className="h-3.5 w-3.5 opacity-40" /> Standard Portion (Single Price)
+                            </span>
+                          </div>
+                        );
+                      }
 
-                    return (
-                      <div className="mt-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 flex items-center justify-between gap-2 shadow-sm">
-                        <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0">
-                          <Layers className="h-3.5 w-3.5 text-amber-500" /> Portion Sizes:
-                        </span>
-                        <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                          {uniqueVariants.map((v) => (
-                            <Badge
-                              key={v.id}
-                              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 shadow-md border-none"
-                            >
-                              {v.name}: {currencySymbol}{Number(v.price).toFixed(2)}
-                            </Badge>
-                          ))}
+                      return (
+                        <div className="w-full p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 flex items-center justify-between gap-2 shadow-sm">
+                          <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0">
+                            <Layers className="h-3.5 w-3.5 text-amber-500" /> Portion Sizes:
+                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                            {uniqueVariants.map((v) => (
+                              <Badge
+                                key={v.id}
+                                className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 shadow-md border-none"
+                              >
+                                {v.name}: {currencySymbol}{Number(v.price).toFixed(2)}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })()}
+                      );
+                    })()}
+                  </div>
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
