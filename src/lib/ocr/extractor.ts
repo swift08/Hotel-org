@@ -28,6 +28,7 @@ export interface ExtractedMenuItem {
   confidence: "high" | "needs_review";
   confidenceReason?: string;
   isDuplicate?: boolean;
+  duplicateAction?: "keep_existing" | "use_imported" | "create_separate";
   duplicateInfo?: {
     existingId: string;
     existingName: string;
@@ -112,6 +113,7 @@ export async function extractMenuFromFiles(
 
   const detectedCategoriesMap = new Map<string, ExtractedMenuCategory>();
   const extractedItems: ExtractedMenuItem[] = [];
+  const seenBatchNames = new Set<string>();
 
   const defaultCategories = [
     { name: "Soups & Shorbas", desc: "Freshly prepared broth and Shorbas" },
@@ -150,6 +152,14 @@ export async function extractMenuFromFiles(
   for (let i = 0; i < rawExtractedDishes.length; i++) {
     const raw = rawExtractedDishes[i];
     if (!raw) continue;
+
+    const normalizedNameKey = raw.name.toLowerCase().trim();
+    // Batch deduplication: skip duplicate occurrences in the same upload scan
+    if (seenBatchNames.has(normalizedNameKey)) {
+      continue;
+    }
+    seenBatchNames.add(normalizedNameKey);
+
     const itemId = `item-${Math.random().toString(36).slice(2, 9)}`;
     const parsedPrice = normalizePrice(raw.priceStr);
     const dietary = detectDietaryType(raw.name, raw.desc);
@@ -167,19 +177,21 @@ export async function extractMenuFromFiles(
       needsReviewCount++;
     }
 
-    // Check potential duplicate against existing menu items
+    // Check potential duplicate against existing menu items in DB
     const existingMatch = existingProducts.find(
-      (ep) => ep.name.toLowerCase() === raw.name.toLowerCase()
+      (ep) => ep.name.toLowerCase().trim() === normalizedNameKey
     );
 
     let isDuplicate = false;
+    let duplicateAction: ExtractedMenuItem["duplicateAction"] = undefined;
     let duplicateInfo: ExtractedMenuItem["duplicateInfo"];
 
     if (existingMatch) {
       isDuplicate = true;
+      duplicateAction = "keep_existing"; // Default: DO NOT ADD DUPLICATE!
       duplicatesCount++;
       confidence = "needs_review";
-      confidenceReason = "Possible duplicate detected";
+      confidenceReason = "Duplicate item detected (will skip unless updating)";
       duplicateInfo = {
         existingId: existingMatch.id,
         existingName: existingMatch.name,
@@ -209,7 +221,10 @@ export async function extractMenuFromFiles(
     };
 
     if (confidenceReason) itemRecord.confidenceReason = confidenceReason;
-    if (isDuplicate) itemRecord.isDuplicate = isDuplicate;
+    if (isDuplicate) {
+      itemRecord.isDuplicate = isDuplicate;
+      itemRecord.duplicateAction = duplicateAction;
+    }
     if (duplicateInfo) itemRecord.duplicateInfo = duplicateInfo;
 
     extractedItems.push(itemRecord);

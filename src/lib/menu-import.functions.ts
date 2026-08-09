@@ -282,54 +282,112 @@ export const publishMenuImport = createServerFn({ method: "POST" })
       return ["/images/dishes/butter_chicken.webp"];
     }
 
+    // Fetch live existing products from DB for strict duplicate prevention
+    const { data: currentProducts } = await supabase
+      .from("products")
+      .select("id, name, base_price")
+      .eq("business_id", data.businessId)
+      .eq("is_archived", false);
+
+    const existingProductMap = new Map<string, any>();
+    (currentProducts || []).forEach((p) => {
+      existingProductMap.set(p.name.toLowerCase().trim(), p);
+    });
+
     let publishedCount = 0;
+    let updatedCount = 0;
+    let skippedDuplicateCount = 0;
 
     for (let idx = 0; idx < items.length; idx++) {
       const item = items[idx];
       const categoryId = catIdMap.get(item.categoryName) ?? null;
       const images = getDishImage(item.name, item.categoryName);
       const foodTags = item.dietary ? [item.dietary] : ["veg"];
+      const normName = (item.name || "").toLowerCase().trim();
 
-      // Duplicate handling: if existing matched & duplicate resolution is 'keep_existing', skip
-      if (item.duplicateAction === "keep_existing" && item.duplicateInfo?.existingId) {
-        continue;
+      const existingProd = existingProductMap.get(normName) || (item.duplicateInfo?.existingId ? { id: item.duplicateInfo.existingId } : null);
+
+      let targetProductId: string | null = null;
+
+      if (existingProd) {
+        // Product with same name exists in DB!
+        if (item.duplicateAction === "use_imported") {
+          // Update existing product with newly imported details
+          const { data: updatedProd } = await supabase
+            .from("products")
+            .update({
+              category_id: categoryId,
+              description: item.description || null,
+              base_price: item.price || 0,
+              food_tags: foodTags,
+              prep_time_minutes: item.prepTimeMinutes || 15,
+              images,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", existingProd.id)
+            .select("id")
+            .single();
+
+          if (updatedProd) {
+            targetProductId = updatedProd.id;
+            updatedCount++;
+          }
+        } else if (item.duplicateAction === "create_separate") {
+          // Explicitly create separate product
+          const productPayload = {
+            business_id: data.businessId,
+            category_id: categoryId,
+            name: `${item.name} (Imported)`,
+            description: item.description || null,
+            base_price: item.price || 0,
+            food_tags: foodTags,
+            prep_time_minutes: item.prepTimeMinutes || 15,
+            sort_order: idx + 1,
+            state: "published" as const,
+            is_available: true,
+            images,
+          };
+          const { data: newProd } = await supabase.from("products").insert(productPayload).select("id").single();
+          if (newProd) {
+            targetProductId = newProd.id;
+            publishedCount++;
+          }
+        } else {
+          // DEFAULT: KEEP EXISTING (SKIP DUPLICATE CREATION!)
+          skippedDuplicateCount++;
+          continue;
+        }
+      } else {
+        // No existing match: Insert as new product
+        const productPayload = {
+          business_id: data.businessId,
+          category_id: categoryId,
+          name: item.name,
+          description: item.description || null,
+          base_price: item.price || 0,
+          food_tags: foodTags,
+          prep_time_minutes: item.prepTimeMinutes || 15,
+          sort_order: idx + 1,
+          state: "published" as const,
+          is_available: true,
+          images,
+        };
+
+        const { data: prod } = await supabase.from("products").insert(productPayload).select("id").single();
+        if (prod) {
+          targetProductId = prod.id;
+          publishedCount++;
+        }
       }
 
-      if (item.duplicateAction === "use_imported" && item.duplicateInfo?.existingId) {
-        // Delete existing and re-insert imported
-        await supabase.from("products").delete().eq("id", item.duplicateInfo.existingId);
-      }
-
-      const productPayload = {
-        business_id: data.businessId,
-        category_id: categoryId,
-        name: item.name,
-        description: item.description || null,
-        base_price: item.price || 0,
-        food_tags: foodTags,
-        prep_time_minutes: item.prepTimeMinutes || 15,
-        sort_order: idx + 1,
-        state: "published" as const,
-        is_available: true,
-        images,
-      };
-
-      const { data: prod } = await supabase
-        .from("products")
-        .insert(productPayload)
-        .select("id")
-        .single();
-
-      if (prod) {
-        publishedCount++;
-
-        // Insert variants if present
+      if (targetProductId) {
+        // Insert / Update variants if present
         if (item.variants && item.variants.length > 0) {
           for (let vIdx = 0; vIdx < item.variants.length; vIdx++) {
             const v = item.variants[vIdx];
             await supabase.from("product_variants").insert({
               business_id: data.businessId,
-              product_id: prod.id,
+              product_id: targetProductId,
               name: v.name,
               price: v.price,
               is_default: vIdx === 0,
@@ -339,13 +397,13 @@ export const publishMenuImport = createServerFn({ method: "POST" })
           }
         }
 
-        // Insert add-ons if present
+        // Insert / Update add-ons if present
         if (item.addons && item.addons.length > 0) {
           const { data: grp } = await supabase
             .from("addon_groups")
             .insert({
               business_id: data.businessId,
-              product_id: prod.id,
+              product_id: targetProductId,
               name: "Add-ons",
               min_select: 0,
               max_select: item.addons.length,
