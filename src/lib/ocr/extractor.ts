@@ -187,10 +187,9 @@ function parseRawOCRText(rawText: string) {
       let name = line.replace(/(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})(?:\s*\/-\s*)?$/i, "").replace(/[._-]+$/, "").trim();
 
       if (name.length > 2) {
-        let desc = `Freshly prepared ${name.toLowerCase()} with authentic spices`;
-        // Next line might be description if it contains no digits
-        if (lines[idx + 1] && lines[idx + 1].length > 5 && lines[idx + 1].length < 120 && !/\d{2,}/.test(lines[idx + 1])) {
-          desc = lines[idx + 1];
+        const nextLine = lines[idx + 1];
+        if (nextLine && nextLine.length > 5 && nextLine.length < 120 && !/\d{2,}/.test(nextLine)) {
+          desc = nextLine;
           idx++; // Skip next line as description
         }
 
