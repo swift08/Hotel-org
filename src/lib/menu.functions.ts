@@ -6,7 +6,13 @@ export const getMenu = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { requireMembership, resolvePermissions, assertPerm } = await import("@/lib/db.server");
+    const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
+    const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
+    assertPerm(perms, "menu.view");
     const [categories, products, variants, groups, addons] = await Promise.all([
       supabase
         .from("menu_categories")

@@ -272,6 +272,7 @@ export const getCustomPermission = (role: string, permissionKey: string, _busine
     "kds.manage": { manager: true, waiter: false, cashier: false, chef: true },
     "menu.view": { manager: true, waiter: true, cashier: true, chef: true },
     "menu.edit": { manager: true, waiter: false, cashier: false, chef: true },
+    "tables.view": { manager: true, waiter: true, cashier: false, chef: false },
     "tables.manage": { manager: true, waiter: true, cashier: false, chef: false },
     "staff.view": { manager: true, waiter: false, cashier: false, chef: false },
     "staff.manage": { manager: true, waiter: false, cashier: false, chef: false },
@@ -296,6 +297,10 @@ export const getCustomPermission = (role: string, permissionKey: string, _busine
  * Permission checking helpers
  */
 export const ROLE_CAN = {
+  viewTables: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "tables.view", businessId),
+  manageTables: (role: StaffRole, businessId?: string) =>
+    getCustomPermission(role, "tables.manage", businessId),
   viewRevenue: (role: StaffRole, businessId?: string) =>
     getCustomPermission(role, "reports.view", businessId),
   manageMenu: (role: StaffRole, businessId?: string) =>

@@ -129,9 +129,40 @@ function AdminLayout() {
 
   const role = (context.membership.role || "owner") as StaffRole;
   const roleDisplay = ROLE_DISPLAY[role] || ROLE_DISPLAY.owner;
-  const navSections = ROLE_NAV[role] || ROLE_NAV.owner;
+  const rawSections = ROLE_NAV[role] || ROLE_NAV.owner;
+  const perms: string[] = context?.permissions || [];
+
+  const PATH_PERM_MAP: Record<string, string> = {
+    "/admin/dashboard": "",
+    "/admin/orders": "orders.view",
+    "/admin/kds": "kds.view",
+    "/admin/tables": "tables.view",
+    "/admin/menu": "menu.view",
+    "/admin/staff": "staff.view",
+    "/admin/reports": "reports.view",
+    "/admin/audit": "audit.view",
+    "/admin/settings": "settings.manage",
+  };
+
+  const isAllowed = (path: string) => {
+    if (role === "owner" || role === "business_admin") return true;
+    const required = PATH_PERM_MAP[path];
+    if (!required) return true;
+    return perms.includes(required);
+  };
+
+  const navSections = rawSections
+    .map((sec) => ({
+      ...sec,
+      items: sec.items.filter((item) => isAllowed(item.to)),
+    }))
+    .filter((sec) => sec.items.length > 0);
+
   const businessName = context?.business?.name || "My Business";
-  const branchName = context?.branches?.[0]?.name || "Main Branch";
+  const activeBranch =
+    context?.branches?.find((b: any) => b.id === context?.membership?.branch_id) ||
+    context?.branches?.[0];
+  const branchName = activeBranch?.name || "Main Branch";
   const userName = context?.profile?.full_name || context?.user?.email?.split("@")[0] || "User";
   const rawLogo = context?.settings?.address_line2;
   const businessLogo = isLogoUrl(rawLogo)

@@ -74,10 +74,11 @@ function TablesManager() {
         return;
       }
 
+      const activeBranchId = ctx.membership?.branch_id || ctx.branches?.[0]?.id;
       const tbls = await listTables({
         data: {
           businessId: ctx.membership.business_id,
-          branchId: ctx.branches?.[0]?.id,
+          branchId: activeBranchId,
         },
       });
       setTables(tbls || []);
@@ -236,12 +237,13 @@ function TablesManager() {
   // Save Single Table
   const handleCreateSingleTable = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!singleLabel || !context?.membership?.business_id || !context?.branches?.[0]?.id) return;
+    const activeBranchId = context?.membership?.branch_id || context?.branches?.[0]?.id;
+    if (!singleLabel || !context?.membership?.business_id || !activeBranchId) return;
     try {
       await createTables({
         data: {
           businessId: context.membership.business_id,
-          branchId: context.branches[0].id,
+          branchId: activeBranchId,
           labels: [singleLabel],
           seats: Number(seatsCount),
         },
@@ -258,14 +260,15 @@ function TablesManager() {
   // Bulk Create Tables
   const handleBulkCreateTables = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!context?.membership?.business_id || !context?.branches?.[0]?.id) return;
+    const activeBranchId = context?.membership?.branch_id || context?.branches?.[0]?.id;
+    if (!context?.membership?.business_id || !activeBranchId) return;
     const startIdx = tables.length + 1;
     const labels = Array.from({ length: bulkCount }, (_, i) => `${bulkPrefix}${(startIdx + i).toString().padStart(2, "0")}`);
     try {
       await createTables({
         data: {
           businessId: context.membership.business_id,
-          branchId: context.branches[0].id,
+          branchId: activeBranchId,
           labels,
           seats: Number(bulkSeats),
         },
@@ -298,6 +301,22 @@ function TablesManager() {
     }
   };
 
+  const canView = !context || context.permissions?.includes("tables.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+  const canManage = context?.permissions?.includes("tables.manage") || context?.membership?.role === "owner" || context?.membership?.role === "business_admin";
+
+  if (!loading && context && !canView) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
+        <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
+        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`tables.view`) to access Tables & QRs.</p>
+        <Link to="/admin/dashboard">
+          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Top Header */}
@@ -322,22 +341,26 @@ function TablesManager() {
             {isPrintView ? "Exit Print Sheet" : "Bulk Print Sheet"}
           </Button>
 
-          <Button
-            onClick={() => setBulkModalOpen(true)}
-            variant="outline"
-            size="sm"
-            className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <Plus className="mr-1.5 h-4 w-4" /> Bulk Add Tables
-          </Button>
+          {canManage && (
+            <>
+              <Button
+                onClick={() => setBulkModalOpen(true)}
+                variant="outline"
+                size="sm"
+                className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <Plus className="mr-1.5 h-4 w-4" /> Bulk Add Tables
+              </Button>
 
-          <Button
-            onClick={() => setCreateModalOpen(true)}
-            size="sm"
-            className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20 border border-amber-600/30"
-          >
-            <Plus className="mr-1.5 h-4 w-4" /> Single Table
-          </Button>
+              <Button
+                onClick={() => setCreateModalOpen(true)}
+                size="sm"
+                className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20 border border-amber-600/30"
+              >
+                <Plus className="mr-1.5 h-4 w-4" /> Single Table
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

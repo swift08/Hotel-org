@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { getMyContext } from "@/lib/business.functions";
 import { 
@@ -17,7 +17,8 @@ import {
   Plus, 
   Search, 
   Edit3, 
-  Eye, 
+  Eye,
+  ShieldAlert, 
   EyeOff, 
   CheckCircle2, 
   XCircle, 
@@ -288,6 +289,21 @@ function MenuCMS() {
   });
 
   const currencySymbol = context?.business?.currency === "INR" ? "₹" : "$";
+
+  const canViewMenu = !context || context.permissions?.includes("menu.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+
+  if (!loading && context && !canViewMenu) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
+        <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
+        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`menu.view`) to access Menu Management.</p>
+        <Link to="/admin/dashboard">
+          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
@@ -18,6 +18,7 @@ import {
   Loader2,
   DollarSign,
   ChefHat,
+  ShieldAlert,
   Utensils,
   Circle,
   CreditCard,
@@ -334,6 +335,21 @@ function AdminOrdersManager() {
 
   const getStatusConf = (s: string) =>
     STATUS_CONFIG[s] || { badge: "bg-slate-700 text-slate-400 border-slate-700", dot: "bg-slate-500", label: s };
+
+  const canViewOrders = !context || context.permissions?.includes("orders.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+
+  if (!loading && context && !canViewOrders) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
+        <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
+        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`orders.view`) to access Live Orders.</p>
+        <Link to="/admin/dashboard">
+          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-full">

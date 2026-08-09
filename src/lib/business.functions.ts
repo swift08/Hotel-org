@@ -248,6 +248,8 @@ export const updateStaffRole = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "staff.edit");
 
@@ -259,7 +261,9 @@ export const updateStaffRole = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!target) throw new Error("Staff member not found.");
     if (target.user_id === userId) throw new Error("You cannot change your own role.");
-    if (target.role === "owner") throw new Error("An owner's role cannot be changed here.");
+    if (target.role === "owner" && membership.role !== "owner") throw new Error("Only an owner can modify another owner.");
+    if (data.role === "owner" && membership.role !== "owner") throw new Error("Only an owner can assign the owner role.");
+    if (data.role === "business_admin" && membership.role !== "owner") throw new Error("Only an owner can assign the admin role.");
 
     const { data: after, error } = await supabase
       .from("memberships")
@@ -302,10 +306,14 @@ export const updateStaffMemberDetails = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
+    const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
+    assertPerm(perms, "staff.edit");
 
     const { data: target } = await supabase
       .from("memberships")
@@ -315,6 +323,15 @@ export const updateStaffMemberDetails = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!target) throw new Error("Staff member not found.");
+    if (target.user_id === userId && data.role && data.role !== target.role) {
+      throw new Error("You cannot change your own role.");
+    }
+    if (target.role === "owner" && membership.role !== "owner") {
+      throw new Error("Only an owner can modify another owner.");
+    }
+    if (data.role && (data.role === "owner" || data.role === "business_admin") && membership.role !== "owner") {
+      throw new Error("Only an owner can assign owner or admin roles.");
+    }
 
     if (data.displayName || data.phone !== undefined) {
       await supabaseAdmin.from("profiles").upsert({
@@ -364,10 +381,18 @@ export const createStaffMember = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
+    const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
+    assertPerm(perms, "staff.manage");
+
+    if ((data.role === "owner" || data.role === "business_admin") && membership.role !== "owner") {
+      throw new Error("Only an owner can create owner or admin accounts.");
+    }
 
     // Check if user already exists in auth
     const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
@@ -392,12 +417,7 @@ export const createStaffMember = createServerFn({ method: "POST" })
     });
 
     // Get branch ID
-    const { data: branches } = await supabaseAdmin
-      .from("branches")
-      .select("id")
-      .eq("business_id", data.businessId)
-      .limit(1);
-    const branchId = branches?.[0]?.id || null;
+    const targetBranchId = membership.branch_id || null;
 
     // Create membership
     const { data: newMem, error: memErr } = await supabaseAdmin
@@ -405,7 +425,7 @@ export const createStaffMember = createServerFn({ method: "POST" })
       .insert({
         business_id: data.businessId,
         user_id: staffUser.id,
-        branch_id: branchId,
+        branch_id: targetBranchId,
         role: data.role as any,
         is_active: true,
       })

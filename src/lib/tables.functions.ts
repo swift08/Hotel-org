@@ -8,14 +8,32 @@ export const listTables = createServerFn({ method: "GET" })
     z.object({ businessId: z.string().uuid(), branchId: z.string().uuid().optional() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { requireMembership, resolvePermissions, assertPerm } = await import("@/lib/db.server");
+    const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
+    const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
+    assertPerm(perms, "tables.view");
+
+    // SERVER-SIDE BRANCH SCOPING:
+    // If membership has an assigned branch_id, enforce it. Client cannot bypass via data.branchId parameter.
+    const effectiveBranchId =
+      membership.branch_id && membership.role !== "owner" && membership.role !== "business_admin"
+        ? membership.branch_id
+        : data.branchId;
+
     let query = supabase
       .from("restaurant_tables")
       .select("id, label, seats, state, qr_slug, qr_version, scan_count, is_active, branch_id, sort_order")
       .eq("business_id", data.businessId)
       .order("sort_order")
       .order("label");
-    if (data.branchId) query = query.eq("branch_id", data.branchId);
+
+    if (effectiveBranchId) {
+      query = query.eq("branch_id", effectiveBranchId);
+    }
+
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
     return rows ?? [];
@@ -39,17 +57,31 @@ export const createTables = createServerFn({ method: "POST" })
       "@/lib/db.server"
     );
     const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "tables.manage");
+
+    // SERVER-SIDE BRANCH SCOPING:
+    const targetBranchId =
+      membership.branch_id && membership.role !== "owner" && membership.role !== "business_admin"
+        ? membership.branch_id
+        : data.branchId;
+
+    if (membership.branch_id && membership.role !== "owner" && membership.role !== "business_admin") {
+      if (data.branchId !== membership.branch_id) {
+        throw new Error("Unauthorized: You can only manage tables for your assigned branch.");
+      }
+    }
 
     const { count } = await supabase
       .from("restaurant_tables")
       .select("id", { count: "exact", head: true })
-      .eq("branch_id", data.branchId);
+      .eq("branch_id", targetBranchId);
 
     const rows = data.labels.map((label, i) => ({
       business_id: data.businessId,
-      branch_id: data.branchId,
+      branch_id: targetBranchId,
       label,
       seats: data.seats,
       qr_slug: randomSlug(),
@@ -64,7 +96,7 @@ export const createTables = createServerFn({ method: "POST" })
       actor_role: membership.role,
       action: "tables.created",
       entity_type: "restaurant_table",
-      after_state: { labels: data.labels },
+      after_state: { labels: data.labels, branchId: targetBranchId },
     });
     return inserted ?? [];
   });
@@ -87,16 +119,24 @@ export const updateTable = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "tables.manage");
 
     const { data: before } = await supabase
       .from("restaurant_tables")
-      .select("id, label, seats, state, is_active")
+      .select("id, label, seats, state, is_active, branch_id")
       .eq("id", data.tableId)
       .eq("business_id", data.businessId)
       .maybeSingle();
     if (!before) throw new Error("Table not found.");
+
+    if (membership.branch_id && membership.role !== "owner" && membership.role !== "business_admin") {
+      if (before.branch_id !== membership.branch_id) {
+        throw new Error("Unauthorized: You cannot modify a table belonging to another branch.");
+      }
+    }
 
     const patch: Record<string, unknown> = {};
     if (data.label !== undefined) patch["label"] = data.label;
@@ -136,16 +176,24 @@ export const regenerateTableQr = createServerFn({ method: "POST" })
       "@/lib/db.server"
     );
     const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
     assertPerm(perms, "qr.manage");
 
     const { data: before } = await supabase
       .from("restaurant_tables")
-      .select("id, qr_slug, qr_version")
+      .select("id, qr_slug, qr_version, branch_id")
       .eq("id", data.tableId)
       .eq("business_id", data.businessId)
       .maybeSingle();
     if (!before) throw new Error("Table not found.");
+
+    if (membership.branch_id && membership.role !== "owner" && membership.role !== "business_admin") {
+      if (before.branch_id !== membership.branch_id) {
+        throw new Error("Unauthorized: You cannot modify a table belonging to another branch.");
+      }
+    }
 
     const newSlug = randomSlug();
     const { data: after, error } = await supabase
@@ -182,8 +230,28 @@ export const clearTableAndCompleteOrders = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { requireMembership, logAudit } = await import("@/lib/db.server");
+    const { requireMembership, resolvePermissions, assertPerm, logAudit } = await import("@/lib/db.server");
     const membership = await requireMembership(supabase, userId, data.businessId);
+    if (!membership.is_active) throw new Error("Your account is disabled.");
+
+    const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
+    if (!perms.includes("tables.manage") && !perms.includes("tables.view") && !perms.includes("orders.edit")) {
+      assertPerm(perms, "tables.manage");
+    }
+
+    const { data: targetTable } = await supabase
+      .from("restaurant_tables")
+      .select("id, label, state, branch_id")
+      .eq("id", data.tableId)
+      .eq("business_id", data.businessId)
+      .maybeSingle();
+    if (!targetTable) throw new Error("Table not found.");
+
+    if (membership.branch_id && membership.role !== "owner" && membership.role !== "business_admin") {
+      if (targetTable.branch_id !== membership.branch_id) {
+        throw new Error("Unauthorized: You cannot clear a table belonging to another branch.");
+      }
+    }
 
     // 1. Optimistic lock: only clear if table is NOT already available
     const { data: updatedTable, error: tErr } = await supabase

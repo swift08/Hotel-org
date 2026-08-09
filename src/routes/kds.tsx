@@ -18,7 +18,8 @@ import {
   Bell,
   Sparkles,
   Flame,
-  Volume1
+  Volume1,
+  ShieldAlert
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -239,6 +240,23 @@ function KitchenDisplaySystem() {
     const now = new Date().getTime();
     return Math.floor((now - start) / 60000);
   };
+
+  const canViewKds = !context || context.permissions?.includes("kds.view") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+
+  if (!loading && context && !canViewKds) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-8 text-center">
+        <div className="max-w-md space-y-4">
+          <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
+          <h2 className="text-2xl font-bold text-white">Access Denied (403)</h2>
+          <p className="text-slate-400">You do not have permission (`kds.view`) to access Kitchen Display System.</p>
+          <Link to="/admin/dashboard">
+            <Button variant="outline" className="mt-4 border-slate-800 text-white hover:bg-slate-900">Return to Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 

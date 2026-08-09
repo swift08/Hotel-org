@@ -10,7 +10,8 @@ import {
   CheckCircle2, 
   Save, 
   Loader2,
-  ArrowLeft
+  ArrowLeft,
+  ShieldAlert
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -122,6 +123,21 @@ function BusinessSettingsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 text-amber-500">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  const canManageSettings = !context || context.permissions?.includes("settings.manage") || context.membership?.role === "owner" || context.membership?.role === "business_admin";
+
+  if (!loading && context && !canManageSettings) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto text-center py-24 space-y-4">
+        <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Access Denied (403)</h2>
+        <p className="text-slate-500 dark:text-slate-400">You do not have permission (`settings.manage`) to access Business Settings.</p>
+        <Link to="/admin/dashboard">
+          <Button variant="outline" className="mt-4">Return to Dashboard</Button>
+        </Link>
       </div>
     );
   }
