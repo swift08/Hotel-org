@@ -279,12 +279,12 @@ function MenuCMS() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
             <Utensils className="h-7 w-7 text-amber-500 shrink-0" /> Menu CMS
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
             Manage menu categories, items, variants, add-on options, and live stock toggles.
           </p>
         </div>
@@ -298,7 +298,7 @@ function MenuCMS() {
             }}
             variant="outline"
             size="sm"
-            className="border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+            className="border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <Plus className="mr-2 h-4 w-4 shrink-0" /> Add Category
           </Button>
@@ -515,28 +515,28 @@ function MenuCMS() {
 
       {/* Add Category Dialog */}
       <Dialog open={catModalOpen} onOpenChange={setCatModalOpen}>
-        <DialogContent className="bg-slate-900 border-slate-800 text-white">
+        <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
           <DialogHeader>
-            <DialogTitle>Add Menu Category</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">Add Menu Category</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveCategory} className="space-y-4 pt-2">
             <div className="space-y-2">
-              <Label className="text-xs text-slate-300">Category Name *</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Category Name *</Label>
               <Input
                 placeholder="e.g. Starters, Main Course, Drinks"
                 value={catName}
                 onChange={(e) => setCatName(e.target.value)}
                 required
-                className="bg-slate-950 border-slate-800 text-white"
+                className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs text-slate-300">Description</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Description</Label>
               <Input
                 placeholder="Freshly prepared tandoori and sizzler items"
                 value={catDesc}
                 onChange={(e) => setCatDesc(e.target.value)}
-                className="bg-slate-950 border-slate-800 text-white"
+                className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
               />
             </div>
             <DialogFooter>
@@ -550,30 +550,30 @@ function MenuCMS() {
 
       {/* Add / Edit Product Dialog */}
       <Dialog open={prodModalOpen} onOpenChange={setProdModalOpen}>
-        <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-lg">
+        <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white max-w-lg">
           <DialogHeader>
-            <DialogTitle>{prodId ? "Edit Menu Item" : "Add Menu Item"}</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">{prodId ? "Edit Menu Item" : "Add Menu Item"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveProduct} className="space-y-4 pt-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs text-slate-300">Item Name *</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Item Name *</Label>
                 <Input
                   placeholder="e.g. Butter Chicken"
                   value={prodName}
                   onChange={(e) => setProdName(e.target.value)}
                   required
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Category</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Category</Label>
                 <Select value={prodCatId} onValueChange={setProdCatId}>
-                  <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
+                  <SelectTrigger className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     {categories.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}
@@ -584,7 +584,7 @@ function MenuCMS() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Base Price ({currencySymbol}) *</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Base Price ({currencySymbol}) *</Label>
                 <Input
                   type="number"
                   min={0}
@@ -592,17 +592,17 @@ function MenuCMS() {
                   value={prodPrice}
                   onChange={(e) => setProdPrice(Number(e.target.value))}
                   required
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Food Tag</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Food Tag</Label>
                 <Select value={prodFoodTag} onValueChange={setProdFoodTag}>
-                  <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
+                  <SelectTrigger className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     <SelectItem value="veg">Veg</SelectItem>
                     <SelectItem value="non_veg">Non-Veg</SelectItem>
                     <SelectItem value="vegan">Vegan</SelectItem>
@@ -612,32 +612,32 @@ function MenuCMS() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Prep Time (mins)</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Prep Time (mins)</Label>
                 <Input
                   type="number"
                   min={1}
                   value={prodPrepTime}
                   onChange={(e) => setProdPrepTime(Number(e.target.value))}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs text-slate-300">Description</Label>
+                <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Description</Label>
                 <Input
                   placeholder="Short description for customer menu"
                   value={prodDesc}
                   onChange={(e) => setProdDesc(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
                 />
               </div>
 
               {/* Photo Upload & Preview Widget */}
-              <div className="space-y-2 sm:col-span-2 border-t border-slate-800/80 pt-4 mt-2">
-                <Label className="text-xs font-bold text-amber-400">Dish Photo</Label>
-                <div className="flex items-center gap-4 bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+              <div className="space-y-2 sm:col-span-2 border-t border-slate-200 dark:border-slate-800/80 pt-4 mt-2">
+                <Label className="text-xs font-bold text-amber-600 dark:text-amber-400">Dish Photo</Label>
+                <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                   {prodImages?.[0] ? (
-                    <div className="h-16 w-16 rounded-lg overflow-hidden border border-slate-800 shrink-0 relative group">
+                    <div className="h-16 w-16 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 relative group">
                       <img src={prodImages[0]} alt="Preview" className="h-full w-full object-cover" />
                       <button
                         type="button"
@@ -648,7 +648,7 @@ function MenuCMS() {
                       </button>
                     </div>
                   ) : (
-                    <div className="h-16 w-16 rounded-lg bg-slate-900 border border-dashed border-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+                    <div className="h-16 w-16 rounded-lg bg-slate-100 dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 shrink-0">
                       <Camera className="h-5 w-5" />
                     </div>
                   )}
@@ -672,7 +672,7 @@ function MenuCMS() {
                     />
                     <label
                       htmlFor="dish-image-file"
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-300 cursor-pointer hover:bg-slate-800 hover:text-white transition-all ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all ${
                         uploadingImage ? "opacity-50 pointer-events-none" : ""
                       }`}
                     >
@@ -701,30 +701,30 @@ function MenuCMS() {
 
       {/* Add Variant Dialog */}
       <Dialog open={variantModalOpen} onOpenChange={setVariantModalOpen}>
-        <DialogContent className="bg-slate-900 border-slate-800 text-white">
+        <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
           <DialogHeader>
-            <DialogTitle>Add Variant for {selectedProductForVariant?.name}</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">Add Variant for {selectedProductForVariant?.name}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveVariant} className="space-y-4 pt-2">
             <div className="space-y-2">
-              <Label className="text-xs text-slate-300">Variant Name *</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Variant Name *</Label>
               <Input
                 placeholder="e.g. Small / Medium / Large / Half / Full"
                 value={variantName}
                 onChange={(e) => setVariantName(e.target.value)}
                 required
-                className="bg-slate-950 border-slate-800 text-white"
+                className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs text-slate-300">Variant Price ({currencySymbol}) *</Label>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Variant Price ({currencySymbol}) *</Label>
               <Input
                 type="number"
                 min={0}
                 value={variantPrice}
                 onChange={(e) => setVariantPrice(Number(e.target.value))}
                 required
-                className="bg-slate-950 border-slate-800 text-white"
+                className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
               />
             </div>
             <DialogFooter>
