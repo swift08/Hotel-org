@@ -591,7 +591,7 @@ RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
   IF OLD.status IS DISTINCT FROM NEW.status THEN
     IF NOT (
-      (OLD.status = 'pending' AND NEW.status IN ('accepted', 'cancelled', 'rejected')) OR
+      (OLD.status = 'pending' AND NEW.status IN ('accepted', 'cancelled')) OR
       (OLD.status = 'accepted' AND NEW.status IN ('preparing', 'cancelled')) OR
       (OLD.status = 'preparing' AND NEW.status IN ('ready', 'cancelled')) OR
       (OLD.status = 'ready' AND NEW.status IN ('served', 'cancelled')) OR
