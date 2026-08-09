@@ -216,10 +216,13 @@ export async function transitionOrderStatus(
     throw new Error(`Invalid order transition: ${order.status} → ${opts.toStatus}`);
   }
 
+  // Map 'rejected' -> 'cancelled' for PostgreSQL enum order_status compatibility
+  const dbStatus = opts.toStatus === "rejected" ? "cancelled" : opts.toStatus;
+
   // 3. Update with optimistic lock (version must match)
   const { data: updated, error: updateErr } = await db
     .from("orders")
-    .update({ status: opts.toStatus as never, version: order.version + 1 })
+    .update({ status: dbStatus as never, version: order.version + 1 })
     .eq("id", opts.orderId)
     .eq("version", order.version) // optimistic lock
     .select("id, status, version")
@@ -234,7 +237,7 @@ export async function transitionOrderStatus(
     order_id: opts.orderId,
     event: `order.${opts.toStatus}`,
     from_status: order.status as never,
-    to_status: opts.toStatus as never,
+    to_status: dbStatus as never,
     actor_id: opts.actorId ?? null,
     actor_label: opts.actorLabel ?? null,
     metadata: (opts.metadata ?? null) as never,

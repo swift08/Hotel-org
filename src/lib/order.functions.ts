@@ -318,7 +318,7 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
     const perms = await resolvePermissions(supabase, membership.business_id, membership.role);
 
     // Require appropriate permission based on target status
-    if (data.toStatus === "cancelled") {
+    if (data.toStatus === "cancelled" || data.toStatus === "rejected") {
       assertPerm(perms, "orders.cancel");
     } else if (data.toStatus === "refunded") {
       assertPerm(perms, "orders.refund");
