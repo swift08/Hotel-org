@@ -312,10 +312,10 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white max-w-6xl w-[95vw] max-h-[92vh] flex flex-col p-0 overflow-hidden shadow-2xl rounded-2xl">
         {/* Modal Header */}
-        <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-950/40">
+        <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-950/40 pr-12">
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2.5 text-slate-900 dark:text-white">
-              <Sparkles className="h-6 w-6 text-amber-500 shrink-0" />
+              <UploadCloud className="h-6 w-6 text-amber-500 shrink-0" />
               {step === "upload" && "Import Existing Menu"}
               {step === "processing" && "AI Menu Extraction in Progress"}
               {step === "review" && "Side-by-Side Menu Review"}
@@ -347,15 +347,6 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
               4. Publish
             </span>
           </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
-          >
-            <X className="h-5 w-5" />
-          </Button>
         </div>
 
         {/* STEP 1: UPLOAD ZONE */}
