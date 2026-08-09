@@ -223,7 +223,7 @@ export async function extractMenuFromFiles(
     if (confidenceReason) itemRecord.confidenceReason = confidenceReason;
     if (isDuplicate) {
       itemRecord.isDuplicate = isDuplicate;
-      itemRecord.duplicateAction = duplicateAction;
+      if (duplicateAction) itemRecord.duplicateAction = duplicateAction;
     }
     if (duplicateInfo) itemRecord.duplicateInfo = duplicateInfo;
 
