@@ -234,6 +234,25 @@ async function seedAll() {
       { category: "Desserts & Sweets", name: "Chocolate Lava Cake", description: "Molten chocolate cake served with vanilla gelato.", price: 240, tags: ["veg", "bestseller"], prep: 8 },
     ];
 
+    function getDishImage(item) {
+      const name = item.name.toLowerCase();
+      const catName = (item.category || "").toLowerCase();
+
+      if (catName.includes("soup") || name.includes("shorba")) return ["/images/dishes/tamatar_shorba.webp"];
+      if (name.includes("paneer tikka") || name.includes("dahi ke kebab")) return ["/images/dishes/paneer_tikka.webp"];
+      if (catName.includes("starter") && (name.includes("chicken") || name.includes("seekh") || name.includes("fish"))) return ["/images/dishes/chicken_tikka.webp"];
+      if (name.includes("tandoori chicken") || name.includes("malai chicken")) return ["/images/dishes/chicken_tikka.webp"];
+      if (name.includes("butter chicken") || name.includes("makhani")) return ["/images/dishes/butter_chicken.webp"];
+      if (catName.includes("non-veg") || name.includes("mutton") || name.includes("rogan") || name.includes("nihari")) return ["/images/dishes/mutton_curry.webp"];
+      if (catName.includes("veg grav") || name.includes("paneer") || name.includes("dal")) return ["/images/dishes/paneer_butter_masala.webp"];
+      if (catName.includes("south indian") || name.includes("dosa")) return ["/images/dishes/masala_dosa.webp"];
+      if (catName.includes("bread") || name.includes("naan") || name.includes("roti")) return ["/images/dishes/garlic_naan.webp"];
+      if (catName.includes("biryani") || name.includes("rice")) return name.includes("veg") ? ["/images/dishes/veg_biryani.webp"] : ["/images/dishes/mutton_biryani.webp"];
+      if (catName.includes("beverage") || name.includes("lassi")) return ["/images/dishes/mango_lassi.webp"];
+      if (catName.includes("dessert") || name.includes("jamun") || name.includes("cake")) return ["/images/dishes/gulab_jamun.webp"];
+      return ["/images/dishes/butter_chicken.webp"];
+    }
+
     const productIdMap = {};
     for (let idx = 0; idx < menuItems.length; idx++) {
       const item = menuItems[idx];
@@ -252,6 +271,7 @@ async function seedAll() {
             sort_order: idx + 1,
             state: "published",
             is_available: true,
+            images: getDishImage(item),
           })
           .select("id, name, base_price")
           .single();
