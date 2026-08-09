@@ -1,6 +1,6 @@
 /**
- * RASOI MENU EXTRACTION PIPELINE
- * Powered by Tesseract OCR Spatial Bounding-Box & Layout-Aware Parsing Engine
+ * RASOI INTELLIGENT MENU UNDERSTANDING PIPELINE
+ * Powered by Tesseract OCR Spatial Bounding-Box, Hierarchy Classification & Quality Engine
  */
 import { createWorker } from "tesseract.js";
 
@@ -19,6 +19,7 @@ export interface ExtractedMenuItem {
   name: string;
   description: string;
   categoryName: string;
+  subCategoryName?: string;
   price: number;
   rawPrice: string;
   currency: string;
@@ -46,11 +47,18 @@ export interface ExtractedMenuCategory {
   id: string;
   name: string;
   description: string;
+  subCategories?: string[];
+  sortOrder: number;
 }
 
 export interface MenuExtractionResult {
   categories: ExtractedMenuCategory[];
   items: ExtractedMenuItem[];
+  qualityScore: number;
+  qualityRating: "High" | "Good" | "Needs Review";
+  isDuplicateFile?: boolean;
+  duplicateFileImportId?: string;
+  fileHash?: string;
   summary: {
     categoriesCount: number;
     itemsCount: number;
@@ -58,7 +66,27 @@ export interface MenuExtractionResult {
     addonsCount: number;
     needsReviewCount: number;
     duplicatesCount: number;
+    verifiedPricesCount: number;
   };
+}
+
+/**
+ * Computes SHA-256 hash of an uploaded file payload to prevent duplicate uploads
+ */
+export async function computeFileHash(dataUrl: string): Promise<string> {
+  try {
+    const base64Data = dataUrl.split(",")[1] || dataUrl;
+    const binaryStr = atob(base64Data);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+    const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  } catch (err) {
+    return `hash-${Math.random().toString(36).slice(2, 10)}`;
+  }
 }
 
 /**
@@ -248,13 +276,38 @@ export function normalizeDishNameAndVariants(lineText: string): {
 }
 
 /**
+ * Calculates overall Quality Score ($0-100\%$) for imported menu
+ */
+export function calculateMenuQualityScore(items: ExtractedMenuItem[], categoriesCount: number) {
+  if (items.length === 0) {
+    return { score: 0, rating: "Needs Review" as const, verifiedPrices: 0, needsReview: 0 };
+  }
+  const total = items.length;
+  const verifiedPrices = items.filter((i) => i.price > 0 && i.confidence === "high").length;
+  const needsReview = items.filter((i) => i.confidence === "needs_review").length;
+
+  const priceScore = (verifiedPrices / total) * 50;
+  const reviewScore = ((total - needsReview) / total) * 30;
+  const categoryBonus = categoriesCount > 0 ? 20 : 0;
+
+  const score = Math.min(100, Math.round(priceScore + reviewScore + categoryBonus));
+  const rating: "High" | "Good" | "Needs Review" = score >= 85 ? "High" : score >= 65 ? "Good" : "Needs Review";
+
+  return {
+    score,
+    rating,
+    verifiedPrices,
+    needsReview,
+  };
+}
+
+/**
  * OCR Spatial Bounding-Box & Layout Parser
  * Uses Tesseract Word/Line Bounding Boxes (X, Y coordinates) to group rows and detect Half/Full price columns.
  */
 function parseSpatialOCRLayout(ocrData: any) {
   const words: Array<{ text: string; bbox: { x0: number; y0: number; x1: number; y1: number }; confidence: number }> = [];
 
-  // Flatten words with coordinates from Tesseract OCR result
   if (ocrData?.words && Array.isArray(ocrData.words)) {
     for (const w of ocrData.words) {
       if (w.text && w.text.trim()) {
@@ -267,17 +320,15 @@ function parseSpatialOCRLayout(ocrData: any) {
     }
   }
 
-  // Fallback to text line parser if no word bounding boxes are present
   if (words.length === 0) {
     const rawText = ocrData?.text || "";
     return parseRawTextLines(rawText);
   }
 
-  // Step 1: Cluster words into Y-rows (lines) based on Y-center proximity
   words.sort((a, b) => a.bbox.y0 - b.bbox.y0);
 
   const rows: Array<{ yCenter: number; words: typeof words }> = [];
-  const yThreshold = 18; // 18px line height variance
+  const yThreshold = 18;
 
   for (const word of words) {
     const wordYCenter = (word.bbox.y0 + word.bbox.y1) / 2;
@@ -290,31 +341,10 @@ function parseSpatialOCRLayout(ocrData: any) {
     }
   }
 
-  // Sort words left-to-right within each row
   for (const row of rows) {
     row.words.sort((a, b) => a.bbox.x0 - b.bbox.x0);
   }
 
-  // Step 2: Detect Column Headers (Half, Full, Small, Large, Single, Double)
-  let halfColumnX: number | null = null;
-  let fullColumnX: number | null = null;
-
-  for (const row of rows) {
-    const rowText = row.words.map((w) => w.text.toLowerCase()).join(" ");
-    if (rowText.includes("half") || rowText.includes("full") || rowText.includes("small") || rowText.includes("large")) {
-      for (const w of row.words) {
-        const t = w.text.toLowerCase();
-        const xCenter = (w.bbox.x0 + w.bbox.x1) / 2;
-        if (t.includes("half") || t.includes("small") || t.includes("qtr")) {
-          halfColumnX = xCenter;
-        } else if (t.includes("full") || t.includes("large")) {
-          fullColumnX = xCenter;
-        }
-      }
-    }
-  }
-
-  // Step 3: Process rows into structured categories and dishes using column boundaries
   const categoriesMap = new Map<string, ExtractedMenuCategory>();
   const dishes: Array<{
     name: string;
@@ -329,8 +359,9 @@ function parseSpatialOCRLayout(ocrData: any) {
   }> = [];
 
   let currentCategory = "Starters & Kebabs";
+  let sortOrderCounter = 1;
   const defaultCatId = `cat-${Math.random().toString(36).slice(2, 9)}`;
-  categoriesMap.set(currentCategory, { id: defaultCatId, name: currentCategory, description: `Extracted ${currentCategory}` });
+  categoriesMap.set(currentCategory, { id: defaultCatId, name: currentCategory, description: `Extracted ${currentCategory}`, sortOrder: sortOrderCounter++ });
 
   const categoryKeywords: Array<{ key: string; name: string }> = [
     { key: "soup", name: "Soups & Shorbas" },
@@ -346,6 +377,7 @@ function parseSpatialOCRLayout(ocrData: any) {
     { key: "bread", name: "Breads & Tandoor" },
     { key: "naan", name: "Breads & Tandoor" },
     { key: "roti", name: "Breads & Tandoor" },
+    { key: "tandoor", name: "Breads & Tandoor" },
     { key: "dessert", name: "Desserts & Beverages" },
     { key: "beverage", name: "Desserts & Beverages" },
   ];
@@ -357,17 +389,15 @@ function parseSpatialOCRLayout(ocrData: any) {
     const lineText = row.words.map((w) => w.text).join(" ").trim();
     const lowerLine = lineText.toLowerCase();
 
-    // Skip column header row
     if (lowerLine.includes("half") && lowerLine.includes("full")) continue;
 
-    // Check if Category Header
     let isCategory = false;
     for (const ck of categoryKeywords) {
       if (lowerLine.includes(ck.key) && lineText.length < 40 && !/\d{2,}/.test(lineText)) {
         currentCategory = ck.name;
         if (!categoriesMap.has(currentCategory)) {
           const catId = `cat-${Math.random().toString(36).slice(2, 9)}`;
-          categoriesMap.set(currentCategory, { id: catId, name: currentCategory, description: `Extracted ${currentCategory}` });
+          categoriesMap.set(currentCategory, { id: catId, name: currentCategory, description: `Extracted ${currentCategory}`, sortOrder: sortOrderCounter++ });
         }
         isCategory = true;
         break;
@@ -375,7 +405,16 @@ function parseSpatialOCRLayout(ocrData: any) {
     }
     if (isCategory) continue;
 
-    // Separate text tokens and numeric tokens using spatial X-coordinates
+    // Custom Category Heading detection (uppercase headings without numbers)
+    if (lineText === lineText.toUpperCase() && lineText.length > 3 && lineText.length < 35 && !/\d/.test(lineText)) {
+      currentCategory = lineText;
+      if (!categoriesMap.has(currentCategory)) {
+        const catId = `cat-${Math.random().toString(36).slice(2, 9)}`;
+        categoriesMap.set(currentCategory, { id: catId, name: currentCategory, description: `Extracted ${currentCategory}`, sortOrder: sortOrderCounter++ });
+      }
+      continue;
+    }
+
     const nameWords: string[] = [];
     const numericTokens: Array<{ value: number; xCenter: number }> = [];
 
@@ -383,7 +422,6 @@ function parseSpatialOCRLayout(ocrData: any) {
       const numVal = parseInt(w.text.replace(/[^0-9]/g, ""), 10);
       const xCenter = (w.bbox.x0 + w.bbox.x1) / 2;
 
-      // If token is purely numeric or price formatted
       if (!isNaN(numVal) && numVal > 0 && (w.text.match(/^\d+$/) || w.text.includes("₹") || w.text.includes("/-") || w.text.includes("Rs"))) {
         numericTokens.push({ value: numVal, xCenter });
       } else {
@@ -401,7 +439,6 @@ function parseSpatialOCRLayout(ocrData: any) {
       let confidenceReason: string | undefined = undefined;
 
       if (numericTokens.length >= 2) {
-        // Dual column row (e.g. Half=120, Full=200)
         const halfP = numericTokens[0]?.value || 100;
         const fullP = numericTokens[1]?.value || 190;
         basePrice = fullP;
@@ -412,7 +449,6 @@ function parseSpatialOCRLayout(ocrData: any) {
       } else if (numericTokens.length === 1) {
         basePrice = numericTokens[0]?.value || 100;
       } else {
-        // Fallback to name & variant normalization helper
         const normalized = normalizeDishNameAndVariants(lineText);
         basePrice = normalized.basePrice;
         variants = normalized.variants;
@@ -460,8 +496,9 @@ function parseRawTextLines(rawText: string) {
   }> = [];
 
   let currentCategory = "Starters & Kebabs";
+  let sortOrderCounter = 1;
   const defaultCatId = `cat-${Math.random().toString(36).slice(2, 9)}`;
-  categoriesMap.set(currentCategory, { id: defaultCatId, name: currentCategory, description: `Extracted ${currentCategory}` });
+  categoriesMap.set(currentCategory, { id: defaultCatId, name: currentCategory, description: `Extracted ${currentCategory}`, sortOrder: sortOrderCounter++ });
 
   for (const line of lines) {
     if (!line || line.toLowerCase().includes("half") && line.toLowerCase().includes("full")) continue;
@@ -514,6 +551,12 @@ export async function extractMenuFromFiles(
 
   const detectedCategoriesMap = new Map<string, ExtractedMenuCategory>();
 
+  // Compute primary file hash
+  let primaryFileHash = "";
+  if (files[0]?.dataUrl) {
+    primaryFileHash = await computeFileHash(files[0].dataUrl);
+  }
+
   // Run Tesseract OCR recognition on uploaded files if dataUrl or url is available
   for (const file of files) {
     const fileSource = file.dataUrl || file.url;
@@ -553,9 +596,10 @@ export async function extractMenuFromFiles(
       { name: "Desserts & Beverages", desc: "Sweet treats and refreshing lassis" },
     ];
 
+    let sortOrderCounter = 1;
     for (const cat of defaultCategories) {
       const catId = `cat-${Math.random().toString(36).slice(2, 9)}`;
-      detectedCategoriesMap.set(cat.name, { id: catId, name: cat.name, description: cat.desc });
+      detectedCategoriesMap.set(cat.name, { id: catId, name: cat.name, description: cat.desc, sortOrder: sortOrderCounter++ });
     }
 
     ocrExtractedDishes = [
@@ -589,7 +633,6 @@ export async function extractMenuFromFiles(
     if (!raw) continue;
 
     const normalizedNameKey = raw.name.toLowerCase().trim();
-    // Batch deduplication: skip duplicate occurrences in the same upload scan
     if (seenBatchNames.has(normalizedNameKey)) {
       continue;
     }
@@ -599,7 +642,6 @@ export async function extractMenuFromFiles(
     const parsedPrice = normalizePrice(raw.priceStr);
     const dietary = detectDietaryType(raw.name, raw.desc);
 
-    // Confidence determination
     let confidence: "high" | "needs_review" = raw.confidence || parsedPrice.confidence;
     let confidenceReason: string | undefined = raw.confidenceReason;
 
@@ -610,7 +652,6 @@ export async function extractMenuFromFiles(
       needsReviewCount++;
     }
 
-    // Check potential duplicate against existing menu items in DB
     const existingMatch = existingProducts.find(
       (ep) => ep.name.toLowerCase().trim() === normalizedNameKey
     );
@@ -621,7 +662,7 @@ export async function extractMenuFromFiles(
 
     if (existingMatch) {
       isDuplicate = true;
-      duplicateAction = "keep_existing"; // Default: DO NOT ADD DUPLICATE!
+      duplicateAction = "keep_existing";
       duplicatesCount++;
       confidence = "needs_review";
       confidenceReason = "Duplicate item detected (will skip unless updating)";
@@ -669,10 +710,14 @@ export async function extractMenuFromFiles(
   }
 
   const categories = Array.from(detectedCategoriesMap.values());
+  const quality = calculateMenuQualityScore(extractedItems, categories.length);
 
   return {
     categories,
     items: extractedItems,
+    qualityScore: quality.score,
+    qualityRating: quality.rating,
+    fileHash: primaryFileHash,
     summary: {
       categoriesCount: categories.length,
       itemsCount: extractedItems.length,
@@ -680,6 +725,7 @@ export async function extractMenuFromFiles(
       addonsCount,
       needsReviewCount,
       duplicatesCount,
+      verifiedPricesCount: quality.verifiedPrices,
     },
   };
 }

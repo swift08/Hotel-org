@@ -552,6 +552,25 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
 
             {/* RIGHT PANEL: EXTRACTED DIGITAL MENU EDITOR */}
             <div className="w-full lg:w-1/2 bg-white dark:bg-slate-900 flex flex-col overflow-hidden">
+              {/* Menu Quality & Review Required Banner */}
+              <div className="p-3 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-amber-500" />
+                    <span className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                      Menu Import Quality: {Math.round((items.filter(i => i.price > 0 && i.confidence === "high").length / Math.max(1, items.length)) * 100)}% — {items.filter(i => i.confidence === "needs_review").length === 0 ? "High Quality" : "Review Recommended"}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    {items.length} items detected across {categories.length} categories. {items.filter(i => i.confidence === "high").length} verified automatically. Review required before publishing.
+                  </p>
+                </div>
+
+                <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[11px] font-bold shrink-0">
+                  ⚠ Review Required Before Publishing
+                </Badge>
+              </div>
+
               {/* Category Toolbar & Item Controls */}
               <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap bg-slate-50/50 dark:bg-slate-950/30">
                 <div className="flex items-center gap-2">
