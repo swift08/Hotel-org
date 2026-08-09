@@ -815,14 +815,16 @@ CREATE POLICY "staff manage addons" ON public.addons FOR ALL TO authenticated
 CREATE POLICY "staff read price history" ON public.price_history FOR SELECT TO authenticated USING (public.has_perm(business_id,'menu.view'));
 CREATE POLICY "staff read carts" ON public.carts FOR SELECT TO authenticated USING (public.is_member(business_id));
 
-CREATE POLICY "staff read orders" ON public.orders FOR SELECT TO authenticated USING (public.has_perm(business_id,'orders.view'));
-CREATE POLICY "staff create orders" ON public.orders FOR INSERT TO authenticated WITH CHECK (public.has_perm(business_id,'orders.create'));
+CREATE POLICY "staff read orders" ON public.orders FOR SELECT TO authenticated
+  USING (public.has_perm(business_id,'orders.view') OR public.has_perm(business_id,'kds.view') OR public.is_member(business_id));
+CREATE POLICY "staff create orders" ON public.orders FOR INSERT TO authenticated WITH CHECK (public.has_perm(business_id,'orders.create') OR public.is_member(business_id));
 CREATE POLICY "staff update orders" ON public.orders FOR UPDATE TO authenticated
-  USING (public.has_perm(business_id,'orders.edit') OR public.has_perm(business_id,'kds.view'))
-  WITH CHECK (public.has_perm(business_id,'orders.edit') OR public.has_perm(business_id,'kds.view'));
+  USING (public.has_perm(business_id,'orders.edit') OR public.has_perm(business_id,'kds.view') OR public.has_perm(business_id,'kds.manage') OR public.is_member(business_id))
+  WITH CHECK (public.has_perm(business_id,'orders.edit') OR public.has_perm(business_id,'kds.view') OR public.has_perm(business_id,'kds.manage') OR public.is_member(business_id));
 
-CREATE POLICY "staff read order items" ON public.order_items FOR SELECT TO authenticated USING (public.has_perm(business_id,'orders.view'));
-CREATE POLICY "staff create order items" ON public.order_items FOR INSERT TO authenticated WITH CHECK (public.has_perm(business_id,'orders.create'));
+CREATE POLICY "staff read order items" ON public.order_items FOR SELECT TO authenticated
+  USING (public.has_perm(business_id,'orders.view') OR public.has_perm(business_id,'kds.view') OR public.is_member(business_id));
+CREATE POLICY "staff create order items" ON public.order_items FOR INSERT TO authenticated WITH CHECK (public.has_perm(business_id,'orders.create') OR public.is_member(business_id));
 
 CREATE POLICY "staff read order events" ON public.order_events FOR SELECT TO authenticated USING (public.has_perm(business_id,'orders.view'));
 CREATE POLICY "staff append order events" ON public.order_events FOR INSERT TO authenticated WITH CHECK (public.is_member(business_id));
@@ -915,10 +917,10 @@ SELECT 'chef'::public.staff_role, key FROM public.permissions WHERE key IN
 ('orders.view','orders.view_all','kds.view','kds.manage','menu.view','reports.view');
 
 INSERT INTO public.role_default_permissions (role, permission_key)
-SELECT 'kitchen_staff'::public.staff_role, key FROM public.permissions WHERE key IN ('kds.view');
+SELECT 'kitchen_staff'::public.staff_role, key FROM public.permissions WHERE key IN ('orders.view','orders.view_all','kds.view','kds.manage');
 
 INSERT INTO public.role_default_permissions (role, permission_key)
-SELECT 'bar_staff'::public.staff_role, key FROM public.permissions WHERE key IN ('kds.view');
+SELECT 'bar_staff'::public.staff_role, key FROM public.permissions WHERE key IN ('orders.view','orders.view_all','kds.view','kds.manage');
 
 -- ============ default discount authorities on new business ============
 CREATE OR REPLACE FUNCTION public.seed_business_defaults()

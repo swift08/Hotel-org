@@ -15,7 +15,10 @@ import {
   ArrowLeft,
   RefreshCw,
   Loader2,
-  Bell
+  Bell,
+  Sparkles,
+  Flame,
+  Volume1
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +35,70 @@ function KitchenDisplaySystem() {
   const [context, setContext] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // Initialize or resume Web Audio Context on user interaction
+  const getAudioContext = () => {
+    if (!audioCtxRef.current) {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtxRef.current = new AudioContextClass();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    setAudioUnlocked(true);
+    return audioCtxRef.current;
+  };
+
+  const playKitchenChime = () => {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      // Pulse 1: 880Hz (A5)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(880, now);
+      gain1.gain.setValueAtTime(0.6, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.25);
+
+      // Pulse 2: 1320Hz (E6)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(1320, now + 0.15);
+      gain2.gain.setValueAtTime(0.7, now + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.15);
+      osc2.stop(now + 0.45);
+
+      // Pulse 3: 1760Hz (A6)
+      const osc3 = ctx.createOscillator();
+      const gain3 = ctx.createGain();
+      osc3.type = "sine";
+      osc3.frequency.setValueAtTime(1760, now + 0.3);
+      gain3.gain.setValueAtTime(0.8, now + 0.3);
+      gain3.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+      osc3.connect(gain3);
+      gain3.connect(ctx.destination);
+      osc3.start(now + 0.3);
+      osc3.stop(now + 0.7);
+    } catch (e) {
+      console.log("Audio chime error:", e);
+    }
+  };
 
   const fetchKdsOrders = async () => {
     try {
@@ -71,17 +137,30 @@ function KitchenDisplaySystem() {
       }
     } catch (err: any) {
       console.error("KDS fetch error:", err);
-      toast.error(err?.message || "Failed to load kitchen tickets");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // Unlock audio on initial user touch/click anywhere on page
+    const handleUserInteraction = () => {
+      getAudioContext();
+    };
+    window.addEventListener("click", handleUserInteraction, { once: true });
+    window.addEventListener("touchstart", handleUserInteraction, { once: true });
+
     fetchKdsOrders();
 
+    // 5-second polling interval fallback to ensure no dropped orders
+    const intervalId = setInterval(() => {
+      fetchKdsOrders();
+    }, 5000);
+
     const businessId = context?.membership?.business_id;
-    if (!businessId) return;
+    if (!businessId) {
+      return () => clearInterval(intervalId);
+    }
 
     const channel = supabase
       .channel(`kds_orders_live_${businessId}`)
@@ -96,11 +175,9 @@ function KitchenDisplaySystem() {
         (payload: any) => {
           if (payload.eventType === "INSERT") {
             toast.info(`🔔 New Kitchen Ticket #${payload.new?.order_number || ""} on ${payload.new?.table_label || "Table"}`);
+            if (soundEnabled) playKitchenChime();
           } else {
             toast.info("Kitchen tickets updated!");
-          }
-          if (soundEnabled) {
-            playBeepSound();
           }
           fetchKdsOrders();
         }
@@ -120,28 +197,15 @@ function KitchenDisplaySystem() {
       .subscribe();
 
     return () => {
+      clearInterval(intervalId);
       supabase.removeChannel(channel);
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
     };
   }, [soundEnabled, context?.membership?.business_id]);
 
-  const playBeepSound = () => {
-    try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 tone
-      gain.gain.setValueAtTime(0.5, ctx.currentTime);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.4);
-    } catch (e) {
-      console.log("Audio alert blocked:", e);
-    }
-  };
-
   const handleUpdateStatus = async (orderId: string, nextStatus: string) => {
+    getAudioContext();
     if (!context?.membership?.business_id) return;
     try {
       await updateOrderStatus({
@@ -177,9 +241,23 @@ function KitchenDisplaySystem() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950 flex flex-col">
+    <div 
+      onClick={getAudioContext}
+      className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950 flex flex-col"
+    >
+      {/* Sound Activation Banner if Audio is Suspended */}
+      {!audioUnlocked && soundEnabled && (
+        <div 
+          onClick={getAudioContext}
+          className="bg-amber-500 text-slate-950 font-extrabold px-4 py-2 text-center text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:bg-amber-400 transition-colors shrink-0"
+        >
+          <Volume1 className="h-4 w-4 animate-bounce" />
+          <span>Tap anywhere on screen to enable Kitchen Sound Alerts</span>
+        </div>
+      )}
+
       {/* High-Contrast Header Bar */}
-      <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900 px-4 py-3 sm:px-6 flex items-center justify-between shadow-2xl">
+      <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900 px-4 py-3 sm:px-6 flex items-center justify-between shadow-2xl shrink-0">
         <div className="flex items-center gap-4">
           <Link to="/admin/dashboard">
             <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
@@ -188,38 +266,58 @@ function KitchenDisplaySystem() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <img src="/images/logo.webp" alt="Rasoi Logo" className="h-12 w-auto object-contain shrink-0 drop-shadow-md" />
+            <img src="/images/logo.webp" alt="Rasoi Logo" className="h-10 w-auto object-contain shrink-0 drop-shadow-md" />
             <div>
               <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
                 RASOI KDS
               </h1>
               <span className="text-xs text-slate-400 font-medium">
-                {context?.business?.name} — {orders.length} Active Tickets
+                {context?.business?.name || "Kitchen Terminal"} — {orders.length} Active Tickets
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Button
-            onClick={() => setSoundEnabled(!soundEnabled)}
+            onClick={(e) => {
+              e.stopPropagation();
+              getAudioContext();
+              playKitchenChime();
+            }}
             variant="outline"
             size="sm"
-            className={`border-slate-800 font-bold ${
+            className="border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 text-xs font-bold"
+          >
+            <Bell className="mr-1.5 h-3.5 w-3.5 text-amber-400" /> Test Chime
+          </Button>
+
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSoundEnabled(!soundEnabled);
+              if (!soundEnabled) getAudioContext();
+            }}
+            variant="outline"
+            size="sm"
+            className={`border-slate-800 font-bold text-xs ${
               soundEnabled ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-slate-900 text-slate-400"
             }`}
           >
-            {soundEnabled ? <Volume2 className="mr-2 h-4 w-4" /> : <VolumeX className="mr-2 h-4 w-4" />}
+            {soundEnabled ? <Volume2 className="mr-1.5 h-3.5 w-3.5" /> : <VolumeX className="mr-1.5 h-3.5 w-3.5" />}
             Sound {soundEnabled ? "ON" : "OFF"}
           </Button>
 
           <Button
-            onClick={fetchKdsOrders}
+            onClick={(e) => {
+              e.stopPropagation();
+              fetchKdsOrders();
+            }}
             variant="outline"
             size="sm"
-            className="border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+            className="border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800 text-xs font-bold"
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
+            <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
           </Button>
         </div>
       </header>
@@ -238,7 +336,7 @@ function KitchenDisplaySystem() {
           <div className="flex flex-col items-center justify-center py-32 text-center text-slate-500">
             <CheckCircle2 className="h-16 w-16 text-emerald-500 mb-4" />
             <h2 className="text-2xl font-bold text-white mb-1">Kitchen All Clear!</h2>
-            <p className="text-sm">No active cooking tickets waiting in queue.</p>
+            <p className="text-sm text-slate-400">No active cooking tickets waiting in queue.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-start">
@@ -249,92 +347,83 @@ function KitchenDisplaySystem() {
               let badgeColor = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
               let ageLabel = "NORMAL";
 
-              if (elapsedMins > 20) {
-                priorityColor = "border-red-500/80 bg-red-950/30";
-                badgeColor = "bg-red-500 text-white font-bold animate-pulse";
-                ageLabel = "CRITICAL DELAY";
-              } else if (elapsedMins > 10) {
-                priorityColor = "border-amber-500/80 bg-amber-950/20";
-                badgeColor = "bg-amber-500/20 text-amber-300 border-amber-500/40";
-                ageLabel = "DELAYED";
+              if (elapsedMins > 15) {
+                priorityColor = "border-red-500/50 bg-red-950/20";
+                badgeColor = "bg-red-500/20 text-red-400 border-red-500/30 animate-pulse";
+                ageLabel = "CRITICAL";
+              } else if (elapsedMins > 8) {
+                priorityColor = "border-amber-500/50 bg-amber-950/20";
+                badgeColor = "bg-amber-500/20 text-amber-400 border-amber-500/30";
+                ageLabel = "WARNING";
               }
 
               return (
-                <Card
-                  key={ord.id}
-                  className={`border-2 shadow-2xl rounded-2xl flex flex-col justify-between overflow-hidden text-slate-100 ${priorityColor}`}
-                >
-                  {/* Card Header: Table # & Order Age */}
-                  <CardHeader className="bg-slate-950/80 p-4 border-b border-slate-800/80">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-black text-amber-400">
-                          {ord.table_label || "Takeaway"}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-400 font-mono">
-                          #{ord.order_number}
-                        </span>
-                      </div>
-
-                      <Badge className={`text-xs px-2 py-0.5 ${badgeColor}`}>
-                        <Clock className="mr-1 h-3 w-3" />
-                        {elapsedMins}m ({ageLabel})
-                      </Badge>
+                <Card key={ord.id} className={`border-2 ${priorityColor} shadow-xl flex flex-col justify-between overflow-hidden transition-all`}>
+                  {/* Card Header */}
+                  <CardHeader className="p-4 pb-3 border-b border-slate-800/80 bg-slate-950/50 flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg font-black text-amber-400 flex items-center gap-2">
+                        {ord.table_label || "Takeaway"}
+                        <span className="text-xs font-semibold text-slate-500">#{ord.order_number || ord.id.slice(0, 6)}</span>
+                      </CardTitle>
+                      {ord.customer_name && (
+                        <p className="text-xs text-slate-400 mt-0.5">Customer: {ord.customer_name}</p>
+                      )}
                     </div>
 
-                    {ord.customer_name && (
-                      <div className="text-xs text-slate-400 mt-1">
-                        Customer: <span className="text-white font-semibold">{ord.customer_name}</span>
-                      </div>
-                    )}
+                    <Badge className={`text-[10px] font-bold border ${badgeColor}`}>
+                      <Clock className="mr-1 h-3 w-3" /> {elapsedMins}m ({ageLabel})
+                    </Badge>
                   </CardHeader>
 
-                  {/* Card Body: Items & Special Instructions */}
+                  {/* Card Content: Items list */}
                   <CardContent className="p-4 space-y-3 flex-1">
-                    <div className="space-y-2.5">
+                    {ord.notes && (
+                      <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium flex items-start gap-1.5">
+                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                        <span>{ord.notes}</span>
+                      </div>
+                    )}
+
+                    <div className="space-y-2.5 divide-y divide-slate-800/60">
                       {ord.order_items?.map((item: any) => (
-                        <div key={item.id} className="border-b border-slate-800/60 pb-2 last:border-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="font-extrabold text-base text-white">
-                              <span className="text-amber-400 mr-2 text-lg">{item.quantity}×</span>
-                              {item.product_name}
+                        <div key={item.id} className="pt-2 first:pt-0 flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="font-black text-amber-400 text-sm">{item.quantity}×</span>
+                              <span className="font-bold text-white text-sm break-words">{item.product_name}</span>
                             </div>
+
+                            {item.variant_name && (
+                              <p className="text-xs text-slate-400 ml-5 font-medium">Variant: {item.variant_name}</p>
+                            )}
+
+                            {Array.isArray(item.addons) && item.addons.length > 0 && (
+                              <p className="text-xs text-emerald-400 ml-5 font-medium">
+                                + {item.addons.map((a: any) => a.name).join(", ")}
+                              </p>
+                            )}
+
+                            {item.special_instructions && (
+                              <p className="text-[11px] text-amber-300/80 italic ml-5 mt-0.5">
+                                Note: "{item.special_instructions}"
+                              </p>
+                            )}
                           </div>
-
-                          {item.variant_name && (
-                            <div className="text-xs text-slate-400 ml-6">
-                              Variant: <span className="text-slate-200 font-medium">{item.variant_name}</span>
-                            </div>
-                          )}
-
-                          {item.addons && Array.isArray(item.addons) && item.addons.length > 0 && (
-                            <div className="text-xs text-amber-300 ml-6">
-                              Add-ons: {item.addons.map((a: any) => a.name).join(", ")}
-                            </div>
-                          )}
-
-                          {item.special_instructions && (
-                            <div className="mt-1 ml-6 bg-red-500/10 border border-red-500/30 p-1.5 rounded-lg text-xs font-bold text-red-400 uppercase tracking-wide">
-                              ⚠️ Note: "{item.special_instructions}"
-                            </div>
-                          )}
                         </div>
                       ))}
                     </div>
-
-                    {ord.notes && (
-                      <div className="bg-amber-500/10 border border-amber-500/30 p-2 rounded-xl text-xs text-amber-300">
-                        Order Note: {ord.notes}
-                      </div>
-                    )}
                   </CardContent>
 
-                  {/* Card Footer: Large Touch Buttons for Kitchen Staff */}
-                  <div className="p-3 bg-slate-950/90 border-t border-slate-800/80 flex flex-col gap-2">
+                  {/* Card Footer: Status Transition Action Button */}
+                  <div className="p-3 border-t border-slate-800/80 bg-slate-950/80">
                     {ord.status === "pending" && (
                       <Button
-                        onClick={() => handleUpdateStatus(ord.id, "accepted")}
-                        className="w-full h-12 text-base font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(ord.id, "accepted");
+                        }}
+                        className="w-full bg-amber-500 text-slate-950 font-black hover:bg-amber-400 text-sm shadow-md shadow-amber-500/20 py-2.5"
                       >
                         ACCEPT TICKET
                       </Button>
@@ -342,28 +431,37 @@ function KitchenDisplaySystem() {
 
                     {ord.status === "accepted" && (
                       <Button
-                        onClick={() => handleUpdateStatus(ord.id, "preparing")}
-                        className="w-full h-12 text-base font-bold bg-blue-500 text-white hover:bg-blue-400 shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(ord.id, "preparing");
+                        }}
+                        className="w-full bg-blue-600 text-white font-black hover:bg-blue-500 text-sm shadow-md shadow-blue-600/20 py-2.5"
                       >
-                        <Play className="mr-2 h-5 w-5 fill-current" /> START PREPARING
+                        START PREPARING
                       </Button>
                     )}
 
                     {ord.status === "preparing" && (
                       <Button
-                        onClick={() => handleUpdateStatus(ord.id, "ready")}
-                        className="w-full h-12 text-base font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(ord.id, "ready");
+                        }}
+                        className="w-full bg-emerald-500 text-slate-950 font-black hover:bg-emerald-400 text-sm shadow-md shadow-emerald-500/20 py-2.5"
                       >
-                        <CheckCircle2 className="mr-2 h-5 w-5" /> MARK READY
+                        MARK READY FOR SERVING
                       </Button>
                     )}
 
                     {ord.status === "ready" && (
                       <Button
-                        onClick={() => handleUpdateStatus(ord.id, "served")}
-                        className="w-full h-12 text-base font-bold bg-purple-500 text-white hover:bg-purple-400 shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(ord.id, "served");
+                        }}
+                        className="w-full bg-purple-600 text-white font-black hover:bg-purple-500 text-sm shadow-md shadow-purple-600/20 py-2.5"
                       >
-                        SERVED TO TABLE
+                        MARK SERVED
                       </Button>
                     )}
                   </div>

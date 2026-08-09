@@ -78,42 +78,44 @@ function Dashboard() {
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
-        const { data: orders } = await supabase
+        const { data: orders, error: ordersErr } = await supabase
           .from("orders")
           .select("id, grand_total, status, payment_status, created_at, table_label, customer_name, customer_phone")
           .eq("business_id", ctx.membership.business_id)
-          .gte("created_at", todayStart.toISOString())
-          .order("created_at", { ascending: false });
+          .order("created_at", { ascending: false })
+          .limit(100);
 
-        if (orders) {
-          const completedPaid = orders.filter(
-            (o) => o.status === "completed" || o.payment_status === "paid"
-          );
-          const revenue = completedPaid.reduce((acc, curr) => acc + Number(curr.grand_total || 0), 0);
-          const count = orders.length;
-          const aov = completedPaid.length > 0 ? revenue / completedPaid.length : 0;
-          const occupied = tbls
-            ? tbls.filter((t: any) => t.state === "occupied" || t.state === "payment_pending").length
-            : 0;
-          const pendingCount = orders.filter((o) => o.status === "pending").length;
-          const preparingCount = orders.filter((o) => o.status === "preparing").length;
-          const paidCount = orders.filter((o) => o.payment_status === "paid").length;
-          const unpaidCount = orders.filter((o) => o.payment_status !== "paid" && o.status !== "cancelled").length;
+        if (ordersErr) console.error("Error fetching dashboard orders:", ordersErr.message);
 
-          setStats({
-            todayRevenue: revenue,
-            todayOrdersCount: count,
-            averageOrderValue: aov,
-            activeTablesCount: tbls ? tbls.length : 0,
-            occupiedTablesCount: occupied,
-            pendingOrdersCount: pendingCount,
-            preparingOrdersCount: preparingCount,
-            paidOrdersCount: paidCount,
-            unpaidOrdersCount: unpaidCount,
-          });
+        const orderList = orders || [];
+        const todayOrders = orderList.filter((o) => new Date(o.created_at) >= todayStart);
+        const completedPaid = todayOrders.filter(
+          (o) => o.status === "completed" || o.payment_status === "paid"
+        );
+        const revenue = completedPaid.reduce((acc, curr) => acc + Number(curr.grand_total || 0), 0);
+        const count = todayOrders.length;
+        const aov = completedPaid.length > 0 ? revenue / completedPaid.length : 0;
+        const occupied = tbls
+          ? tbls.filter((t: any) => t.state === "occupied" || t.state === "payment_pending").length
+          : 0;
+        const pendingCount = orderList.filter((o) => o.status === "pending").length;
+        const preparingCount = orderList.filter((o) => o.status === "preparing").length;
+        const paidCount = todayOrders.filter((o) => o.payment_status === "paid").length;
+        const unpaidCount = orderList.filter((o) => o.payment_status !== "paid" && o.status !== "cancelled" && o.status !== "completed").length;
 
-          setRecentOrders(orders.slice(0, 8));
-        }
+        setStats({
+          todayRevenue: revenue,
+          todayOrdersCount: count,
+          averageOrderValue: aov,
+          activeTablesCount: tbls ? tbls.length : 0,
+          occupiedTablesCount: occupied,
+          pendingOrdersCount: pendingCount,
+          preparingOrdersCount: preparingCount,
+          paidOrdersCount: paidCount,
+          unpaidOrdersCount: unpaidCount,
+        });
+
+        setRecentOrders(orderList.slice(0, 12));
       }
     } catch (err) {
       console.error("Dashboard fetch error:", err);
@@ -125,8 +127,15 @@ function Dashboard() {
   useEffect(() => {
     loadDashboardData();
 
+    // 5-second fallback poll interval to guarantee live updates
+    const intervalId = setInterval(() => {
+      loadDashboardData();
+    }, 5000);
+
     const businessId = context?.membership?.business_id;
-    if (!businessId) return;
+    if (!businessId) {
+      return () => clearInterval(intervalId);
+    }
 
     const channel = supabase
       .channel(`dashboard_live_${businessId}`)
@@ -160,6 +169,7 @@ function Dashboard() {
       .subscribe();
 
     return () => {
+      clearInterval(intervalId);
       supabase.removeChannel(channel);
     };
   }, [context?.membership?.business_id]);

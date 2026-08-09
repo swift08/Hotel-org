@@ -323,7 +323,9 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
     } else if (data.toStatus === "refunded") {
       assertPerm(perms, "orders.refund");
     } else {
-      assertPerm(perms, "orders.edit");
+      if (!perms.includes("orders.edit") && !perms.includes("kds.view") && !perms.includes("kds.manage")) {
+        assertPerm(perms, "orders.edit");
+      }
     }
 
     const updated = await transitionOrderStatus(supabase, {
