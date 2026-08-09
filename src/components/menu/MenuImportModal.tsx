@@ -177,7 +177,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
           const updated = { ...item, [field]: value };
           if (field === "price") {
             updated.confidence = "high";
-            updated.confidenceReason = undefined;
+            delete updated.confidenceReason;
           }
           return updated;
         }
@@ -190,13 +190,14 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
     setItems((prev) =>
       prev.map((item) => {
         if (item.id === id) {
-          return {
+          const updated = {
             ...item,
             isDuplicate: false,
-            confidence: "high",
-            confidenceReason: undefined,
+            confidence: "high" as const,
             duplicateAction: action,
-          } as any;
+          };
+          delete updated.confidenceReason;
+          return updated as any;
         }
         return item;
       })

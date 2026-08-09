@@ -149,6 +149,7 @@ export async function extractMenuFromFiles(
 
   for (let i = 0; i < rawExtractedDishes.length; i++) {
     const raw = rawExtractedDishes[i];
+    if (!raw) continue;
     const itemId = `item-${Math.random().toString(36).slice(2, 9)}`;
     const parsedPrice = normalizePrice(raw.priceStr);
     const dietary = detectDietaryType(raw.name, raw.desc);
