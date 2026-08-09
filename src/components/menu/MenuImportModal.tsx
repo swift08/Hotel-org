@@ -55,6 +55,65 @@ interface MenuImportModalProps {
   onPublishedSuccess: () => void;
 }
 
+async function compressImageForUpload(file: File): Promise<string> {
+  if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement("canvas");
+      const MAX_WIDTH = 2048;
+      const MAX_HEIGHT = 2048;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width = Math.round((width * MAX_HEIGHT) / height);
+          height = MAX_HEIGHT;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      resolve(dataUrl);
+    };
+
+    img.onerror = () => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    };
+
+    img.src = url;
+  });
+}
+
 export const MenuImportModal: React.FC<MenuImportModalProps> = ({
   open,
   onOpenChange,
@@ -116,21 +175,16 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
       setLoading(true);
       setStep("processing");
 
-      // File reader to base64 preview
+      // File reader & client image compression to avoid payload size limit
       const filePayloads = await Promise.all(
         files.map(async (file) => {
-          return new Promise<any>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              resolve({
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                dataUrl: reader.result as string,
-              });
-            };
-            reader.readAsDataURL(file);
-          });
+          const dataUrl = await compressImageForUpload(file);
+          return {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            dataUrl,
+          };
         })
       );
 
@@ -426,7 +480,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
               </div>
 
               <p className="text-[11px] text-slate-400 dark:text-slate-600 mt-4">
-                Supported formats: JPG, PNG, WEBP, PDF (Max 25MB per file)
+                Supported formats: JPG, PNG, WEBP, AVIF, PDF (Max 25MB per file)
               </p>
             </div>
 
