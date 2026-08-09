@@ -347,73 +347,71 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
               4. Publish
             </span>
           </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* STEP 1: UPLOAD ZONE */}
         {step === "upload" && (
-          <div className="p-6 sm:p-8 flex-1 overflow-y-auto space-y-6">
+          <div className="p-6 flex-1 flex flex-col justify-between overflow-y-auto space-y-6">
             <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
+              onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center min-h-[260px] ${
-                isDragging
-                  ? "border-amber-500 bg-amber-500/10"
-                  : "border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/40 hover:border-amber-500/50"
-              }`}
+              className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 rounded-2xl p-8 sm:p-12 text-center bg-slate-50 dark:bg-slate-950/50 transition-all flex flex-col items-center justify-center min-h-[260px] cursor-pointer"
             >
-              <div className="h-16 w-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4">
+              <div className="h-16 w-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-4 text-amber-500">
                 <UploadCloud className="h-8 w-8" />
               </div>
-
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                 Drag & Drop your menu document here
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md">
                 Upload menu photos taken from phone, printed menus, scanned documents, or restaurant menu PDFs.
               </p>
 
-              <div className="mt-4 flex items-center gap-3">
-                <input
-                  type="file"
-                  id="menu-upload-input"
-                  multiple
-                  accept="image/jpeg,image/png,image/webp,application/pdf"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-                <label
-                  htmlFor="menu-upload-input"
-                  className="px-4 py-2 bg-amber-500 font-bold text-slate-950 rounded-xl hover:bg-amber-400 transition-all text-xs cursor-pointer shadow-md shadow-amber-500/20"
-                >
-                  Choose Files
+              <div className="mt-6 flex items-center gap-3">
+                <label className="cursor-pointer inline-flex items-center justify-center rounded-xl text-sm font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-400 h-10 px-5 transition-all shadow-md shadow-amber-500/20">
+                  <UploadCloud className="mr-2 h-4 w-4 shrink-0" /> Choose Files
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,application/pdf"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
                 </label>
               </div>
 
-              <p className="text-[11px] text-slate-400 mt-3 font-mono">
+              <p className="text-[11px] text-slate-400 dark:text-slate-600 mt-4">
                 Supported formats: JPG, PNG, WEBP, PDF (Max 25MB per file)
               </p>
             </div>
 
-            {/* Uploaded File Cards */}
             {files.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <div className="space-y-2">
+                <h4 className="text-xs font-extrabold tracking-wider uppercase text-slate-500 dark:text-slate-400">
                   Uploaded Files ({files.length})
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {files.map((file, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between shadow-sm"
+                      className="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700"
                     >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <FileText className="h-6 w-6 text-amber-500 shrink-0" />
-                        <div className="overflow-hidden">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <FileText className="h-5 w-5 text-amber-500 shrink-0" />
+                        <div className="truncate">
+                          <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                             {file.name}
                           </p>
-                          <p className="text-[10px] text-slate-500 font-mono">
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400">
                             {(file.size / (1024 * 1024)).toFixed(2)} MB
                           </p>
                         </div>
@@ -421,7 +419,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
 
                       <button
                         onClick={() => removeFile(idx)}
-                        className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                        className="text-slate-400 hover:text-rose-500 transition-colors p-1"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -430,7 +428,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                 </div>
               </div>
             )}
-
+            
             <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-800">
               <Button
                 onClick={handleStartImport}

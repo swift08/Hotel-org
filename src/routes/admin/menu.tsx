@@ -32,6 +32,7 @@ import {
   Utensils,
   Sparkles,
   FileText,
+  UploadCloud,
   History
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -307,7 +308,7 @@ function MenuCMS() {
             size="sm"
             className="bg-amber-500 font-extrabold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
           >
-            <Sparkles className="mr-2 h-4 w-4 shrink-0" /> Import Menu
+            <UploadCloud className="mr-2 h-4 w-4 shrink-0" /> Import Menu
           </Button>
 
           <Button
@@ -361,16 +362,19 @@ function MenuCMS() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Filter className="h-4 w-4 text-slate-500 shrink-0" />
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full sm:w-48 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200">
+            <SelectTrigger className="w-full sm:w-56 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
               <SelectItem value="all">All Categories ({products.length})</SelectItem>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
+              {categories.map((c) => {
+                const count = products.filter((p) => p.category_id === c.id).length;
+                return (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name} ({count})
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
@@ -429,7 +433,7 @@ function MenuCMS() {
         </div>
       ) : filteredProducts.length === 0 ? (
         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400 shadow-md">
-          <Sparkles className="h-12 w-12 mx-auto mb-3 text-amber-500 animate-pulse" />
+          <UploadCloud className="h-12 w-12 mx-auto mb-3 text-amber-500 animate-pulse" />
           <h3 className="text-xl font-extrabold text-slate-800 dark:text-white mb-1">No menu yet</h3>
           <p className="text-xs max-w-md mx-auto mb-6 text-slate-600 dark:text-slate-400">
             Upload your existing menu photo or PDF and Rasoi will turn it into an editable digital menu.
@@ -439,7 +443,7 @@ function MenuCMS() {
               onClick={() => setImportModalOpen(true)}
               className="bg-amber-500 font-extrabold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
             >
-              <Sparkles className="mr-2 h-4 w-4 shrink-0" /> Import Menu
+              <UploadCloud className="mr-2 h-4 w-4 shrink-0" /> Import Menu
             </Button>
             <Button
               onClick={() => {
