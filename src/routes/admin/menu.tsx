@@ -11,6 +11,7 @@ import {
   saveAddonGroup,
   saveAddon
 } from "@/lib/menu.functions";
+import { listMenuImports } from "@/lib/menu-import.functions";
 import { 
   MenuSquare, 
   Plus, 
@@ -28,7 +29,10 @@ import {
   Loader2,
   Filter,
   Camera,
-  Utensils
+  Utensils,
+  Sparkles,
+  FileText,
+  History
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -40,6 +44,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { MenuImportModal } from "@/components/menu/MenuImportModal";
+import { ImportHistoryDrawer } from "@/components/menu/ImportHistoryDrawer";
 
 export const Route = createFileRoute("/admin/menu")({
   component: MenuCMS,
@@ -267,6 +273,49 @@ function MenuCMS() {
     setProdModalOpen(true);
   };
 
+  // Toggle Item Availability
+  const handleToggleStock = async (id: string, current: boolean) => {
+    if (!context?.membership?.business_id) return;
+    try {
+      await setProductAvailability({
+        data: {
+          businessId: context.membership.business_id,
+          productId: id,
+          isAvailable: !current,
+        },
+      });
+      setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, is_available: !current } : p)));
+      toast.success(!current ? "Marked In Stock" : "Marked Out of Stock");
+    } catch (err: any) {
+      toast.error("Failed to toggle stock");
+    }
+  };
+
+  // Save Variant Handler
+  const [variantName, setVariantName] = useState("");
+  const [variantPrice, setVariantPrice] = useState(50);
+
+  const handleSaveVariant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!variantName || !selectedProductForVariant || !context?.membership?.business_id) return;
+    try {
+      await saveVariant({
+        data: {
+          businessId: context.membership.business_id,
+          productId: selectedProductForVariant.id,
+          name: variantName,
+          price: variantPrice,
+        },
+      });
+      toast.success("Variant added!");
+      setVariantName("");
+      setVariantModalOpen(false);
+      fetchMenuData();
+    } catch (err: any) {
+      toast.error("Failed to add variant");
+    }
+  };
+
   // Filtered Products
   const filteredProducts = products.filter((p) => {
     const matchesCat = selectedCategory === "all" || p.category_id === selectedCategory;
@@ -289,7 +338,15 @@ function MenuCMS() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            onClick={() => setImportModalOpen(true)}
+            size="sm"
+            className="bg-amber-500 font-extrabold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
+          >
+            <Sparkles className="mr-2 h-4 w-4 shrink-0" /> Import Menu
+          </Button>
+
           <Button
             onClick={() => {
               setCatName("");
@@ -300,7 +357,7 @@ function MenuCMS() {
             size="sm"
             className="border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <Plus className="mr-2 h-4 w-4 shrink-0" /> Add Category
+            <Plus className="mr-1.5 h-4 w-4 shrink-0" /> Add Category
           </Button>
 
           <Button
@@ -308,10 +365,20 @@ function MenuCMS() {
               resetProdForm();
               setProdModalOpen(true);
             }}
+            variant="outline"
             size="sm"
-            className="bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
+            className="border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <Plus className="mr-2 h-4 w-4 shrink-0" /> Add Item
+            <Plus className="mr-1.5 h-4 w-4 shrink-0" /> Add Item
+          </Button>
+
+          <Button
+            onClick={() => setHistoryOpen(true)}
+            variant="ghost"
+            size="sm"
+            className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          >
+            <History className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -398,10 +465,30 @@ function MenuCMS() {
           ))}
         </div>
       ) : filteredProducts.length === 0 ? (
-        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400">
-          <MenuSquare className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-600" />
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No Menu Items Found</h3>
-          <p className="text-xs">Add your first menu item or change search query.</p>
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-12 text-center text-slate-500 dark:text-slate-400 shadow-md">
+          <Sparkles className="h-12 w-12 mx-auto mb-3 text-amber-500 animate-pulse" />
+          <h3 className="text-xl font-extrabold text-slate-800 dark:text-white mb-1">No menu yet</h3>
+          <p className="text-xs max-w-md mx-auto mb-6 text-slate-600 dark:text-slate-400">
+            Upload your existing menu photo or PDF and Rasoi will turn it into an editable digital menu.
+          </p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Button
+              onClick={() => setImportModalOpen(true)}
+              className="bg-amber-500 font-extrabold text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20"
+            >
+              <Sparkles className="mr-2 h-4 w-4 shrink-0" /> Import Menu
+            </Button>
+            <Button
+              onClick={() => {
+                resetProdForm();
+                setProdModalOpen(true);
+              }}
+              variant="outline"
+              className="border-slate-300 dark:border-slate-800"
+            >
+              <Plus className="mr-2 h-4 w-4 shrink-0" /> Add Item
+            </Button>
+          </div>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -735,6 +822,23 @@ function MenuCMS() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Menu Import Modal */}
+      <MenuImportModal
+        open={importModalOpen}
+        onOpenChange={setImportModalOpen}
+        businessId={context?.membership?.business_id}
+        onPublishedSuccess={fetchMenuData}
+      />
+
+      {/* Import & Version History Drawer */}
+      <ImportHistoryDrawer
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        businessId={context?.membership?.business_id}
+        imports={menuImports}
+        onRefresh={fetchMenuData}
+      />
     </div>
   );
 }

@@ -348,6 +348,38 @@ CREATE TABLE public.price_history (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- ============ MENU IMPORTS & VERSIONS ============
+CREATE TABLE public.menu_imports (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id uuid NOT NULL REFERENCES public.businesses(id) ON DELETE CASCADE,
+  branch_id uuid REFERENCES public.branches(id) ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'uploaded' CHECK (status IN ('uploaded', 'processing', 'extracted', 'review_required', 'ready_to_publish', 'published', 'failed')),
+  source_files jsonb NOT NULL DEFAULT '[]'::jsonb,
+  extracted_data jsonb NOT NULL DEFAULT '{}'::jsonb,
+  review_data jsonb NOT NULL DEFAULT '{}'::jsonb,
+  summary jsonb NOT NULL DEFAULT '{}'::jsonb,
+  error_message text,
+  created_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX menu_imports_business_idx ON public.menu_imports(business_id, created_at DESC);
+
+CREATE TABLE public.menu_versions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id uuid NOT NULL REFERENCES public.businesses(id) ON DELETE CASCADE,
+  branch_id uuid REFERENCES public.branches(id) ON DELETE CASCADE,
+  version_number integer NOT NULL DEFAULT 1,
+  status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+  snapshot jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_by uuid,
+  published_at timestamptz,
+  published_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX menu_versions_business_idx ON public.menu_versions(business_id, version_number DESC);
+
 -- ============ DINING SESSIONS ============
 CREATE TABLE public.dining_sessions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
