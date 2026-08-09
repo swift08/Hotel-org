@@ -205,6 +205,51 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
     toast.success(`Duplicate preference saved.`);
   };
 
+  const handleAddVariantToItem = (itemId: string) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id === itemId) {
+          const currentVars = item.variants || [];
+          const newVar =
+            currentVars.length === 0
+              ? { name: "Half", price: Math.round(item.price * 0.6) }
+              : currentVars.length === 1
+              ? { name: "Full", price: item.price }
+              : { name: `Option ${currentVars.length + 1}`, price: item.price };
+          return { ...item, variants: [...currentVars, newVar] };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleUpdateVariantInItem = (itemId: string, varIdx: number, field: "name" | "price", value: any) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id === itemId) {
+          const updatedVars = [...(item.variants || [])];
+          if (updatedVars[varIdx]) {
+            updatedVars[varIdx] = { ...updatedVars[varIdx], [field]: value };
+          }
+          return { ...item, variants: updatedVars };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleRemoveVariantFromItem = (itemId: string, varIdx: number) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id === itemId) {
+          const updatedVars = (item.variants || []).filter((_, idx) => idx !== varIdx);
+          return { ...item, variants: updatedVars };
+        }
+        return item;
+      })
+    );
+  };
+
   const handleDeleteItem = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
     if (selectedItemId === id) setSelectedItemId(null);
@@ -631,6 +676,57 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                             ))}
                           </SelectContent>
                         </Select>
+                      </div>
+
+                      {/* Portion Sizes & Variants Editor */}
+                      <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800/60">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                            <Layers className="h-3 w-3 text-amber-500" /> Portion Sizes / Variants
+                          </span>
+                          <button
+                            onClick={() => handleAddVariantToItem(item.id)}
+                            className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-0.5"
+                          >
+                            <Plus className="h-3 w-3" /> Add Half / Full Variant
+                          </button>
+                        </div>
+
+                        {item.variants && item.variants.length > 0 ? (
+                          <div className="flex flex-wrap items-center gap-2">
+                            {item.variants.map((v, vIdx) => (
+                              <div
+                                key={vIdx}
+                                className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs"
+                              >
+                                <input
+                                  type="text"
+                                  value={v.name}
+                                  onChange={(e) => handleUpdateVariantInItem(item.id, vIdx, "name", e.target.value)}
+                                  className="w-16 font-bold bg-transparent border-none p-0 focus:outline-none text-slate-800 dark:text-slate-200 text-xs"
+                                  placeholder="Variant"
+                                />
+                                <span className="text-amber-500 font-bold text-xs">₹</span>
+                                <input
+                                  type="number"
+                                  value={v.price}
+                                  onChange={(e) => handleUpdateVariantInItem(item.id, vIdx, "price", Number(e.target.value))}
+                                  className="w-14 font-bold bg-transparent border-none p-0 focus:outline-none text-slate-800 dark:text-slate-200 text-xs text-right"
+                                />
+                                <button
+                                  onClick={() => handleRemoveVariantFromItem(item.id, vIdx)}
+                                  className="text-slate-400 hover:text-rose-500 ml-0.5"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">
+                            Single price item. Click "+ Add Half / Full Variant" if this item offers Half/Full portions.
+                          </p>
+                        )}
                       </div>
 
                       {/* Confidence & Duplicate Banner */}

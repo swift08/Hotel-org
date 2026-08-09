@@ -128,7 +128,7 @@ export function detectDietaryType(name: string, description: string): "veg" | "n
 function parseRawOCRText(rawText: string) {
   const lines = rawText.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
   const categoriesMap = new Map<string, ExtractedMenuCategory>();
-  const dishes: Array<{ name: string; desc: string; priceStr: string; catName: string; prep: number }> = [];
+  const dishes: Array<{ name: string; desc: string; priceStr: string; catName: string; prep: number; variants?: ExtractedVariant[]; addons?: ExtractedAddon[] }> = [];
 
   let currentCategory = "Starters & Kebabs";
 
@@ -140,8 +140,8 @@ function parseRawOCRText(rawText: string) {
     { key: "kebab", name: "Starters & Kebabs" },
     { key: "appetizer", name: "Starters & Kebabs" },
     { key: "main course", name: "Main Course Gravies" },
-    { name: "Main Course Gravies", key: "gravy" },
     { key: "curry", name: "Main Course Gravies" },
+    { key: "gravy", name: "Main Course Gravies" },
     { key: "biryani", name: "Biryanis & Rice" },
     { key: "rice", name: "Biryanis & Rice" },
     { key: "pulao", name: "Biryanis & Rice" },
@@ -178,8 +178,69 @@ function parseRawOCRText(rawText: string) {
     }
     if (matchedCategory) continue;
 
-    // Check if line contains dish name and price
-    // Patterns: "Paneer Tikka 299", "Paneer Tikka - ₹299", "Paneer Tikka (299/-)"
+    // Check Triple price pattern: "Chicken Tikka 90 150 280"
+    const triplePriceMatch = line.match(/^(.*?)\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})$/i);
+    if (triplePriceMatch) {
+      const name = triplePriceMatch[1].trim();
+      const p1 = parseInt(triplePriceMatch[2], 10);
+      const p2 = parseInt(triplePriceMatch[3], 10);
+      const p3 = parseInt(triplePriceMatch[4], 10);
+
+      if (name.length > 2) {
+        let desc = `Freshly prepared ${name.toLowerCase()} with authentic spices`;
+        const nextLine = lines[idx + 1];
+        if (nextLine && nextLine.length > 5 && nextLine.length < 120 && !/\d{2,}/.test(nextLine)) {
+          desc = nextLine;
+          idx++;
+        }
+
+        dishes.push({
+          name,
+          desc,
+          priceStr: String(p3),
+          catName: currentCategory,
+          prep: 15,
+          variants: [
+            { name: "Quarter", price: p1 },
+            { name: "Half", price: p2 },
+            { name: "Full", price: p3 },
+          ],
+        });
+        continue;
+      }
+    }
+
+    // Check Dual price pattern: "Chicken Tikka 120 200" or "Chicken Tikka ₹120 ₹200"
+    const dualPriceMatch = line.match(/^(.*?)\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})\s+(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})$/i);
+    if (dualPriceMatch) {
+      const name = dualPriceMatch[1].trim();
+      const p1 = parseInt(dualPriceMatch[2], 10);
+      const p2 = parseInt(dualPriceMatch[3], 10);
+
+      if (name.length > 2) {
+        let desc = `Freshly prepared ${name.toLowerCase()} with authentic spices`;
+        const nextLine = lines[idx + 1];
+        if (nextLine && nextLine.length > 5 && nextLine.length < 120 && !/\d{2,}/.test(nextLine)) {
+          desc = nextLine;
+          idx++;
+        }
+
+        dishes.push({
+          name,
+          desc,
+          priceStr: String(p2),
+          catName: currentCategory,
+          prep: 15,
+          variants: [
+            { name: "Half", price: p1 },
+            { name: "Full", price: p2 },
+          ],
+        });
+        continue;
+      }
+    }
+
+    // Single price pattern: "Paneer Tikka 299", "Paneer Tikka - ₹299", "Paneer Tikka (299/-)"
     const priceMatch = line.match(/(?:(?:₹|Rs\.?|INR)\s*)?(\d{2,4})(?:\s*\/-\s*)?$/i) || line.match(/^(.*?)(?:[.\s-]+)(\d{2,4})$/);
 
     if (priceMatch) {
@@ -269,12 +330,13 @@ export async function extractMenuFromFiles(
 
     ocrExtractedDishes = [
       { name: "Tamatar Dhaniya Shorba", desc: "Ripe tomato broth spiced with fresh coriander roots", priceStr: "₹189", catName: "Soups & Shorbas", prep: 10 },
-      { name: "Paneer Tikka Classic", desc: "Charred cottage cheese marinated in hung curd & spices", priceStr: "299/-", catName: "Starters & Kebabs", prep: 15 },
-      { name: "Chicken Seekh Kebab", desc: "Minced chicken blended with royal spices on iron skewers", priceStr: "Rs. 349", catName: "Starters & Kebabs", prep: 18 },
+      { name: "Paneer Tikka Classic", desc: "Charred cottage cheese marinated in hung curd & spices", priceStr: "190", catName: "Starters & Kebabs", prep: 15, variants: [{ name: "Half", price: 100 }, { name: "Full", price: 190 }] },
+      { name: "Chicken Seekh Kebab", desc: "Minced chicken blended with royal spices on iron skewers", priceStr: "200", catName: "Starters & Kebabs", prep: 18, variants: [{ name: "Half", price: 120 }, { name: "Full", price: 200 }] },
+      { name: "Tandoori Chicken", desc: "Whole chicken marinated in yogurt & Kashmiri chili grilled in clay tandoor", priceStr: "450", catName: "Starters & Kebabs", prep: 20, variants: [{ name: "Half", price: 225 }, { name: "Full", price: 450 }] },
       { name: "Butter Chicken Royale", desc: "Tandoori chicken simmered in velvet tomato & butter gravy", priceStr: "449", catName: "Main Course Gravies", prep: 18, variants: [{ name: "Half", price: 299 }, { name: "Full", price: 449 }], addons: [{ name: "Extra Butter", price: 30 }, { name: "Extra Gravy", price: 50 }] },
-      { name: "Paneer Lababdar", desc: "Cottage cheese in rich onion tomato cashew gravy", priceStr: "₹389", catName: "Main Course Gravies", prep: 16 },
-      { name: "Dal Makhani Special", desc: "Black lentils slow-simmered 24 hours over wood charcoal", priceStr: "₹329", catName: "Main Course Gravies", prep: 15 },
-      { name: "Hyderabadi Dum Chicken Biryani", desc: "Basmati rice layered with spiced chicken and fried onions", priceStr: "399/-", catName: "Biryanis & Rice", prep: 20 },
+      { name: "Paneer Lababdar", desc: "Cottage cheese in rich onion tomato cashew gravy", priceStr: "₹389", catName: "Main Course Gravies", prep: 16, variants: [{ name: "Half", price: 220 }, { name: "Full", price: 389 }] },
+      { name: "Dal Makhani Special", desc: "Black lentils slow-simmered 24 hours over wood charcoal", priceStr: "150", catName: "Main Course Gravies", prep: 15, variants: [{ name: "Half", price: 80 }, { name: "Full", price: 150 }] },
+      { name: "Hyderabadi Dum Chicken Biryani", desc: "Basmati rice layered with spiced chicken and fried onions", priceStr: "399/-", catName: "Biryanis & Rice", prep: 20, variants: [{ name: "Half", price: 249 }, { name: "Full", price: 399 }] },
       { name: "Butter Naan", desc: "Soft leavened tandoori bread brushed with butter", priceStr: "₹79", catName: "Breads & Tandoor", prep: 8 },
       { name: "Truffle Garlic Naan", desc: "Tandoori naan topped with garlic & fresh coriander", priceStr: "Rs. 99", catName: "Breads & Tandoor", prep: 8 },
       { name: "Royal Mango Lassi", desc: "Creamy yogurt drink blended with Alphonso mango pulp", priceStr: "149", catName: "Desserts & Beverages", prep: 5 },
