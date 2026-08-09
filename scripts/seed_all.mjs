@@ -291,61 +291,94 @@ async function seedAll() {
       { name: "Aditya Nair", phone: "+91 95432 10987" },
     ];
 
-    // 8. Orders (Active & Historical)
-    console.log("Seeding live active and past orders...");
+    // 8. Orders (Today's Live & Completed Orders + Historical Orders)
+    console.log("Seeding today's live & completed orders + historical sales data...");
     const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
 
-    const activeOrders = [
-      { order_number: "ORD-101", table: "T04", customer: "Rahul Sharma", status: "preparing", payment: "unpaid", channel: "dine_in" },
-      { order_number: "ORD-102", table: "T02", customer: "Ananya Rao", status: "pending", payment: "unpaid", channel: "dine_in" },
-      { order_number: "ORD-103", table: "T07", customer: "Karan Malhotra", status: "ready", payment: "unpaid", channel: "dine_in" },
-      { order_number: "ORD-104", table: "T10", customer: "Meera Iyer", status: "served", payment: "paid", channel: "dine_in" },
-      { order_number: "ORD-105", table: "T01", customer: "Aditya Nair", status: "completed", payment: "paid", channel: "dine_in" },
+    // Today's Orders (spread across today's hours)
+    const todayOrdersConfig = [
+      // Completed & Paid Today (drives Today's Revenue, Orders Today, Avg Order Value)
+      { num: "ORD-TODAY-01", status: "completed", payment: "paid", minsAgo: 180, table: "T01", customer: "Rahul Sharma", amount: 1450, items: ["Butter Chicken Royale", "Butter Naan"] },
+      { num: "ORD-TODAY-02", status: "completed", payment: "paid", minsAgo: 150, table: "T02", customer: "Priya Patel", amount: 1820, items: ["Hyderabadi Dum Chicken Biryani", "Royal Mango Lassi"] },
+      { num: "ORD-TODAY-03", status: "completed", payment: "paid", minsAgo: 120, table: "T05", customer: "Vikram Malhotra", amount: 2200, items: ["Royal Mutton Nalli Nihari", "Garlic Naan"] },
+      { num: "ORD-TODAY-04", status: "completed", payment: "paid", minsAgo: 90, table: "T08", customer: "Ananya Rao", amount: 1150, items: ["Paneer Lababdar Special", "Truffle Garlic Naan"] },
+      { num: "ORD-TODAY-05", status: "completed", payment: "paid", minsAgo: 60, table: "T11", customer: "Karan Mehta", amount: 2450, items: ["Awadhi Mutton Biryani", "Chocolate Lava Cake"] },
+      { num: "ORD-TODAY-06", status: "completed", payment: "paid", minsAgo: 45, table: "T13", customer: "Siddharth Rao", amount: 1680, items: ["Chicken Tikka Masala", "Butter Naan"] },
+      { num: "ORD-TODAY-07", status: "completed", payment: "paid", minsAgo: 30, table: "T15", customer: "Sneha Menon", amount: 1350, items: ["Dal Makhani Special", "Jeera Rice"] },
+
+      // New / Pending Today (drives NEW (PENDING) card count = 3)
+      { num: "ORD-TODAY-08", status: "pending", payment: "pending", minsAgo: 5, table: "T04", customer: "Aditya Nair", amount: 890, items: ["Paneer Tikka Classic", "Garlic Naan"] },
+      { num: "ORD-TODAY-09", status: "pending", payment: "pending", minsAgo: 8, table: "T17", customer: "Meera Iyer", amount: 1250, items: ["Chicken Seekh Kebab", "Royal Mango Lassi"] },
+      { num: "ORD-TODAY-10", status: "pending", payment: "pending", minsAgo: 12, table: "T19", customer: "Rohit Desai", amount: 980, items: ["Kadai Paneer", "Butter Naan"] },
+
+      // Preparing Today (drives KITCHEN QUEUE count = 3)
+      { num: "ORD-TODAY-11", status: "preparing", payment: "pending", minsAgo: 15, table: "T07", customer: "Nikhil Joshi", amount: 1540, items: ["Tandoori Chicken (Half)", "Truffle Garlic Naan"] },
+      { num: "ORD-TODAY-12", status: "preparing", payment: "pending", minsAgo: 20, table: "T10", customer: "Pooja Kulkarni", amount: 1750, items: ["Mutton Rogan Josh", "Lachha Paratha"] },
+      { num: "ORD-TODAY-13", status: "preparing", payment: "pending", minsAgo: 25, table: "T18", customer: "Arjun Kapoor", amount: 1320, items: ["Ghee Roast Dosa", "Royal Mango Lassi"] },
+
+      // Ready & Served Today
+      { num: "ORD-TODAY-14", status: "ready", payment: "pending", minsAgo: 10, table: "T21", customer: "Deepak Kumar", amount: 1100, items: ["Amritsari Fish Fry", "Butter Naan"] },
+      { num: "ORD-TODAY-15", status: "served", payment: "paid", minsAgo: 35, table: "T23", customer: "Kavita Shah", amount: 2100, items: ["Royal Mutton Nalli Nihari", "Garlic Naan"] },
     ];
 
-    for (const ao of activeOrders) {
-      const tableId = tableIdMap[ao.table];
-      const { data: ord } = await supabase.from("orders").insert({
+    for (const o of todayOrdersConfig) {
+      const tableId = tableIdMap[o.table];
+      const orderCreatedAt = new Date(now.getTime() - o.minsAgo * 60000).toISOString();
+      const subtotal = Math.round(o.amount * 0.95);
+      const taxTotal = o.amount - subtotal;
+      const validChannel = o.minsAgo % 2 === 0 ? "qr" : (o.minsAgo % 3 === 0 ? "counter" : "waiter");
+
+      const timestampSuffix = Date.now().toString().slice(-4);
+      const { data: ord, error: oErr } = await supabase.from("orders").insert({
         business_id: businessId,
         branch_id: branchId,
-        order_number: `${ao.order_number}-${biz.name.slice(0,3).toUpperCase()}`,
+        order_number: `${o.num}-${biz.name.slice(0,3).toUpperCase()}`,
         table_id: tableId,
-        table_label: ao.table,
-        customer_name: ao.customer,
-        status: ao.status,
-        payment_status: ao.payment,
-        channel: ao.channel,
-        subtotal: 850,
-        tax_total: 42.5,
-        grand_total: 892.5,
+        table_label: o.table,
+        customer_name: o.customer,
+        status: o.status,
+        payment_status: o.payment,
+        channel: validChannel,
+        subtotal,
+        tax_total: taxTotal,
+        grand_total: o.amount,
+        created_at: orderCreatedAt,
+        updated_at: orderCreatedAt,
       }).select("id").single();
 
-      if (ord) {
-        await supabase.from("order_items").insert({
-          business_id: businessId,
-          order_id: ord.id,
-          product_name: "Butter Chicken Royale",
-          unit_price: 469,
-          quantity: 2,
-          line_total: 938,
-        });
+      if (oErr) console.error("Error creating today order:", oErr.message);
 
-        if (ao.payment === "paid") {
+      if (ord) {
+        for (const itemName of o.items) {
+          const prod = productIdMap[itemName];
+          await supabase.from("order_items").insert({
+            business_id: businessId,
+            order_id: ord.id,
+            product_name: itemName,
+            unit_price: prod ? prod.base_price : 350,
+            quantity: 1,
+            line_total: prod ? prod.base_price : 350,
+          });
+        }
+
+        if (o.payment === "paid") {
           await supabase.from("payments").insert({
             business_id: businessId,
             order_id: ord.id,
-            amount: 892.5,
+            amount: o.amount,
             currency: "INR",
             method: "upi",
             status: "paid",
             provider: "razorpay",
+            created_at: orderCreatedAt,
           });
         }
       }
     }
 
-    // Historical orders (past 5 days)
-    for (let day = 1; day <= 5; day++) {
+    // Historical orders (past 7 days for trend charts)
+    for (let day = 1; day <= 7; day++) {
       for (let i = 1; i <= 4; i++) {
         const orderNum = `HIST-${day}${i}-${biz.name.slice(0,3).toUpperCase()}`;
         const randomCust = customers[(day + i) % customers.length];
@@ -398,7 +431,7 @@ async function seedAll() {
         }
       }
     }
-    console.log(`✅ Business "${biz.name}" seeded successfully!`);
+    console.log(`✅ Business "${biz.name}" seeded successfully with Today's & Historical data!`);
   }
 
   console.log("\n==================================================================");
