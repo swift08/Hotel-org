@@ -634,6 +634,7 @@ export const getOrganization = createServerFn({ method: "GET" })
       ownerName: owner.ownerName,
       phone: settings?.phone ?? null,
       gstin: settings?.gstin ?? null,
+      logoUrl: (settings?.address_line2 as string | null) ?? null,
       currency: biz.currency ?? "INR",
       createdAt: biz.created_at as string,
       lastActivityAt: (biz.last_activity_at as string | null) ?? (biz.updated_at as string | null),

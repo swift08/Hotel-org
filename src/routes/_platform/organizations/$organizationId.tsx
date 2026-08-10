@@ -242,6 +242,23 @@ function OrganizationDetailPage() {
 
       <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
         <h3 className="mb-4 text-sm font-semibold text-foreground">Registration details</h3>
+        <div className="mb-5 flex items-center gap-4">
+          {org.logoUrl ? (
+            <img
+              src={org.logoUrl}
+              alt={`${org.name} logo`}
+              className="size-16 rounded-lg border border-border bg-muted object-contain"
+            />
+          ) : (
+            <div className="flex size-16 items-center justify-center rounded-lg border border-dashed border-border bg-muted text-xs text-muted-foreground">
+              No logo
+            </div>
+          )}
+          <div>
+            <p className="text-sm font-medium text-foreground">{org.name}</p>
+            <p className="text-xs text-muted-foreground">Business logo from registration</p>
+          </div>
+        </div>
         <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
           <div>
             <dt className="text-xs text-muted-foreground">Owner</dt>
