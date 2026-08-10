@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
 import {
@@ -125,26 +125,41 @@ function AdminOrdersManager() {
   const [invoice, setInvoice] = useState<any>(null);
   const [generatingInvoice, setGeneratingInvoice] = useState(false);
 
-  const fetchOrders = async () => {
+  // Ref to track the business_id so realtime callbacks don't trigger re-renders
+  const businessIdRef = useRef<string | null>(null);
+
+  // Fetch only orders (uses existing context from ref, skips getMyContext on subsequent calls)
+  const fetchOrdersOnly = useCallback(async (bizId: string, filter: string) => {
+    try {
+      let query = supabase
+        .from("orders")
+        .select(`*, order_items (*)`)
+        .eq("business_id", bizId)
+        .order("created_at", { ascending: false });
+
+      if (filter !== "all") {
+        query = query.eq("status", filter as any);
+      }
+
+      const { data: orderList, error } = await query;
+      if (error) throw error;
+      setOrders(orderList || []);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message || "Failed to load orders");
+    }
+  }, []);
+
+  // Full initial load: fetch context + orders
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const ctx = await getMyContext();
       setContext(ctx);
 
       if (ctx?.membership?.business_id) {
-        let query = supabase
-          .from("orders")
-          .select(`*, order_items (*)`)
-          .eq("business_id", ctx.membership.business_id)
-          .order("created_at", { ascending: false });
-
-        if (statusFilter !== "all") {
-          query = query.eq("status", statusFilter as any);
-        }
-
-        const { data: orderList, error } = await query;
-        if (error) throw error;
-        setOrders(orderList || []);
+        businessIdRef.current = ctx.membership.business_id;
+        await fetchOrdersOnly(ctx.membership.business_id, statusFilter);
       }
     } catch (err: any) {
       console.error(err);
@@ -152,11 +167,23 @@ function AdminOrdersManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, fetchOrdersOnly]);
 
+  // Initial context + orders load
   useEffect(() => {
     fetchOrders();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  // Re-fetch orders (not context) when status filter changes
+  useEffect(() => {
+    if (businessIdRef.current) {
+      fetchOrdersOnly(businessIdRef.current, statusFilter);
+    }
+  }, [statusFilter, fetchOrdersOnly]);
+
+  // Set up realtime subscription after context is loaded
+  useEffect(() => {
     const businessId = context?.membership?.business_id;
     if (!businessId) return;
 
@@ -176,7 +203,8 @@ function AdminOrdersManager() {
               description: `Table: ${payload.new?.table_label || "Counter"} — ₹${payload.new?.grand_total || 0}`,
             });
           }
-          fetchOrders();
+          // Re-fetch only orders, not the full context
+          fetchOrdersOnly(businessId, statusFilter);
         },
       )
       .subscribe();
@@ -184,7 +212,7 @@ function AdminOrdersManager() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [statusFilter, context?.membership?.business_id, fetchOrders]);
+  }, [context?.membership?.business_id, statusFilter, fetchOrdersOnly]);
 
   const handleUpdateOrderStatus = async (orderId: string, nextStatus: string) => {
     if (!context?.membership?.business_id) return;
@@ -233,7 +261,7 @@ function AdminOrdersManager() {
 
       toast.success(`Order → ${nextStatus.toUpperCase()}`);
       setSelectedOrder((prev: any) => (prev ? { ...prev, status: nextStatus } : prev));
-      fetchOrders();
+      fetchOrdersOnly(context.membership.business_id, statusFilter);
     } catch (err: any) {
       toast.error(err?.message || "Failed to update order status");
     }
@@ -282,7 +310,7 @@ function AdminOrdersManager() {
       );
       setPayModalOpen(false);
       setDrawerOpen(false);
-      fetchOrders();
+      fetchOrdersOnly(context.membership.business_id, statusFilter);
     } catch (err: any) {
       toast.error(err?.message || "Failed to process payment");
     }
@@ -423,6 +451,8 @@ function AdminOrdersManager() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
           <Input
+            id="orders-search"
+            name="orders-search"
             placeholder="Search by order #, table, customer…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

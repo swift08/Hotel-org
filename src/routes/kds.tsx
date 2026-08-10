@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContext } from "@/lib/business.functions";
 import { BrandedLoadingScreen } from "@/components/BrandedLoadingScreen";
@@ -38,6 +38,7 @@ function KitchenDisplaySystem() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const businessIdRef = useRef<string | null>(null);
 
   // Initialize or resume Web Audio Context on user interaction
   const getAudioContext = () => {
@@ -54,10 +55,11 @@ function KitchenDisplaySystem() {
     return audioCtxRef.current;
   };
 
-  const playKitchenChime = () => {
+  const playKitchenChime = useCallback(() => {
     try {
-      const ctx = getAudioContext();
+      const ctx = audioCtxRef.current;
       if (!ctx) return;
+      if (ctx.state === "suspended") ctx.resume();
 
       const now = ctx.currentTime;
 
@@ -99,71 +101,92 @@ function KitchenDisplaySystem() {
     } catch (e) {
       console.log("Audio chime error:", e);
     }
-  };
+  }, []);
 
-  const fetchKdsOrders = async () => {
+  // Fetch only KDS orders (no context re-fetch)
+  const fetchKdsOrdersOnly = useCallback(async (bizId: string) => {
     try {
-      const ctx = await getMyContext();
-      setContext(ctx);
-
-      if (ctx?.membership?.business_id) {
-        // Fetch active non-completed orders (pending, accepted, preparing, ready)
-        const { data: orderList, error } = await supabase
-          .from("orders")
-          .select(
-            `
+      const { data: orderList, error } = await supabase
+        .from("orders")
+        .select(
+          `
+          id,
+          order_number,
+          table_id,
+          table_label,
+          status,
+          customer_name,
+          notes,
+          created_at,
+          order_items (
             id,
-            order_number,
-            table_id,
-            table_label,
-            status,
-            customer_name,
-            notes,
-            created_at,
-            order_items (
-              id,
-              product_name,
-              variant_name,
-              addons,
-              quantity,
-              special_instructions,
-              station
-            )
-          `,
+            product_name,
+            variant_name,
+            addons,
+            quantity,
+            special_instructions,
+            station
           )
-          .eq("business_id", ctx.membership.business_id)
-          .in("status", ["pending", "accepted", "preparing", "ready"])
-          .order("created_at", { ascending: true });
+        `,
+        )
+        .eq("business_id", bizId)
+        .in("status", ["pending", "accepted", "preparing", "ready"])
+        .order("created_at", { ascending: true });
 
-        if (error) throw error;
-        setOrders(orderList || []);
-      }
+      if (error) throw error;
+      setOrders(orderList || []);
     } catch (err: any) {
       console.error("KDS fetch error:", err);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
+  // Initial load: fetch context once, then orders
   useEffect(() => {
-    // Unlock audio on initial user touch/click anywhere on page
+    let cancelled = false;
+    async function init() {
+      try {
+        const ctx = await getMyContext();
+        if (cancelled) return;
+        setContext(ctx);
+        if (ctx?.membership?.business_id) {
+          businessIdRef.current = ctx.membership.business_id;
+          await fetchKdsOrdersOnly(ctx.membership.business_id);
+        }
+      } catch (err: any) {
+        console.error("KDS init error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    init();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Audio unlock on first user interaction
+  useEffect(() => {
     const handleUserInteraction = () => {
       getAudioContext();
     };
     window.addEventListener("click", handleUserInteraction, { once: true });
     window.addEventListener("touchstart", handleUserInteraction, { once: true });
+    return () => {
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
+    };
+  }, []);
 
-    fetchKdsOrders();
+  // Polling + realtime subscription (only after context is loaded)
+  useEffect(() => {
+    const businessId = context?.membership?.business_id;
+    if (!businessId) return;
 
-    // 5-second polling interval fallback to ensure no dropped orders
+    // 5-second polling fallback — only refetches orders, not context
     const intervalId = setInterval(() => {
-      fetchKdsOrders();
+      fetchKdsOrdersOnly(businessId);
     }, 5000);
 
-    const businessId = context?.membership?.business_id;
-    if (!businessId) {
-      return () => clearInterval(intervalId);
-    }
+    const soundEnabledRef = soundEnabled; // capture for closure
 
     const channel = supabase
       .channel(`kds_orders_live_${businessId}`)
@@ -180,11 +203,11 @@ function KitchenDisplaySystem() {
             toast.info(
               `🔔 New Kitchen Ticket #${payload.new?.order_number || ""} on ${payload.new?.table_label || "Table"}`,
             );
-            if (soundEnabled) playKitchenChime();
+            if (soundEnabledRef) playKitchenChime();
           } else {
             toast.info("Kitchen tickets updated!");
           }
-          fetchKdsOrders();
+          fetchKdsOrdersOnly(businessId);
         },
       )
       .on(
@@ -196,7 +219,7 @@ function KitchenDisplaySystem() {
           filter: `business_id=eq.${businessId}`,
         },
         () => {
-          fetchKdsOrders();
+          fetchKdsOrdersOnly(businessId);
         },
       )
       .subscribe();
@@ -204,10 +227,8 @@ function KitchenDisplaySystem() {
     return () => {
       clearInterval(intervalId);
       supabase.removeChannel(channel);
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("touchstart", handleUserInteraction);
     };
-  }, [soundEnabled, context?.membership?.business_id, playKitchenChime]);
+  }, [context?.membership?.business_id, soundEnabled, playKitchenChime, fetchKdsOrdersOnly]);
 
   const handleUpdateStatus = async (orderId: string, nextStatus: string) => {
     getAudioContext();
@@ -232,7 +253,7 @@ function KitchenDisplaySystem() {
       }
 
       toast.success(`Order status set to ${nextStatus.toUpperCase()}`);
-      fetchKdsOrders();
+      fetchKdsOrdersOnly(context.membership.business_id);
     } catch (err: any) {
       toast.error(err?.message || "Failed to update status");
     }
@@ -354,7 +375,7 @@ function KitchenDisplaySystem() {
           <Button
             onClick={(e) => {
               e.stopPropagation();
-              fetchKdsOrders();
+              if (businessIdRef.current) fetchKdsOrdersOnly(businessIdRef.current);
             }}
             variant="outline"
             size="sm"
