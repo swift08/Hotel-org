@@ -60,18 +60,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100 font-sans">
         <div className="max-w-md text-center space-y-4">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
             <span className="text-xl font-bold">🔒</span>
           </div>
           <h1 className="text-xl font-bold text-white">Authentication Required</h1>
           <p className="text-sm text-slate-400">
-            Please sign in to access your Rasoi restaurant management console.
+            Please sign in to access the Orderly Hub platform control plane.
           </p>
           <a
             href="/auth/login"
-            className="inline-flex items-center justify-center rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400 shadow-lg shadow-amber-500/20"
+            className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:opacity-90 shadow-lg shadow-primary/20"
           >
-            Sign In to Rasoi
+            Sign In to Platform
           </a>
         </div>
       </div>
@@ -87,6 +87,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
+        {error?.message ? (
+          <p className="mt-3 rounded-md border border-border bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
+            {error.message}
+          </p>
+        ) : null}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -114,40 +119,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Rasoi — The Operating System for Modern Restaurants" },
+      { title: "Rasoi Platform — Control Plane" },
       {
         name: "description",
         content:
-          "Rasoi runs QR table ordering, kitchen KDS, instant GST billing, and multi-tenant operations for restaurants, cafes, and hotels.",
+          "Rasoi Platform is the internal control plane for managing organizations, subscriptions, billing, usage, and system health across every tenant.",
       },
-      { property: "og:title", content: "Rasoi — Operating System for Modern Restaurants" },
+      { property: "og:title", content: "Rasoi Platform — Control Plane" },
       {
         property: "og:description",
         content:
-          "Complete restaurant operating platform: Rasoi Admin, Rasoi KDS, Rasoi QR, Rasoi Pay, and Rasoi Reports.",
+          "Manage organizations, plans, subscriptions, billing, and platform-wide analytics from a single control plane.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      {
-        rel: "stylesheet",
-        href: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-grid.min.css",
-      },
-      {
-        rel: "preload",
-        href: "/images/rasoi_hero_devices.webp",
-        as: "image",
-      },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "shortcut icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/images/rasoi-logo.png", type: "image/png" },
+      { rel: "shortcut icon", href: "/images/rasoi-logo.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,

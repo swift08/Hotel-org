@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyContext } from "@/lib/business.functions";
-import { Utensils, Lock, Mail, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
+import { getPlatformContext } from "@/lib/platform.functions";
+import { Lock, Mail, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +40,7 @@ function Login() {
       if (error) {
         const isUnconfirmed = error.message.toLowerCase().includes("email not confirmed");
         const msg = isUnconfirmed
-          ? "Email not confirmed. Please check your email inbox to confirm your account, or disable 'Confirm Email' in your Supabase Auth settings."
+          ? "Email not confirmed. Please check your inbox to confirm your account."
           : error.message;
         setErrorMsg(msg);
         toast.error(msg);
@@ -48,14 +48,35 @@ function Login() {
         return;
       }
 
-      toast.success("Signed in successfully!");
-      // Check user context to redirect to onboarding or admin
-      const ctx = await getMyContext();
-      if (!ctx.onboarded) {
-        navigate({ to: "/onboarding" });
-      } else {
-        navigate({ to: "/admin/dashboard" });
+      if (!data.session) {
+        setErrorMsg("Sign in failed. Please try again.");
+        setLoading(false);
+        return;
       }
+
+      let ctx: Awaited<ReturnType<typeof getPlatformContext>> | null = null;
+      try {
+        ctx = await getPlatformContext();
+      } catch (ctxError: any) {
+        await supabase.auth.signOut();
+        const msg = ctxError?.message || "Could not verify platform access.";
+        setErrorMsg(msg);
+        toast.error(msg);
+        setLoading(false);
+        return;
+      }
+
+      if (!ctx?.isPlatformAdmin) {
+        await supabase.auth.signOut();
+        const msg = "This account does not have platform administrator access.";
+        setErrorMsg(msg);
+        toast.error(msg);
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Signed in successfully!");
+      navigate({ to: "/dashboard" });
     } catch (err: any) {
       setErrorMsg(err?.message || "An error occurred during sign in.");
       toast.error("Failed to sign in.");
@@ -65,26 +86,26 @@ function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 selection:bg-primary selection:text-primary-foreground">
       <div className="w-full max-w-md space-y-6">
         {/* Branding */}
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center justify-center">
+          <Link to="/" className="inline-flex flex-col items-center justify-center">
             <img
-              src="/images/logo.webp"
-              alt="Rasoi Logo"
+              src="/images/rasoi-logo.png"
+              alt="Rasoi"
               className="h-16 w-auto object-contain drop-shadow-lg"
             />
           </Link>
-          <h1 className="mt-4 text-xl font-bold text-white">Sign in to your account</h1>
-          <p className="mt-1 text-sm text-slate-400">Access your restaurant management console</p>
+          <h1 className="mt-4 text-xl font-bold text-white">Rasoi Platform</h1>
+          <p className="mt-1 text-sm text-slate-400">Sign in to the organization control plane</p>
         </div>
 
         <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-2xl text-slate-100">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-lg text-white">Staff / Manager Login</CardTitle>
+            <CardTitle className="text-lg text-white">Platform Administrator Login</CardTitle>
             <CardDescription className="text-slate-400">
-              Enter your credentials to manage orders, menu, and KDS.
+              Access is restricted to authorized Rasoi platform administrators.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -107,11 +128,11 @@ function Login() {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="owner@restaurant.com"
+                    placeholder="admin@orderlyhub.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="pl-9 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-amber-500 focus:ring-amber-500"
+                    className="pl-9 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-primary focus:ring-primary"
                   />
                 </div>
               </div>
@@ -133,7 +154,7 @@ function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pl-9 pr-10 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-amber-500 focus:ring-amber-500"
+                    className="pl-9 pr-10 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-primary focus:ring-primary"
                   />
 
                   <button
@@ -150,7 +171,7 @@ function Login() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 bg-amber-500 font-bold text-slate-950 hover:bg-amber-400 shadow-lg shadow-amber-500/20"
+                className="w-full h-11 bg-primary font-bold text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
               >
                 {loading ? (
                   <>
@@ -167,10 +188,7 @@ function Login() {
             </form>
 
             <div className="mt-6 text-center text-xs text-slate-400">
-              Don't have a business account?{" "}
-              <Link to="/auth/signup" className="font-semibold text-amber-400 hover:underline">
-                Register Business
-              </Link>
+              Not a platform administrator? Contact your Rasoi systems owner for access.
             </div>
           </CardContent>
         </Card>

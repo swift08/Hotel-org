@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "hotel-org-platform",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -12,9 +12,7 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "seed:demo": "node scripts/seed_curry_courtyard.mjs",
-    "security:audit": "npx tsx --env-file=.env scripts/run_security_audit.mjs"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

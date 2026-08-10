@@ -10,273 +10,316 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as KdsRouteImport } from './routes/kds'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as SecurityTestRouteImport } from './routes/security-test'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminAuditRouteImport } from './routes/admin/audit'
-import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
-import { Route as AdminMenuRouteImport } from './routes/admin/menu'
-import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
-import { Route as AdminReportsRouteImport } from './routes/admin/reports'
-import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
-import { Route as AdminStaffRouteImport } from './routes/admin/staff'
-import { Route as AdminTablesRouteImport } from './routes/admin/tables'
+import { Route as PlatformRouteImport } from './routes/_platform'
+import { Route as PlatformAuditRouteImport } from './routes/_platform/audit'
+import { Route as PlatformBillingRouteImport } from './routes/_platform/billing'
+import { Route as PlatformDashboardRouteImport } from './routes/_platform/dashboard'
+import { Route as PlatformErrorsRouteImport } from './routes/_platform/errors'
+import { Route as PlatformPaymentsRouteImport } from './routes/_platform/payments'
+import { Route as PlatformPermissionsRouteImport } from './routes/_platform/permissions'
+import { Route as PlatformPlansRouteImport } from './routes/_platform/plans'
+import { Route as PlatformPlatformAdminsRouteImport } from './routes/_platform/platform-admins'
+import { Route as PlatformSettingsRouteImport } from './routes/_platform/settings'
+import { Route as PlatformSubscriptionsRouteImport } from './routes/_platform/subscriptions'
+import { Route as PlatformSystemRouteImport } from './routes/_platform/system'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as AuthSignupRouteImport } from './routes/auth/signup'
-import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
-import { Route as QSlugRouteImport } from './routes/q/$slug'
+import { Route as PlatformAnalyticsGrowthRouteImport } from './routes/_platform/analytics/growth'
+import { Route as PlatformAnalyticsOrdersRouteImport } from './routes/_platform/analytics/orders'
+import { Route as PlatformAnalyticsRevenueRouteImport } from './routes/_platform/analytics/revenue'
+import { Route as PlatformOrganizationsIndexRouteImport } from './routes/_platform/organizations/index'
+import { Route as PlatformOrganizationsOrganizationIdRouteImport } from './routes/_platform/organizations/$organizationId'
+import { Route as PlatformOrganizationsActiveRouteImport } from './routes/_platform/organizations/active'
+import { Route as PlatformOrganizationsSuspendedRouteImport } from './routes/_platform/organizations/suspended'
+import { Route as PlatformOrganizationsTrialRouteImport } from './routes/_platform/organizations/trial'
+import { Route as PlatformUsageIndexRouteImport } from './routes/_platform/usage/index'
+import { Route as PlatformUsageFeaturesRouteImport } from './routes/_platform/usage/features'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/_platform',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KdsRoute = KdsRouteImport.update({
-  id: '/kds',
-  path: '/kds',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SecurityTestRoute = SecurityTestRouteImport.update({
-  id: '/security-test',
-  path: '/security-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAuditRoute = AdminAuditRouteImport.update({
+const PlatformAuditRoute = PlatformAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => PlatformRoute,
 } as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
+const PlatformBillingRoute = PlatformBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => PlatformRoute,
+} as any)
+const PlatformDashboardRoute = PlatformDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => PlatformRoute,
 } as any)
-const AdminMenuRoute = AdminMenuRouteImport.update({
-  id: '/menu',
-  path: '/menu',
-  getParentRoute: () => AdminRoute,
+const PlatformErrorsRoute = PlatformErrorsRouteImport.update({
+  id: '/errors',
+  path: '/errors',
+  getParentRoute: () => PlatformRoute,
 } as any)
-const AdminOrdersRoute = AdminOrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
-  getParentRoute: () => AdminRoute,
+const PlatformPaymentsRoute = PlatformPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => PlatformRoute,
 } as any)
-const AdminReportsRoute = AdminReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AdminRoute,
+const PlatformPermissionsRoute = PlatformPermissionsRouteImport.update({
+  id: '/permissions',
+  path: '/permissions',
+  getParentRoute: () => PlatformRoute,
 } as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
+const PlatformPlansRoute = PlatformPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => PlatformRoute,
+} as any)
+const PlatformPlatformAdminsRoute = PlatformPlatformAdminsRouteImport.update({
+  id: '/platform-admins',
+  path: '/platform-admins',
+  getParentRoute: () => PlatformRoute,
+} as any)
+const PlatformSettingsRoute = PlatformSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => PlatformRoute,
 } as any)
-const AdminStaffRoute = AdminStaffRouteImport.update({
-  id: '/staff',
-  path: '/staff',
-  getParentRoute: () => AdminRoute,
+const PlatformSubscriptionsRoute = PlatformSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => PlatformRoute,
 } as any)
-const AdminTablesRoute = AdminTablesRouteImport.update({
-  id: '/tables',
-  path: '/tables',
-  getParentRoute: () => AdminRoute,
+const PlatformSystemRoute = PlatformSystemRouteImport.update({
+  id: '/system',
+  path: '/system',
+  getParentRoute: () => PlatformRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/auth/login',
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: '/auth/signup',
-  path: '/auth/signup',
-  getParentRoute: () => rootRouteImport,
+const PlatformAnalyticsGrowthRoute = PlatformAnalyticsGrowthRouteImport.update({
+  id: '/analytics/growth',
+  path: '/analytics/growth',
+  getParentRoute: () => PlatformRoute,
 } as any)
-const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
-  id: '/onboarding/',
-  path: '/onboarding/',
-  getParentRoute: () => rootRouteImport,
+const PlatformAnalyticsOrdersRoute = PlatformAnalyticsOrdersRouteImport.update({
+  id: '/analytics/orders',
+  path: '/analytics/orders',
+  getParentRoute: () => PlatformRoute,
 } as any)
-const QSlugRoute = QSlugRouteImport.update({
-  id: '/q/$slug',
-  path: '/q/$slug',
-  getParentRoute: () => rootRouteImport,
+const PlatformAnalyticsRevenueRoute =
+  PlatformAnalyticsRevenueRouteImport.update({
+    id: '/analytics/revenue',
+    path: '/analytics/revenue',
+    getParentRoute: () => PlatformRoute,
+  } as any)
+const PlatformOrganizationsIndexRoute =
+  PlatformOrganizationsIndexRouteImport.update({
+    id: '/organizations/',
+    path: '/organizations/',
+    getParentRoute: () => PlatformRoute,
+  } as any)
+const PlatformOrganizationsOrganizationIdRoute =
+  PlatformOrganizationsOrganizationIdRouteImport.update({
+    id: '/organizations/$organizationId',
+    path: '/organizations/$organizationId',
+    getParentRoute: () => PlatformRoute,
+  } as any)
+const PlatformOrganizationsActiveRoute =
+  PlatformOrganizationsActiveRouteImport.update({
+    id: '/organizations/active',
+    path: '/organizations/active',
+    getParentRoute: () => PlatformRoute,
+  } as any)
+const PlatformOrganizationsSuspendedRoute =
+  PlatformOrganizationsSuspendedRouteImport.update({
+    id: '/organizations/suspended',
+    path: '/organizations/suspended',
+    getParentRoute: () => PlatformRoute,
+  } as any)
+const PlatformOrganizationsTrialRoute =
+  PlatformOrganizationsTrialRouteImport.update({
+    id: '/organizations/trial',
+    path: '/organizations/trial',
+    getParentRoute: () => PlatformRoute,
+  } as any)
+const PlatformUsageIndexRoute = PlatformUsageIndexRouteImport.update({
+  id: '/usage/',
+  path: '/usage/',
+  getParentRoute: () => PlatformRoute,
+} as any)
+const PlatformUsageFeaturesRoute = PlatformUsageFeaturesRouteImport.update({
+  id: '/usage/features',
+  path: '/usage/features',
+  getParentRoute: () => PlatformRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
-  '/contact': typeof ContactRoute
-  '/kds': typeof KdsRoute
-  '/privacy': typeof PrivacyRoute
-  '/security-test': typeof SecurityTestRoute
-  '/terms': typeof TermsRoute
-  '/admin/audit': typeof AdminAuditRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/menu': typeof AdminMenuRoute
-  '/admin/orders': typeof AdminOrdersRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/staff': typeof AdminStaffRoute
-  '/admin/tables': typeof AdminTablesRoute
+  '/audit': typeof PlatformAuditRoute
+  '/billing': typeof PlatformBillingRoute
+  '/dashboard': typeof PlatformDashboardRoute
+  '/errors': typeof PlatformErrorsRoute
+  '/payments': typeof PlatformPaymentsRoute
+  '/permissions': typeof PlatformPermissionsRoute
+  '/plans': typeof PlatformPlansRoute
+  '/platform-admins': typeof PlatformPlatformAdminsRoute
+  '/settings': typeof PlatformSettingsRoute
+  '/subscriptions': typeof PlatformSubscriptionsRoute
+  '/system': typeof PlatformSystemRoute
   '/auth/login': typeof AuthLoginRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/q/$slug': typeof QSlugRoute
-  '/admin/': typeof AdminIndexRoute
-  '/onboarding/': typeof OnboardingIndexRoute
+  '/analytics/growth': typeof PlatformAnalyticsGrowthRoute
+  '/analytics/orders': typeof PlatformAnalyticsOrdersRoute
+  '/analytics/revenue': typeof PlatformAnalyticsRevenueRoute
+  '/organizations/$organizationId': typeof PlatformOrganizationsOrganizationIdRoute
+  '/organizations/active': typeof PlatformOrganizationsActiveRoute
+  '/organizations/suspended': typeof PlatformOrganizationsSuspendedRoute
+  '/organizations/trial': typeof PlatformOrganizationsTrialRoute
+  '/usage/features': typeof PlatformUsageFeaturesRoute
+  '/organizations/': typeof PlatformOrganizationsIndexRoute
+  '/usage/': typeof PlatformUsageIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/contact': typeof ContactRoute
-  '/kds': typeof KdsRoute
-  '/privacy': typeof PrivacyRoute
-  '/security-test': typeof SecurityTestRoute
-  '/terms': typeof TermsRoute
-  '/admin/audit': typeof AdminAuditRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/menu': typeof AdminMenuRoute
-  '/admin/orders': typeof AdminOrdersRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/staff': typeof AdminStaffRoute
-  '/admin/tables': typeof AdminTablesRoute
+  '/audit': typeof PlatformAuditRoute
+  '/billing': typeof PlatformBillingRoute
+  '/dashboard': typeof PlatformDashboardRoute
+  '/errors': typeof PlatformErrorsRoute
+  '/payments': typeof PlatformPaymentsRoute
+  '/permissions': typeof PlatformPermissionsRoute
+  '/plans': typeof PlatformPlansRoute
+  '/platform-admins': typeof PlatformPlatformAdminsRoute
+  '/settings': typeof PlatformSettingsRoute
+  '/subscriptions': typeof PlatformSubscriptionsRoute
+  '/system': typeof PlatformSystemRoute
   '/auth/login': typeof AuthLoginRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/q/$slug': typeof QSlugRoute
-  '/admin': typeof AdminIndexRoute
-  '/onboarding': typeof OnboardingIndexRoute
+  '/analytics/growth': typeof PlatformAnalyticsGrowthRoute
+  '/analytics/orders': typeof PlatformAnalyticsOrdersRoute
+  '/analytics/revenue': typeof PlatformAnalyticsRevenueRoute
+  '/organizations/$organizationId': typeof PlatformOrganizationsOrganizationIdRoute
+  '/organizations/active': typeof PlatformOrganizationsActiveRoute
+  '/organizations/suspended': typeof PlatformOrganizationsSuspendedRoute
+  '/organizations/trial': typeof PlatformOrganizationsTrialRoute
+  '/usage/features': typeof PlatformUsageFeaturesRoute
+  '/organizations': typeof PlatformOrganizationsIndexRoute
+  '/usage': typeof PlatformUsageIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
-  '/contact': typeof ContactRoute
-  '/kds': typeof KdsRoute
-  '/privacy': typeof PrivacyRoute
-  '/security-test': typeof SecurityTestRoute
-  '/terms': typeof TermsRoute
-  '/admin/audit': typeof AdminAuditRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/menu': typeof AdminMenuRoute
-  '/admin/orders': typeof AdminOrdersRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/staff': typeof AdminStaffRoute
-  '/admin/tables': typeof AdminTablesRoute
+  '/_platform': typeof PlatformRouteWithChildren
+  '/_platform/audit': typeof PlatformAuditRoute
+  '/_platform/billing': typeof PlatformBillingRoute
+  '/_platform/dashboard': typeof PlatformDashboardRoute
+  '/_platform/errors': typeof PlatformErrorsRoute
+  '/_platform/payments': typeof PlatformPaymentsRoute
+  '/_platform/permissions': typeof PlatformPermissionsRoute
+  '/_platform/plans': typeof PlatformPlansRoute
+  '/_platform/platform-admins': typeof PlatformPlatformAdminsRoute
+  '/_platform/settings': typeof PlatformSettingsRoute
+  '/_platform/subscriptions': typeof PlatformSubscriptionsRoute
+  '/_platform/system': typeof PlatformSystemRoute
   '/auth/login': typeof AuthLoginRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/q/$slug': typeof QSlugRoute
-  '/admin/': typeof AdminIndexRoute
-  '/onboarding/': typeof OnboardingIndexRoute
+  '/_platform/analytics/growth': typeof PlatformAnalyticsGrowthRoute
+  '/_platform/analytics/orders': typeof PlatformAnalyticsOrdersRoute
+  '/_platform/analytics/revenue': typeof PlatformAnalyticsRevenueRoute
+  '/_platform/organizations/$organizationId': typeof PlatformOrganizationsOrganizationIdRoute
+  '/_platform/organizations/active': typeof PlatformOrganizationsActiveRoute
+  '/_platform/organizations/suspended': typeof PlatformOrganizationsSuspendedRoute
+  '/_platform/organizations/trial': typeof PlatformOrganizationsTrialRoute
+  '/_platform/usage/features': typeof PlatformUsageFeaturesRoute
+  '/_platform/organizations/': typeof PlatformOrganizationsIndexRoute
+  '/_platform/usage/': typeof PlatformUsageIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/admin'
-    | '/contact'
-    | '/kds'
-    | '/privacy'
-    | '/security-test'
-    | '/terms'
-    | '/admin/audit'
-    | '/admin/dashboard'
-    | '/admin/menu'
-    | '/admin/orders'
-    | '/admin/reports'
-    | '/admin/settings'
-    | '/admin/staff'
-    | '/admin/tables'
+    | '/audit'
+    | '/billing'
+    | '/dashboard'
+    | '/errors'
+    | '/payments'
+    | '/permissions'
+    | '/plans'
+    | '/platform-admins'
+    | '/settings'
+    | '/subscriptions'
+    | '/system'
     | '/auth/login'
-    | '/auth/signup'
-    | '/q/$slug'
-    | '/admin/'
-    | '/onboarding/'
+    | '/analytics/growth'
+    | '/analytics/orders'
+    | '/analytics/revenue'
+    | '/organizations/$organizationId'
+    | '/organizations/active'
+    | '/organizations/suspended'
+    | '/organizations/trial'
+    | '/usage/features'
+    | '/organizations/'
+    | '/usage/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/contact'
-    | '/kds'
-    | '/privacy'
-    | '/security-test'
-    | '/terms'
-    | '/admin/audit'
-    | '/admin/dashboard'
-    | '/admin/menu'
-    | '/admin/orders'
-    | '/admin/reports'
-    | '/admin/settings'
-    | '/admin/staff'
-    | '/admin/tables'
+    | '/audit'
+    | '/billing'
+    | '/dashboard'
+    | '/errors'
+    | '/payments'
+    | '/permissions'
+    | '/plans'
+    | '/platform-admins'
+    | '/settings'
+    | '/subscriptions'
+    | '/system'
     | '/auth/login'
-    | '/auth/signup'
-    | '/q/$slug'
-    | '/admin'
-    | '/onboarding'
+    | '/analytics/growth'
+    | '/analytics/orders'
+    | '/analytics/revenue'
+    | '/organizations/$organizationId'
+    | '/organizations/active'
+    | '/organizations/suspended'
+    | '/organizations/trial'
+    | '/usage/features'
+    | '/organizations'
+    | '/usage'
   id:
     | '__root__'
     | '/'
-    | '/admin'
-    | '/contact'
-    | '/kds'
-    | '/privacy'
-    | '/security-test'
-    | '/terms'
-    | '/admin/audit'
-    | '/admin/dashboard'
-    | '/admin/menu'
-    | '/admin/orders'
-    | '/admin/reports'
-    | '/admin/settings'
-    | '/admin/staff'
-    | '/admin/tables'
+    | '/_platform'
+    | '/_platform/audit'
+    | '/_platform/billing'
+    | '/_platform/dashboard'
+    | '/_platform/errors'
+    | '/_platform/payments'
+    | '/_platform/permissions'
+    | '/_platform/plans'
+    | '/_platform/platform-admins'
+    | '/_platform/settings'
+    | '/_platform/subscriptions'
+    | '/_platform/system'
     | '/auth/login'
-    | '/auth/signup'
-    | '/q/$slug'
-    | '/admin/'
-    | '/onboarding/'
+    | '/_platform/analytics/growth'
+    | '/_platform/analytics/orders'
+    | '/_platform/analytics/revenue'
+    | '/_platform/organizations/$organizationId'
+    | '/_platform/organizations/active'
+    | '/_platform/organizations/suspended'
+    | '/_platform/organizations/trial'
+    | '/_platform/usage/features'
+    | '/_platform/organizations/'
+    | '/_platform/usage/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRouteWithChildren
-  ContactRoute: typeof ContactRoute
-  KdsRoute: typeof KdsRoute
-  PrivacyRoute: typeof PrivacyRoute
-  SecurityTestRoute: typeof SecurityTestRoute
-  TermsRoute: typeof TermsRoute
+  PlatformRoute: typeof PlatformRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
-  AuthSignupRoute: typeof AuthSignupRoute
-  QSlugRoute: typeof QSlugRoute
-  OnboardingIndexRoute: typeof OnboardingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -288,110 +331,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/_platform': {
+      id: '/_platform'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kds': {
-      id: '/kds'
-      path: '/kds'
-      fullPath: '/kds'
-      preLoaderRoute: typeof KdsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/security-test': {
-      id: '/security-test'
-      path: '/security-test'
-      fullPath: '/security-test'
-      preLoaderRoute: typeof SecurityTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/audit': {
-      id: '/admin/audit'
+    '/_platform/audit': {
+      id: '/_platform/audit'
       path: '/audit'
-      fullPath: '/admin/audit'
-      preLoaderRoute: typeof AdminAuditRouteImport
-      parentRoute: typeof AdminRoute
+      fullPath: '/audit'
+      preLoaderRoute: typeof PlatformAuditRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
+    '/_platform/billing': {
+      id: '/_platform/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof PlatformBillingRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/dashboard': {
+      id: '/_platform/dashboard'
       path: '/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
-      parentRoute: typeof AdminRoute
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof PlatformDashboardRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/admin/menu': {
-      id: '/admin/menu'
-      path: '/menu'
-      fullPath: '/admin/menu'
-      preLoaderRoute: typeof AdminMenuRouteImport
-      parentRoute: typeof AdminRoute
+    '/_platform/errors': {
+      id: '/_platform/errors'
+      path: '/errors'
+      fullPath: '/errors'
+      preLoaderRoute: typeof PlatformErrorsRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/admin/orders': {
-      id: '/admin/orders'
-      path: '/orders'
-      fullPath: '/admin/orders'
-      preLoaderRoute: typeof AdminOrdersRouteImport
-      parentRoute: typeof AdminRoute
+    '/_platform/payments': {
+      id: '/_platform/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PlatformPaymentsRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/admin/reports': {
-      id: '/admin/reports'
-      path: '/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AdminReportsRouteImport
-      parentRoute: typeof AdminRoute
+    '/_platform/permissions': {
+      id: '/_platform/permissions'
+      path: '/permissions'
+      fullPath: '/permissions'
+      preLoaderRoute: typeof PlatformPermissionsRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/admin/settings': {
-      id: '/admin/settings'
+    '/_platform/plans': {
+      id: '/_platform/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlatformPlansRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/platform-admins': {
+      id: '/_platform/platform-admins'
+      path: '/platform-admins'
+      fullPath: '/platform-admins'
+      preLoaderRoute: typeof PlatformPlatformAdminsRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/settings': {
+      id: '/_platform/settings'
       path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof AdminRoute
+      fullPath: '/settings'
+      preLoaderRoute: typeof PlatformSettingsRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/admin/staff': {
-      id: '/admin/staff'
-      path: '/staff'
-      fullPath: '/admin/staff'
-      preLoaderRoute: typeof AdminStaffRouteImport
-      parentRoute: typeof AdminRoute
+    '/_platform/subscriptions': {
+      id: '/_platform/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof PlatformSubscriptionsRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/admin/tables': {
-      id: '/admin/tables'
-      path: '/tables'
-      fullPath: '/admin/tables'
-      preLoaderRoute: typeof AdminTablesRouteImport
-      parentRoute: typeof AdminRoute
+    '/_platform/system': {
+      id: '/_platform/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof PlatformSystemRouteImport
+      parentRoute: typeof PlatformRoute
     }
     '/auth/login': {
       id: '/auth/login'
@@ -400,68 +422,136 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/signup': {
-      id: '/auth/signup'
-      path: '/auth/signup'
-      fullPath: '/auth/signup'
-      preLoaderRoute: typeof AuthSignupRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_platform/analytics/growth': {
+      id: '/_platform/analytics/growth'
+      path: '/analytics/growth'
+      fullPath: '/analytics/growth'
+      preLoaderRoute: typeof PlatformAnalyticsGrowthRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/onboarding/': {
-      id: '/onboarding/'
-      path: '/onboarding'
-      fullPath: '/onboarding/'
-      preLoaderRoute: typeof OnboardingIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_platform/analytics/orders': {
+      id: '/_platform/analytics/orders'
+      path: '/analytics/orders'
+      fullPath: '/analytics/orders'
+      preLoaderRoute: typeof PlatformAnalyticsOrdersRouteImport
+      parentRoute: typeof PlatformRoute
     }
-    '/q/$slug': {
-      id: '/q/$slug'
-      path: '/q/$slug'
-      fullPath: '/q/$slug'
-      preLoaderRoute: typeof QSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_platform/analytics/revenue': {
+      id: '/_platform/analytics/revenue'
+      path: '/analytics/revenue'
+      fullPath: '/analytics/revenue'
+      preLoaderRoute: typeof PlatformAnalyticsRevenueRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/organizations/': {
+      id: '/_platform/organizations/'
+      path: '/organizations'
+      fullPath: '/organizations/'
+      preLoaderRoute: typeof PlatformOrganizationsIndexRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/organizations/$organizationId': {
+      id: '/_platform/organizations/$organizationId'
+      path: '/organizations/$organizationId'
+      fullPath: '/organizations/$organizationId'
+      preLoaderRoute: typeof PlatformOrganizationsOrganizationIdRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/organizations/active': {
+      id: '/_platform/organizations/active'
+      path: '/organizations/active'
+      fullPath: '/organizations/active'
+      preLoaderRoute: typeof PlatformOrganizationsActiveRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/organizations/suspended': {
+      id: '/_platform/organizations/suspended'
+      path: '/organizations/suspended'
+      fullPath: '/organizations/suspended'
+      preLoaderRoute: typeof PlatformOrganizationsSuspendedRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/organizations/trial': {
+      id: '/_platform/organizations/trial'
+      path: '/organizations/trial'
+      fullPath: '/organizations/trial'
+      preLoaderRoute: typeof PlatformOrganizationsTrialRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/usage/': {
+      id: '/_platform/usage/'
+      path: '/usage'
+      fullPath: '/usage/'
+      preLoaderRoute: typeof PlatformUsageIndexRouteImport
+      parentRoute: typeof PlatformRoute
+    }
+    '/_platform/usage/features': {
+      id: '/_platform/usage/features'
+      path: '/usage/features'
+      fullPath: '/usage/features'
+      preLoaderRoute: typeof PlatformUsageFeaturesRouteImport
+      parentRoute: typeof PlatformRoute
     }
   }
 }
 
-interface AdminRouteChildren {
-  AdminAuditRoute: typeof AdminAuditRoute
-  AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminMenuRoute: typeof AdminMenuRoute
-  AdminOrdersRoute: typeof AdminOrdersRoute
-  AdminReportsRoute: typeof AdminReportsRoute
-  AdminSettingsRoute: typeof AdminSettingsRoute
-  AdminStaffRoute: typeof AdminStaffRoute
-  AdminTablesRoute: typeof AdminTablesRoute
-  AdminIndexRoute: typeof AdminIndexRoute
+interface PlatformRouteChildren {
+  PlatformAuditRoute: typeof PlatformAuditRoute
+  PlatformBillingRoute: typeof PlatformBillingRoute
+  PlatformDashboardRoute: typeof PlatformDashboardRoute
+  PlatformErrorsRoute: typeof PlatformErrorsRoute
+  PlatformPaymentsRoute: typeof PlatformPaymentsRoute
+  PlatformPermissionsRoute: typeof PlatformPermissionsRoute
+  PlatformPlansRoute: typeof PlatformPlansRoute
+  PlatformPlatformAdminsRoute: typeof PlatformPlatformAdminsRoute
+  PlatformSettingsRoute: typeof PlatformSettingsRoute
+  PlatformSubscriptionsRoute: typeof PlatformSubscriptionsRoute
+  PlatformSystemRoute: typeof PlatformSystemRoute
+  PlatformAnalyticsGrowthRoute: typeof PlatformAnalyticsGrowthRoute
+  PlatformAnalyticsOrdersRoute: typeof PlatformAnalyticsOrdersRoute
+  PlatformAnalyticsRevenueRoute: typeof PlatformAnalyticsRevenueRoute
+  PlatformOrganizationsOrganizationIdRoute: typeof PlatformOrganizationsOrganizationIdRoute
+  PlatformOrganizationsActiveRoute: typeof PlatformOrganizationsActiveRoute
+  PlatformOrganizationsSuspendedRoute: typeof PlatformOrganizationsSuspendedRoute
+  PlatformOrganizationsTrialRoute: typeof PlatformOrganizationsTrialRoute
+  PlatformUsageFeaturesRoute: typeof PlatformUsageFeaturesRoute
+  PlatformOrganizationsIndexRoute: typeof PlatformOrganizationsIndexRoute
+  PlatformUsageIndexRoute: typeof PlatformUsageIndexRoute
 }
 
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminAuditRoute: AdminAuditRoute,
-  AdminDashboardRoute: AdminDashboardRoute,
-  AdminMenuRoute: AdminMenuRoute,
-  AdminOrdersRoute: AdminOrdersRoute,
-  AdminReportsRoute: AdminReportsRoute,
-  AdminSettingsRoute: AdminSettingsRoute,
-  AdminStaffRoute: AdminStaffRoute,
-  AdminTablesRoute: AdminTablesRoute,
-  AdminIndexRoute: AdminIndexRoute,
+const PlatformRouteChildren: PlatformRouteChildren = {
+  PlatformAuditRoute: PlatformAuditRoute,
+  PlatformBillingRoute: PlatformBillingRoute,
+  PlatformDashboardRoute: PlatformDashboardRoute,
+  PlatformErrorsRoute: PlatformErrorsRoute,
+  PlatformPaymentsRoute: PlatformPaymentsRoute,
+  PlatformPermissionsRoute: PlatformPermissionsRoute,
+  PlatformPlansRoute: PlatformPlansRoute,
+  PlatformPlatformAdminsRoute: PlatformPlatformAdminsRoute,
+  PlatformSettingsRoute: PlatformSettingsRoute,
+  PlatformSubscriptionsRoute: PlatformSubscriptionsRoute,
+  PlatformSystemRoute: PlatformSystemRoute,
+  PlatformAnalyticsGrowthRoute: PlatformAnalyticsGrowthRoute,
+  PlatformAnalyticsOrdersRoute: PlatformAnalyticsOrdersRoute,
+  PlatformAnalyticsRevenueRoute: PlatformAnalyticsRevenueRoute,
+  PlatformOrganizationsOrganizationIdRoute:
+    PlatformOrganizationsOrganizationIdRoute,
+  PlatformOrganizationsActiveRoute: PlatformOrganizationsActiveRoute,
+  PlatformOrganizationsSuspendedRoute: PlatformOrganizationsSuspendedRoute,
+  PlatformOrganizationsTrialRoute: PlatformOrganizationsTrialRoute,
+  PlatformUsageFeaturesRoute: PlatformUsageFeaturesRoute,
+  PlatformOrganizationsIndexRoute: PlatformOrganizationsIndexRoute,
+  PlatformUsageIndexRoute: PlatformUsageIndexRoute,
 }
 
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+const PlatformRouteWithChildren = PlatformRoute._addFileChildren(
+  PlatformRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRouteWithChildren,
-  ContactRoute: ContactRoute,
-  KdsRoute: KdsRoute,
-  PrivacyRoute: PrivacyRoute,
-  SecurityTestRoute: SecurityTestRoute,
-  TermsRoute: TermsRoute,
+  PlatformRoute: PlatformRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
-  AuthSignupRoute: AuthSignupRoute,
-  QSlugRoute: QSlugRoute,
-  OnboardingIndexRoute: OnboardingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
