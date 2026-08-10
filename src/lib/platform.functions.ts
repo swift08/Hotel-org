@@ -22,9 +22,21 @@ import { PLATFORM_PERMISSIONS, PLATFORM_ROLES, type PlatformRole } from "@/lib/p
 
 type AdminDb = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-async function getAdmin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin as AdminDb;
+async function getAdmin(userClient?: AdminDb) {
+  const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
+  const key = process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"];
+  if (url && key && key.length > 20 && !/your_supabase/i.test(key)) {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      return supabaseAdmin as AdminDb;
+    } catch (err) {
+      console.error("[platform] service role client failed:", err);
+    }
+  }
+  if (userClient) return userClient;
+  throw new Error(
+    "Missing SUPABASE_SERVICE_ROLE_KEY on the host. Set it in Lovable/Vercel env, or sign in again.",
+  );
 }
 
 function monthlyMrr(sub: { amount: number | string | null; billing_cycle: string; status: string }) {
@@ -309,7 +321,7 @@ export const getPlatformContext = createServerFn({ method: "GET" })
 
       // Best-effort last-login stamp (needs service role / update policy).
       try {
-        const db = await getAdmin();
+        const db = await getAdmin(context.supabase);
         await db
           .from("platform_admins")
           .update({ last_login_at: new Date().toISOString() })
@@ -347,10 +359,10 @@ export const getPlatformContext = createServerFn({ method: "GET" })
 export const getDashboardOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.DASHBOARD_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const dayStart = new Date();
@@ -477,10 +489,10 @@ export const listOrganizations = createServerFn({ method: "GET" })
       .parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const statusFilter = data.status ?? "all";
 
     const [{ data: businesses, error: bizErr }, { data: subscriptions, error: subErr }] =
@@ -503,7 +515,7 @@ export const listOrganizations = createServerFn({ method: "GET" })
     const usageRows = await Promise.all(
       (businesses ?? []).map(async (b: { id: string }) => {
         try {
-          return await getOrganizationUsage(b.id);
+          return await getOrganizationUsage(b.id, db);
         } catch {
           return {
             business_id: b.id,
@@ -565,10 +577,10 @@ export const getOrganization = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ organizationId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const { data: biz, error } = await db
       .from("businesses")
       .select(
@@ -589,7 +601,7 @@ export const getOrganization = createServerFn({ method: "GET" })
       db.from("branches").select("id, name").eq("business_id", biz.id).order("name"),
       db.from("business_settings").select("*").eq("business_id", biz.id).maybeSingle(),
       resolveOwner(db, biz.id),
-      getOrganizationUsage(biz.id),
+      getOrganizationUsage(biz.id, db),
     ]);
 
     const thirtyDaysAgo = new Date();
@@ -662,10 +674,10 @@ export const suspendOrganization = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_SUSPEND);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -745,10 +757,10 @@ export const restoreOrganization = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_SUSPEND);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -832,10 +844,10 @@ export const approveOrganization = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_UPDATE);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -948,10 +960,10 @@ export const rejectOrganization = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_UPDATE);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -1007,10 +1019,10 @@ export const rejectOrganization = createServerFn({ method: "POST" })
 export const listPlans = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.PLANS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const { data, error } = await db.from("plans").select("*").order("sort_order").order("name");
     if (error) throw new Error(error.message);
     return (data ?? []) as PlanRow[];
@@ -1020,10 +1032,10 @@ export const upsertPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => planInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.PLANS_UPDATE);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -1101,10 +1113,10 @@ export const listSubscriptions = createServerFn({ method: "GET" })
       .parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SUBSCRIPTIONS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     let query = db
       .from("subscriptions")
       .select(
@@ -1161,10 +1173,10 @@ export const updateSubscription = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SUBSCRIPTIONS_UPDATE);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -1245,10 +1257,10 @@ export const updateSubscription = createServerFn({ method: "POST" })
 export const getBillingSummary = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.BILLING_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -1300,10 +1312,10 @@ export const listSubscriptionEvents = createServerFn({ method: "GET" })
     z.object({ limit: z.number().int().min(1).max(500).optional() }).parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.BILLING_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const limit = data.limit ?? 100;
     const { data: rows, error } = await db
       .from("subscription_events")
@@ -1336,10 +1348,10 @@ export const listSubscriptionEvents = createServerFn({ method: "GET" })
 export const listUsage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.USAGE_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const [{ data: businesses, error: bizErr }, { data: subscriptions, error: subErr }] =
       await Promise.all([
         db.from("businesses").select("id, name").order("name"),
@@ -1375,7 +1387,7 @@ export const listUsage = createServerFn({ method: "GET" })
 
     const results = [];
     for (const b of businesses ?? []) {
-      const usage = await getOrganizationUsage(b.id);
+      const usage = await getOrganizationUsage(b.id, db);
       const plan = planByBiz.get(b.id);
       results.push({
         businessId: b.id as string,
@@ -1414,10 +1426,10 @@ export const getRevenueAnalytics = createServerFn({ method: "GET" })
     z.object({ range: analyticsRangeSchema.default("30d") }).parse(input ?? { range: "30d" }),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ANALYTICS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const from = rangeStart(data.range);
     const to = new Date();
 
@@ -1472,10 +1484,10 @@ export const getOrderAnalytics = createServerFn({ method: "GET" })
     z.object({ range: analyticsRangeSchema.default("30d") }).parse(input ?? { range: "30d" }),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ANALYTICS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const from = rangeStart(data.range);
 
     const { data: orders, error } = await db
@@ -1547,10 +1559,10 @@ export const getGrowthAnalytics = createServerFn({ method: "GET" })
     z.object({ range: analyticsRangeSchema.default("30d") }).parse(input ?? { range: "30d" }),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ANALYTICS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const from = rangeStart(data.range);
 
     const [{ data: businesses, error: bizErr }, { data: cancelled, error: subErr }] =
@@ -1600,10 +1612,10 @@ export const getGrowthAnalytics = createServerFn({ method: "GET" })
 export const getSystemHealth = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SYSTEM_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const checks: Array<{ name: string; status: "healthy" | "degraded" | "down"; detail?: string }> =
       [];
 
@@ -1733,10 +1745,10 @@ export const listPlatformErrors = createServerFn({ method: "GET" })
       .parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ERRORS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     let query = db
       .from("platform_errors")
       .select("*")
@@ -1760,10 +1772,10 @@ export const updatePlatformError = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ERRORS_UPDATE);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
 
     const { data: before } = await db
@@ -1804,10 +1816,10 @@ export const listPlatformAudit = createServerFn({ method: "GET" })
     z.object({ limit: z.number().int().min(1).max(500).optional() }).parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.AUDIT_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const { data: rows, error } = await db
       .from("platform_audit_logs")
       .select("*")
@@ -1824,10 +1836,10 @@ export const listPlatformAudit = createServerFn({ method: "GET" })
 export const listPlatformAdmins = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ADMINS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const { data: rows, error } = await db
       .from("platform_admins")
       .select("user_id, role, is_active, display_name, last_login_at, created_at, level")
@@ -1879,10 +1891,10 @@ export const upsertPlatformAdmin = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ADMINS_UPDATE);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
 
     let targetUserId = data.userId ?? null;
@@ -1941,10 +1953,10 @@ export const upsertPlatformAdmin = createServerFn({ method: "POST" })
 export const listPlatformPermissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.PERMISSIONS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const [{ data: permissions, error: permErr }, { data: rolePerms, error: rpErr }] =
       await Promise.all([
         db.from("platform_permissions").select("key, label, category, description").order("category"),
@@ -1986,14 +1998,14 @@ export const updateRolePermissions = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.PERMISSIONS_UPDATE);
 
     if (data.role === "platform_owner") {
       throw new Error("platform_owner always has every permission; matrix is not editable.");
     }
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
 
     const { data: before } = await db
@@ -2036,10 +2048,10 @@ export const updateRolePermissions = createServerFn({ method: "POST" })
 export const getPlatformSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SETTINGS_VIEW);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const { data, error } = await db.from("platform_settings").select("key, value, updated_at, updated_by");
     if (error) throw new Error(error.message);
 
@@ -2056,10 +2068,10 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
     z.object({ value: z.record(z.any()) }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SETTINGS_UPDATE);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -2110,10 +2122,10 @@ export const startSupportMode = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SUPPORT_ACCESS);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
 
     // End any existing open sessions for this admin first.
@@ -2163,10 +2175,10 @@ export const endSupportMode = createServerFn({ method: "POST" })
       .parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SUPPORT_ACCESS);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const meta = getRequestMeta();
     const now = new Date().toISOString();
 
@@ -2204,10 +2216,10 @@ export const endSupportMode = createServerFn({ method: "POST" })
 export const getActiveSupportSession = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const admin = await requirePlatformAdmin(context.userId);
+    const admin = await requirePlatformAdmin(context.userId, { db: context.supabase });
     assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.SUPPORT_ACCESS);
 
-    const db = await getAdmin();
+    const db = await getAdmin(context.supabase);
     const { data: session, error } = await db
       .from("platform_support_sessions")
       .select("*, businesses:organization_id(id, name, slug)")

@@ -435,3 +435,125 @@ ALTER TABLE public.businesses ALTER COLUMN approval_status SET NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_businesses_approval_status
   ON public.businesses (approval_status);
+
+-- ============ PLATFORM ADMIN RLS (hosted reads/writes without service role) ============
+-- Lets signed-in platform admins load dashboard data via their user session when
+-- SUPABASE_SERVICE_ROLE_KEY is not configured on the host.
+
+DROP POLICY IF EXISTS "platform admins read all memberships" ON public.memberships;
+CREATE POLICY "platform admins read all memberships" ON public.memberships
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read all branches" ON public.branches;
+CREATE POLICY "platform admins read all branches" ON public.branches
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read all settings" ON public.business_settings;
+CREATE POLICY "platform admins read all settings" ON public.business_settings
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read all orders" ON public.orders;
+CREATE POLICY "platform admins read all orders" ON public.orders
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read all tables" ON public.restaurant_tables;
+CREATE POLICY "platform admins read all tables" ON public.restaurant_tables
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read all products" ON public.products;
+CREATE POLICY "platform admins read all products" ON public.products
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read profiles" ON public.profiles;
+CREATE POLICY "platform admins read profiles" ON public.profiles
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins update businesses" ON public.businesses;
+CREATE POLICY "platform admins update businesses" ON public.businesses
+  FOR UPDATE TO authenticated
+  USING (public.is_platform_admin(auth.uid()))
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins write subscriptions" ON public.subscriptions;
+CREATE POLICY "platform admins write subscriptions" ON public.subscriptions
+  FOR ALL TO authenticated
+  USING (public.is_platform_admin(auth.uid()))
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins write subscription events" ON public.subscription_events;
+CREATE POLICY "platform admins write subscription events" ON public.subscription_events
+  FOR ALL TO authenticated
+  USING (public.is_platform_admin(auth.uid()))
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read plans all" ON public.plans;
+CREATE POLICY "platform admins read plans all" ON public.plans
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()) OR is_active = true);
+
+DROP POLICY IF EXISTS "platform admins manage plans" ON public.plans;
+CREATE POLICY "platform admins manage plans" ON public.plans
+  FOR ALL TO authenticated
+  USING (public.is_platform_admin(auth.uid()))
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read audit" ON public.platform_audit_logs;
+CREATE POLICY "platform admins read audit" ON public.platform_audit_logs
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins insert audit" ON public.platform_audit_logs;
+CREATE POLICY "platform admins insert audit" ON public.platform_audit_logs
+  FOR INSERT TO authenticated
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read errors" ON public.platform_errors;
+CREATE POLICY "platform admins read errors" ON public.platform_errors
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins update errors" ON public.platform_errors;
+CREATE POLICY "platform admins update errors" ON public.platform_errors
+  FOR UPDATE TO authenticated
+  USING (public.is_platform_admin(auth.uid()))
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read support sessions" ON public.platform_support_sessions;
+CREATE POLICY "platform admins read support sessions" ON public.platform_support_sessions
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins write support sessions" ON public.platform_support_sessions;
+CREATE POLICY "platform admins write support sessions" ON public.platform_support_sessions
+  FOR ALL TO authenticated
+  USING (public.is_platform_admin(auth.uid()))
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read settings table" ON public.platform_settings;
+CREATE POLICY "platform admins read settings table" ON public.platform_settings
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins write settings table" ON public.platform_settings;
+CREATE POLICY "platform admins write settings table" ON public.platform_settings
+  FOR ALL TO authenticated
+  USING (public.is_platform_admin(auth.uid()))
+  WITH CHECK (public.is_platform_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "platform admins read all admins" ON public.platform_admins;
+CREATE POLICY "platform admins read all admins" ON public.platform_admins
+  FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
+
+GRANT SELECT, INSERT, UPDATE ON public.platform_audit_logs TO authenticated;
+GRANT SELECT, UPDATE ON public.platform_errors TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.platform_support_sessions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.platform_settings TO authenticated;
+GRANT SELECT ON public.platform_admins TO authenticated;

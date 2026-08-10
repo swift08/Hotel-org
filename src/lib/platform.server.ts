@@ -14,7 +14,17 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { PlatformPermissionKey, PlatformRole } from "@/lib/platform-rbac";
 
 /** Loosely typed handle onto tables not yet present in the generated Database type. */
-function platformDb() {
+function hasServiceRoleKey() {
+  const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
+  const key = process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"];
+  return Boolean(url && key && key.length > 20 && !/your_supabase/i.test(key));
+}
+
+function platformDb(fallback?: any) {
+  if (hasServiceRoleKey()) {
+    return supabaseAdmin as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  }
+  if (fallback) return fallback;
   return supabaseAdmin as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
@@ -169,9 +179,9 @@ export interface PlatformAdminContext {
  */
 export async function requirePlatformAdmin(
   userId: string,
-  opts: { touchLastLogin?: boolean } = {},
+  opts: { touchLastLogin?: boolean; db?: any } = {},
 ): Promise<PlatformAdminContext> {
-  const db = platformDb();
+  const db = platformDb(opts.db);
 
   let adminRow: {
     user_id: string;
@@ -310,28 +320,38 @@ export function assertPlatformPerm(perms: readonly string[], key: PlatformPermis
  * underlying admin action from completing.
  */
 export async function logPlatformAudit(entry: PlatformAuditLogEntry): Promise<void> {
-  const db = platformDb();
-  const { error } = await db.from("platform_audit_logs").insert({
-    actor_id: entry.actor_id ?? null,
-    actor_role: entry.actor_role ?? null,
-    actor_label: entry.actor_label ?? null,
-    action: entry.action,
-    resource_type: entry.resource_type,
-    resource_id: entry.resource_id ?? null,
-    organization_id: entry.organization_id ?? null,
-    before_state: entry.before_state ?? null,
-    after_state: entry.after_state ?? null,
-    reason: entry.reason ?? null,
-    support_session_id: entry.support_session_id ?? null,
-    ip_address: entry.ip_address ?? null,
-    user_agent: entry.user_agent ?? null,
-  });
-  if (error) console.error("[platform-audit] failed to write entry:", error.message);
+  try {
+    const db = platformDb();
+    const { error } = await db.from("platform_audit_logs").insert({
+      actor_id: entry.actor_id ?? null,
+      actor_role: entry.actor_role ?? null,
+      actor_label: entry.actor_label ?? null,
+      action: entry.action,
+      resource_type: entry.resource_type,
+      resource_id: entry.resource_id ?? null,
+      organization_id: entry.organization_id ?? null,
+      before_state: entry.before_state ?? null,
+      after_state: entry.after_state ?? null,
+      reason: entry.reason ?? null,
+      support_session_id: entry.support_session_id ?? null,
+      ip_address: entry.ip_address ?? null,
+      user_agent: entry.user_agent ?? null,
+    });
+    if (error) console.error("[platform-audit] failed to write entry:", error.message);
+  } catch (err) {
+    console.error(
+      "[platform-audit] skipped:",
+      err instanceof Error ? err.message : String(err ?? ""),
+    );
+  }
 }
 
 /** Reads the organization_usage view for one business, zero-filled if the business has no rows yet. */
-export async function getOrganizationUsage(businessId: string): Promise<OrganizationUsageRow> {
-  const db = platformDb();
+export async function getOrganizationUsage(
+  businessId: string,
+  dbClient?: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+): Promise<OrganizationUsageRow> {
+  const db = platformDb(dbClient);
   const { data, error } = await db
     .from("organization_usage")
     .select("*")

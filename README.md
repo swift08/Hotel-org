@@ -59,11 +59,13 @@ Set these **server** env vars in the host project settings (Production + Preview
 
 | Variable | Required |
 |----------|----------|
-| `SUPABASE_URL` | yes |
-| `SUPABASE_PUBLISHABLE_KEY` | yes |
-| `SUPABASE_SERVICE_ROLE_KEY` | yes (needed for org approve/suspend and most dashboard APIs) |
+| `SUPABASE_URL` | yes (or rely on `VITE_SUPABASE_URL`) |
+| `SUPABASE_PUBLISHABLE_KEY` | yes (or rely on `VITE_SUPABASE_PUBLISHABLE_KEY`) |
+| `SUPABASE_SERVICE_ROLE_KEY` | recommended (full admin APIs; dashboard can fall back to user RLS) |
 | `VITE_SUPABASE_URL` | yes |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | yes |
+
+After changing env vars, **redeploy**. Also run the latest [`supabase/platform_schema.sql`](supabase/platform_schema.sql) in the Supabase SQL editor so platform-admin RLS policies exist (required for hosted data loading without service role).
 
 Use the **same** Supabase project as orderly-hub. After first deploy, seed a platform owner in the SQL editor:
 
