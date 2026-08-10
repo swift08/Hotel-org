@@ -53,6 +53,31 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 
 Never expose `SUPABASE_SERVICE_ROLE_KEY` via `VITE_*`.
 
+## Hosted deploy (Lovable / Vercel)
+
+Set these **server** env vars in the host project settings (Production + Preview), then redeploy:
+
+| Variable | Required |
+|----------|----------|
+| `SUPABASE_URL` | yes |
+| `SUPABASE_PUBLISHABLE_KEY` | yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes (needed for org approve/suspend and most dashboard APIs) |
+| `VITE_SUPABASE_URL` | yes |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | yes |
+
+Use the **same** Supabase project as orderly-hub. After first deploy, seed a platform owner in the SQL editor:
+
+```sql
+INSERT INTO public.platform_admins (user_id, role, is_active, display_name, level)
+SELECT id, 'platform_owner', true, 'Platform Owner', 'owner'
+FROM auth.users
+WHERE email = 'admin@gmail.com'
+ON CONFLICT (user_id) DO UPDATE
+SET role = 'platform_owner', is_active = true;
+```
+
+If login still says “no platform administrator access”, the `platform_admins` row is missing for that Auth user.
+
 ## Develop
 
 ```bash

@@ -201,8 +201,97 @@ export const getPlatformContext = createServerFn({ method: "GET" })
     const { userId, supabase } = context;
 
     try {
-      const admin = await requirePlatformAdmin(userId, { touchLastLogin: true });
-      const db = await getAdmin();
+      // Use the signed-in user client (RLS) so hosted deploys work even when
+      // SUPABASE_SERVICE_ROLE_KEY is not configured yet.
+      let adminRow: {
+        user_id: string;
+        role?: string | null;
+        is_active?: boolean | null;
+        display_name?: string | null;
+        last_login_at?: string | null;
+        level?: string | null;
+      } | null = null;
+
+      const full = await supabase
+        .from("platform_admins")
+        .select("user_id, role, is_active, display_name, last_login_at, level")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (full.error) {
+        const msg = (full.error.message || "").toLowerCase();
+        const missingColumn =
+          msg.includes("does not exist") || msg.includes("column") || msg.includes("could not find");
+        if (!missingColumn) throw new Error(full.error.message);
+
+        const legacy = await supabase
+          .from("platform_admins")
+          .select("user_id, level")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (legacy.error) throw new Error(legacy.error.message);
+        adminRow = legacy.data
+          ? {
+              user_id: legacy.data.user_id as string,
+              level: (legacy.data as { level?: string }).level ?? null,
+              role: null,
+              is_active: true,
+              display_name: null,
+              last_login_at: null,
+            }
+          : null;
+      } else {
+        adminRow = full.data as typeof adminRow;
+      }
+
+      if (!adminRow || adminRow.is_active === false) {
+        return {
+          isPlatformAdmin: false as const,
+          userId,
+          email: null,
+          role: null,
+          displayName: null,
+          permissions: [] as string[],
+          profile: null,
+        };
+      }
+
+      const roleFromLevel = (level: string | null | undefined): PlatformRole => {
+        switch ((level || "").toLowerCase()) {
+          case "owner":
+          case "platform_owner":
+            return "platform_owner";
+          case "admin":
+          case "platform_admin":
+            return "platform_admin";
+          case "finance":
+          case "platform_finance":
+            return "platform_finance";
+          case "analyst":
+          case "platform_analyst":
+            return "platform_analyst";
+          default:
+            return "platform_support";
+        }
+      };
+
+      const role =
+        (adminRow.role as PlatformRole | null | undefined) ?? roleFromLevel(adminRow.level);
+
+      let permissions: string[] = [];
+      if (role === "platform_owner") {
+        const { data: allPermissions } = await supabase.from("platform_permissions").select("key");
+        permissions = (allPermissions ?? []).map((p: { key: string }) => p.key);
+        if (permissions.length === 0) {
+          permissions = Object.values(PLATFORM_PERMISSIONS);
+        }
+      } else {
+        const { data: rolePermissions } = await supabase
+          .from("platform_role_permissions")
+          .select("permission_key")
+          .eq("role", role);
+        permissions = (rolePermissions ?? []).map((p: { permission_key: string }) => p.permission_key);
+      }
 
       let email: string | null = null;
       try {
@@ -211,31 +300,38 @@ export const getPlatformContext = createServerFn({ method: "GET" })
       } catch {
         email = null;
       }
-      if (!email) {
-        try {
-          const { data } = await db.auth.admin.getUserById(userId);
-          email = data?.user?.email ?? null;
-        } catch {
-          email = null;
-        }
-      }
 
-      const { data: profile } = await db
+      const { data: profile } = await supabase
         .from("profiles")
         .select("id, display_name, phone, avatar_url, created_at, updated_at")
         .eq("id", userId)
         .maybeSingle();
 
+      // Best-effort last-login stamp (needs service role / update policy).
+      try {
+        const db = await getAdmin();
+        await db
+          .from("platform_admins")
+          .update({ last_login_at: new Date().toISOString() })
+          .eq("user_id", userId);
+      } catch {
+        // Ignore on hosted environments without service role.
+      }
+
       return {
         isPlatformAdmin: true as const,
         userId,
         email,
-        role: admin.role,
-        displayName: admin.displayName,
-        permissions: admin.permissions,
+        role,
+        displayName: adminRow.display_name ?? null,
+        permissions,
         profile: profile ?? null,
       };
-    } catch {
+    } catch (err) {
+      console.error(
+        "[platform] getPlatformContext failed:",
+        err instanceof Error ? err.message : String(err ?? ""),
+      );
       return {
         isPlatformAdmin: false as const,
         userId,

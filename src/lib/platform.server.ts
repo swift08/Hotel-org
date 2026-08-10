@@ -173,34 +173,114 @@ export async function requirePlatformAdmin(
 ): Promise<PlatformAdminContext> {
   const db = platformDb();
 
-  const { data: adminRow, error } = await db
+  let adminRow: {
+    user_id: string;
+    role?: string | null;
+    is_active?: boolean | null;
+    display_name?: string | null;
+    last_login_at?: string | null;
+    level?: string | null;
+  } | null = null;
+
+  const full = await db
     .from("platform_admins")
-    .select("user_id, role, is_active, display_name, last_login_at")
+    .select("user_id, role, is_active, display_name, last_login_at, level")
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (error) throw new Error(error.message);
-  if (!adminRow || !adminRow.is_active) {
-    throw new Error("Unauthorized: You do not have platform admin access.");
+  if (full.error) {
+    const msg = (full.error.message || "").toLowerCase();
+    const missingColumn =
+      msg.includes("does not exist") ||
+      msg.includes("column") ||
+      msg.includes("could not find");
+    if (!missingColumn) throw new Error(full.error.message);
+
+    // Legacy platform_admins (user_id + level only) before platform_schema.sql.
+    const legacy = await db
+      .from("platform_admins")
+      .select("user_id, level")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (legacy.error) throw new Error(legacy.error.message);
+    adminRow = legacy.data
+      ? {
+          user_id: legacy.data.user_id,
+          level: legacy.data.level,
+          role: null,
+          is_active: true,
+          display_name: null,
+          last_login_at: null,
+        }
+      : null;
+  } else {
+    adminRow = full.data;
   }
 
-  const role = adminRow.role as PlatformRole;
+  if (!adminRow) {
+    throw new Error("Unauthorized: You do not have platform admin access.");
+  }
+  if (adminRow.is_active === false) {
+    throw new Error("Unauthorized: Your platform admin account is inactive.");
+  }
+
+  const roleFromLevel = (level: string | null | undefined): PlatformRole => {
+    switch ((level || "").toLowerCase()) {
+      case "owner":
+      case "platform_owner":
+        return "platform_owner";
+      case "admin":
+      case "platform_admin":
+        return "platform_admin";
+      case "finance":
+      case "platform_finance":
+        return "platform_finance";
+      case "analyst":
+      case "platform_analyst":
+        return "platform_analyst";
+      default:
+        return "platform_support";
+    }
+  };
+
+  const role = (adminRow.role as PlatformRole | null) ?? roleFromLevel(adminRow.level);
   let permissionKeys: string[] = [];
 
   if (role === "platform_owner") {
     const { data: allPermissions, error: permErr } = await db.from("platform_permissions").select("key");
-    if (permErr) throw new Error(permErr.message);
-    permissionKeys = (allPermissions ?? []).map((p: { key: string }) => p.key);
+    if (permErr) {
+      // Schema not applied yet — owner still gets through with empty/known set.
+      if ((permErr.message || "").toLowerCase().includes("does not exist")) {
+        permissionKeys = [];
+      } else {
+        throw new Error(permErr.message);
+      }
+    } else {
+      permissionKeys = (allPermissions ?? []).map((p: { key: string }) => p.key);
+    }
   } else {
     const { data: rolePermissions, error: permErr } = await db
       .from("platform_role_permissions")
       .select("permission_key")
       .eq("role", role);
-    if (permErr) throw new Error(permErr.message);
-    permissionKeys = (rolePermissions ?? []).map((p: { permission_key: string }) => p.permission_key);
+    if (permErr) {
+      if ((permErr.message || "").toLowerCase().includes("does not exist")) {
+        permissionKeys = [];
+      } else {
+        throw new Error(permErr.message);
+      }
+    } else {
+      permissionKeys = (rolePermissions ?? []).map((p: { permission_key: string }) => p.permission_key);
+    }
   }
 
-  if (opts.touchLastLogin) {
+  // Owner always has full access even if permission tables are empty/unmigrated.
+  if (role === "platform_owner" && permissionKeys.length === 0) {
+    const { PLATFORM_PERMISSIONS } = await import("@/lib/platform-rbac");
+    permissionKeys = Object.values(PLATFORM_PERMISSIONS);
+  }
+
+  if (opts.touchLastLogin && adminRow.role != null) {
     const { error: touchErr } = await db
       .from("platform_admins")
       .update({ last_login_at: new Date().toISOString() })

@@ -63,8 +63,8 @@
 
 :root {
   --radius: 0.65rem;
-  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Times New Roman", Times, "Liberation Serif", serif;
+  --font-body: "Times New Roman", Times, "Liberation Serif", serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Rasoi brand — flame orange / gold on warm neutrals. */
