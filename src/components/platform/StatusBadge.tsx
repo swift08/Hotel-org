@@ -17,6 +17,7 @@ const TONE_BY_STATUS: Record<string, StatusTone> = {
   processing: "info",
   invited: "info",
 
+  rejected: "destructive",
   suspended: "destructive",
   overdue: "destructive",
   failed: "destructive",

@@ -42,6 +42,7 @@ const NAV: NavGroup[] = [
     to: "/organizations",
     children: [
       { label: "All organizations", to: "/organizations" },
+      { label: "Pending approval", to: "/organizations/pending" },
       { label: "Active", to: "/organizations/active" },
       { label: "Trial", to: "/organizations/trial" },
       { label: "Suspended", to: "/organizations/suspended" },
@@ -124,12 +125,14 @@ export function PlatformSidebar({
         className,
       )}
     >
-      <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-4">
-        <img
-          src="/images/rasoi-logo.png"
-          alt="Rasoi"
-          className="h-9 w-auto max-w-[150px] object-contain object-left"
-        />
+      <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-3.5">
+        <Link to="/dashboard" className="flex h-10 items-center">
+          <img
+            src="/images/rasoi-logo.png"
+            alt="Rasoi"
+            className="h-9 w-auto max-w-[168px] object-contain object-left"
+          />
+        </Link>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
@@ -166,10 +169,10 @@ export function PlatformSidebar({
                     className={cn(
                       "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                       groupActive &&
-                        "bg-sidebar-accent text-sidebar-accent-foreground",
+                        "bg-sidebar-primary/15 text-sidebar-primary",
                     )}
                   >
-                    <Icon className="size-4 shrink-0" />
+                    <Icon className="size-4 shrink-0 text-current" />
                     <span>{group.label}</span>
                   </Link>
                 )}
@@ -183,7 +186,7 @@ export function PlatformSidebar({
                           className={cn(
                             "block rounded-md px-2.5 py-1.5 text-[13px] font-medium text-sidebar-foreground/65 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                             isLeafActive(leaf.to) &&
-                              "bg-sidebar-accent text-sidebar-accent-foreground",
+                              "bg-sidebar-primary/15 font-semibold text-sidebar-primary",
                           )}
                         >
                           {leaf.label}
@@ -200,7 +203,7 @@ export function PlatformSidebar({
 
       <div className="shrink-0 border-t border-sidebar-border p-3">
         <div className="flex items-center gap-2.5 rounded-md px-2 py-2">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-semibold uppercase text-sidebar-accent-foreground">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary/20 text-xs font-semibold uppercase text-sidebar-primary">
             {adminEmail ? adminEmail.charAt(0) : "?"}
           </div>
           <div className="flex min-w-0 flex-1 flex-col leading-tight">

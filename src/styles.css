@@ -62,58 +62,58 @@
 }
 
 :root {
-  --radius: 0.6rem;
-  --font-display: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --radius: 0.65rem;
+  --font-display: "Fraunces", "Source Serif 4", ui-serif, Georgia, serif;
+  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* Cool slate SaaS control-plane palette. */
-  --background: oklch(0.985 0.003 250);
-  --foreground: oklch(0.21 0.014 258);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.014 258);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.014 258);
-  --primary: oklch(0.45 0.16 262);
-  --primary-foreground: oklch(0.98 0.003 250);
-  --secondary: oklch(0.955 0.006 255);
-  --secondary-foreground: oklch(0.32 0.02 258);
-  --muted: oklch(0.96 0.005 255);
-  --muted-foreground: oklch(0.5 0.02 258);
-  --accent: oklch(0.94 0.015 258);
-  --accent-foreground: oklch(0.32 0.03 258);
+  /* Rasoi brand — flame orange / gold on warm neutrals. */
+  --background: oklch(0.985 0.008 75);
+  --foreground: oklch(0.22 0.02 45);
+  --card: oklch(0.995 0.004 75);
+  --card-foreground: oklch(0.22 0.02 45);
+  --popover: oklch(0.995 0.004 75);
+  --popover-foreground: oklch(0.22 0.02 45);
+  --primary: oklch(0.62 0.19 48);
+  --primary-foreground: oklch(0.99 0.01 95);
+  --secondary: oklch(0.96 0.02 75);
+  --secondary-foreground: oklch(0.32 0.04 45);
+  --muted: oklch(0.96 0.012 75);
+  --muted-foreground: oklch(0.5 0.03 50);
+  --accent: oklch(0.94 0.04 70);
+  --accent-foreground: oklch(0.32 0.05 45);
   --destructive: oklch(0.58 0.2 25);
-  --destructive-foreground: oklch(0.98 0.003 250);
+  --destructive-foreground: oklch(0.99 0.01 95);
   --success: oklch(0.6 0.13 155);
   --success-foreground: oklch(0.99 0.01 150);
-  --warning: oklch(0.77 0.15 75);
+  --warning: oklch(0.78 0.15 80);
   --warning-foreground: oklch(0.28 0.05 70);
-  --border: oklch(0.9 0.006 255);
-  --input: oklch(0.9 0.006 255);
-  --ring: oklch(0.45 0.16 262);
-  --chart-1: oklch(0.55 0.18 262);
-  --chart-2: oklch(0.62 0.15 200);
+  --border: oklch(0.9 0.02 70);
+  --input: oklch(0.9 0.02 70);
+  --ring: oklch(0.62 0.19 48);
+  --chart-1: oklch(0.62 0.19 48);
+  --chart-2: oklch(0.78 0.15 80);
   --chart-3: oklch(0.6 0.13 155);
-  --chart-4: oklch(0.72 0.15 75);
+  --chart-4: oklch(0.55 0.1 40);
   --chart-5: oklch(0.58 0.2 25);
-  --sidebar: oklch(0.19 0.018 258);
-  --sidebar-foreground: oklch(0.9 0.006 255);
-  --sidebar-primary: oklch(0.58 0.18 262);
-  --sidebar-primary-foreground: oklch(0.98 0.003 250);
-  --sidebar-accent: oklch(0.26 0.02 258);
-  --sidebar-accent-foreground: oklch(0.96 0.006 255);
+  --sidebar: oklch(0.16 0.02 45);
+  --sidebar-foreground: oklch(0.94 0.02 75);
+  --sidebar-primary: oklch(0.72 0.18 55);
+  --sidebar-primary-foreground: oklch(0.18 0.03 45);
+  --sidebar-accent: oklch(0.24 0.03 45);
+  --sidebar-accent-foreground: oklch(0.96 0.02 75);
   --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.58 0.18 262);
+  --sidebar-ring: oklch(0.72 0.18 55);
 
-  --shadow-card: 0 1px 2px oklch(0.21 0.014 258 / 0.05), 0 8px 24px oklch(0.21 0.014 258 / 0.05);
+  --shadow-card: 0 1px 2px oklch(0.35 0.04 45 / 0.05), 0 8px 24px oklch(0.35 0.04 45 / 0.06);
   --shadow-elevated:
     0 4px 6px -1px oklch(0 0 0 / 0.25), 0 2px 4px -2px oklch(0 0 0 / 0.12),
     0 20px 40px -8px oklch(0 0 0 / 0.3);
   --gradient-brand: linear-gradient(
     135deg,
-    oklch(0.32 0.1 262) 0%,
-    oklch(0.45 0.16 262) 55%,
-    oklch(0.6 0.14 220) 100%
+    oklch(0.55 0.18 40) 0%,
+    oklch(0.68 0.19 55) 50%,
+    oklch(0.82 0.14 85) 100%
   );
 
   /* Semantic status colors (org lifecycle, subscription, payments, system health) */
@@ -132,37 +132,37 @@
 }
 
 .dark {
-  --background: oklch(0.17 0.014 258);
-  --foreground: oklch(0.95 0.005 255);
-  --card: oklch(0.21 0.016 258);
-  --card-foreground: oklch(0.95 0.005 255);
-  --popover: oklch(0.21 0.016 258);
-  --popover-foreground: oklch(0.95 0.005 255);
-  --primary: oklch(0.66 0.16 262);
-  --primary-foreground: oklch(0.17 0.02 262);
-  --secondary: oklch(0.27 0.016 258);
-  --secondary-foreground: oklch(0.95 0.005 255);
-  --muted: oklch(0.25 0.014 258);
-  --muted-foreground: oklch(0.68 0.015 255);
-  --accent: oklch(0.3 0.02 258);
-  --accent-foreground: oklch(0.95 0.005 255);
+  --background: oklch(0.17 0.02 45);
+  --foreground: oklch(0.95 0.02 75);
+  --card: oklch(0.21 0.022 45);
+  --card-foreground: oklch(0.95 0.02 75);
+  --popover: oklch(0.21 0.022 45);
+  --popover-foreground: oklch(0.95 0.02 75);
+  --primary: oklch(0.72 0.18 55);
+  --primary-foreground: oklch(0.18 0.03 45);
+  --secondary: oklch(0.27 0.02 45);
+  --secondary-foreground: oklch(0.95 0.02 75);
+  --muted: oklch(0.25 0.018 45);
+  --muted-foreground: oklch(0.7 0.03 70);
+  --accent: oklch(0.3 0.04 50);
+  --accent-foreground: oklch(0.95 0.02 75);
   --destructive: oklch(0.65 0.19 25);
-  --destructive-foreground: oklch(0.98 0.003 250);
+  --destructive-foreground: oklch(0.99 0.01 95);
   --success: oklch(0.68 0.14 155);
   --success-foreground: oklch(0.17 0.02 155);
-  --warning: oklch(0.78 0.14 75);
+  --warning: oklch(0.78 0.14 80);
   --warning-foreground: oklch(0.24 0.05 70);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.66 0.16 262);
-  --sidebar: oklch(0.14 0.014 258);
-  --sidebar-foreground: oklch(0.9 0.006 255);
-  --sidebar-primary: oklch(0.58 0.18 262);
-  --sidebar-primary-foreground: oklch(0.98 0.003 250);
-  --sidebar-accent: oklch(0.22 0.016 258);
-  --sidebar-accent-foreground: oklch(0.96 0.006 255);
+  --ring: oklch(0.72 0.18 55);
+  --sidebar: oklch(0.13 0.018 45);
+  --sidebar-foreground: oklch(0.94 0.02 75);
+  --sidebar-primary: oklch(0.72 0.18 55);
+  --sidebar-primary-foreground: oklch(0.18 0.03 45);
+  --sidebar-accent: oklch(0.22 0.025 45);
+  --sidebar-accent-foreground: oklch(0.96 0.02 75);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.58 0.18 262);
+  --sidebar-ring: oklch(0.72 0.18 55);
 }
 
 @theme inline {

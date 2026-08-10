@@ -35,10 +35,14 @@ function monthlyMrr(sub: { amount: number | string | null; billing_cycle: string
 }
 
 function deriveOrgStatus(biz: {
+  approval_status?: string | null;
   is_active?: boolean | null;
   suspended_at?: string | null;
   subscriptionStatus?: string | null;
 }): string {
+  const approval = biz.approval_status ?? "approved";
+  if (approval === "pending") return "pending";
+  if (approval === "rejected") return "rejected";
   if (biz.suspended_at || biz.is_active === false) return "suspended";
   if (biz.subscriptionStatus) return biz.subscriptionStatus;
   if (biz.is_active) return "active";
@@ -263,7 +267,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
       await Promise.all([
         db
           .from("businesses")
-          .select("id, name, is_active, suspended_at, created_at")
+          .select("id, name, is_active, suspended_at, approval_status, created_at")
           .order("created_at", { ascending: false }),
         db.from("subscriptions").select("*, plans:plan_id(id, code, name)"),
       ]);
@@ -280,16 +284,19 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
     let active = 0;
     let trial = 0;
     let suspended = 0;
+    let pending = 0;
     let paid = 0;
 
     for (const b of bizRows) {
       const sub = subByBiz.get(b.id);
       const status = deriveOrgStatus({
+        approval_status: b.approval_status,
         is_active: b.is_active,
         suspended_at: b.suspended_at,
         subscriptionStatus: sub?.status ?? null,
       });
-      if (status === "suspended") suspended += 1;
+      if (status === "pending") pending += 1;
+      else if (status === "suspended") suspended += 1;
       else if (status === "trial") trial += 1;
       else if (status === "active") active += 1;
 
@@ -330,6 +337,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
         name: b.name as string,
         plan: sub?.plans?.name ?? null,
         status: deriveOrgStatus({
+          approval_status: b.approval_status,
           is_active: b.is_active,
           suspended_at: b.suspended_at,
           subscriptionStatus: sub?.status ?? null,
@@ -344,6 +352,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
         active,
         trial,
         suspended,
+        pending,
         paid,
       },
       mrr: Math.round(mrr * 100) / 100,
@@ -367,7 +376,7 @@ export const listOrganizations = createServerFn({ method: "GET" })
   .validator((input: unknown) =>
     z
       .object({
-        status: z.enum(["active", "trial", "suspended", "all"]).optional(),
+        status: z.enum(["active", "trial", "suspended", "pending", "rejected", "all"]).optional(),
       })
       .parse(input ?? {}),
   )
@@ -382,7 +391,7 @@ export const listOrganizations = createServerFn({ method: "GET" })
       await Promise.all([
         db
           .from("businesses")
-          .select("id, name, slug, is_active, suspended_at, created_at")
+          .select("id, name, slug, is_active, suspended_at, approval_status, created_at")
           .order("created_at", { ascending: false }),
         db.from("subscriptions").select("*, plans:plan_id(id, code, name)"),
       ]);
@@ -420,6 +429,7 @@ export const listOrganizations = createServerFn({ method: "GET" })
     for (const b of businesses ?? []) {
       const sub = subByBiz.get(b.id);
       const status = deriveOrgStatus({
+        approval_status: b.approval_status,
         is_active: b.is_active,
         suspended_at: b.suspended_at,
         subscriptionStatus: sub?.status ?? null,
@@ -429,6 +439,8 @@ export const listOrganizations = createServerFn({ method: "GET" })
         if (statusFilter === "active" && status !== "active") continue;
         if (statusFilter === "trial" && status !== "trial") continue;
         if (statusFilter === "suspended" && status !== "suspended") continue;
+        if (statusFilter === "pending" && status !== "pending") continue;
+        if (statusFilter === "rejected" && status !== "rejected") continue;
       }
 
       const owner = await resolveOwner(db, b.id);
@@ -464,7 +476,7 @@ export const getOrganization = createServerFn({ method: "GET" })
     const { data: biz, error } = await db
       .from("businesses")
       .select(
-        "id, name, slug, is_active, suspended_at, suspension_reason, suspension_notes, currency, created_at, last_activity_at, updated_at",
+        "id, name, slug, is_active, suspended_at, suspension_reason, suspension_notes, approval_status, approved_at, approved_by, rejection_reason, business_type, currency, created_at, last_activity_at, updated_at",
       )
       .eq("id", data.organizationId)
       .maybeSingle();
@@ -500,7 +512,12 @@ export const getOrganization = createServerFn({ method: "GET" })
       id: biz.id as string,
       name: biz.name as string,
       slug: biz.slug as string,
+      businessType: (biz.business_type as string | null) ?? null,
+      approvalStatus: (biz.approval_status as string | null) ?? "approved",
+      approvedAt: (biz.approved_at as string | null) ?? null,
+      rejectionReason: (biz.rejection_reason as string | null) ?? null,
       status: deriveOrgStatus({
+        approval_status: biz.approval_status,
         is_active: biz.is_active,
         suspended_at: biz.suspended_at,
         subscriptionStatus: typedSub?.status ?? null,
@@ -701,6 +718,185 @@ export const restoreOrganization = createServerFn({ method: "POST" })
         suspension_notes: data.notes ?? null,
       },
       reason: data.notes ?? null,
+      ip_address: meta.ipAddress,
+      user_agent: meta.userAgent,
+    });
+
+    return { ok: true as const };
+  });
+
+export const approveOrganization = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        notes: z.string().trim().max(2000).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const admin = await requirePlatformAdmin(context.userId);
+    assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_UPDATE);
+
+    const db = await getAdmin();
+    const meta = getRequestMeta();
+    const now = new Date().toISOString();
+
+    const { data: before } = await db
+      .from("businesses")
+      .select(
+        "id, is_active, approval_status, approved_at, approved_by, rejection_reason, suspended_at",
+      )
+      .eq("id", data.organizationId)
+      .maybeSingle();
+    if (!before) throw new Error("Organization not found.");
+    if (before.approval_status === "approved" && before.is_active && !before.suspended_at) {
+      throw new Error("Organization is already approved.");
+    }
+
+    const { error: bizErr } = await db
+      .from("businesses")
+      .update({
+        approval_status: "approved",
+        approved_at: now,
+        approved_by: context.userId,
+        rejection_reason: null,
+        is_active: true,
+        suspended_at: null,
+        suspension_reason: null,
+        suspension_notes: null,
+      })
+      .eq("id", data.organizationId);
+    if (bizErr) throw new Error(bizErr.message);
+
+    // Start a Free trial if they have no subscription yet.
+    const { data: existingSub } = await db
+      .from("subscriptions")
+      .select("id")
+      .eq("business_id", data.organizationId)
+      .maybeSingle();
+
+    if (!existingSub) {
+      const { data: freePlan } = await db
+        .from("plans")
+        .select("id")
+        .eq("code", "free")
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (freePlan?.id) {
+        const trialEnds = new Date();
+        trialEnds.setDate(trialEnds.getDate() + 14);
+        const { data: createdSub, error: subErr } = await db
+          .from("subscriptions")
+          .insert({
+            business_id: data.organizationId,
+            plan_id: freePlan.id,
+            status: "trial",
+            billing_cycle: "monthly",
+            amount: 0,
+            currency: "INR",
+            payment_status: "unpaid",
+            trial_ends_at: trialEnds.toISOString(),
+            started_at: now,
+            renewal_at: trialEnds.toISOString(),
+          })
+          .select("id, status")
+          .single();
+        if (subErr) throw new Error(subErr.message);
+
+        await db.from("subscription_events").insert({
+          subscription_id: createdSub.id,
+          business_id: data.organizationId,
+          event_type: "subscription.trial_started",
+          from_status: null,
+          to_status: "trial",
+          actor_id: context.userId,
+          metadata: { source: "registration_approval", notes: data.notes ?? null },
+        });
+      }
+    }
+
+    await logPlatformAudit({
+      actor_id: admin.userId,
+      actor_role: admin.role,
+      actor_label: admin.displayName,
+      action: "organization.approve",
+      resource_type: "organization",
+      resource_id: data.organizationId,
+      organization_id: data.organizationId,
+      before_state: before,
+      after_state: {
+        approval_status: "approved",
+        approved_at: now,
+        approved_by: context.userId,
+        is_active: true,
+      },
+      reason: data.notes ?? null,
+      ip_address: meta.ipAddress,
+      user_agent: meta.userAgent,
+    });
+
+    return { ok: true as const };
+  });
+
+export const rejectOrganization = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        reason: z.string().trim().min(3).max(2000),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const admin = await requirePlatformAdmin(context.userId);
+    assertPlatformPerm(admin.permissions, PLATFORM_PERMISSIONS.ORGANIZATIONS_UPDATE);
+
+    const db = await getAdmin();
+    const meta = getRequestMeta();
+    const now = new Date().toISOString();
+
+    const { data: before } = await db
+      .from("businesses")
+      .select("id, is_active, approval_status, rejection_reason")
+      .eq("id", data.organizationId)
+      .maybeSingle();
+    if (!before) throw new Error("Organization not found.");
+    if (before.approval_status === "rejected") {
+      throw new Error("Organization is already rejected.");
+    }
+
+    const { error: bizErr } = await db
+      .from("businesses")
+      .update({
+        approval_status: "rejected",
+        rejection_reason: data.reason,
+        is_active: false,
+        approved_at: null,
+        approved_by: null,
+      })
+      .eq("id", data.organizationId);
+    if (bizErr) throw new Error(bizErr.message);
+
+    await logPlatformAudit({
+      actor_id: admin.userId,
+      actor_role: admin.role,
+      actor_label: admin.displayName,
+      action: "organization.reject",
+      resource_type: "organization",
+      resource_id: data.organizationId,
+      organization_id: data.organizationId,
+      before_state: before,
+      after_state: {
+        approval_status: "rejected",
+        rejection_reason: data.reason,
+        is_active: false,
+        decided_at: now,
+      },
+      reason: data.reason,
       ip_address: meta.ipAddress,
       user_agent: meta.userAgent,
     });

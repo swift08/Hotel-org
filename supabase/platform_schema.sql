@@ -402,3 +402,36 @@ DROP POLICY IF EXISTS "members read own business" ON public.businesses;
 CREATE POLICY "members read own business" ON public.businesses
   FOR SELECT TO authenticated
   USING (public.is_member(id) OR public.is_platform_admin(auth.uid()));
+
+-- ============ BUSINESS REGISTRATION APPROVAL ============
+-- New signups stay pending until a platform admin approves them in Hotel-org.
+DO $$ BEGIN
+  CREATE TYPE public.business_approval_status AS ENUM (
+    'pending',
+    'approved',
+    'rejected'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE public.businesses
+  ADD COLUMN IF NOT EXISTS approval_status public.business_approval_status,
+  ADD COLUMN IF NOT EXISTS approved_at timestamptz,
+  ADD COLUMN IF NOT EXISTS approved_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS rejection_reason text;
+
+-- Existing organizations are already live — treat them as approved.
+UPDATE public.businesses
+SET
+  approval_status = 'approved',
+  approved_at = COALESCE(approved_at, created_at)
+WHERE approval_status IS NULL;
+
+ALTER TABLE public.businesses
+  ALTER COLUMN approval_status SET DEFAULT 'pending';
+
+UPDATE public.businesses SET approval_status = 'pending' WHERE approval_status IS NULL;
+ALTER TABLE public.businesses ALTER COLUMN approval_status SET NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_businesses_approval_status
+  ON public.businesses (approval_status);

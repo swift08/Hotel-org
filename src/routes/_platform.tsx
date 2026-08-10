@@ -34,6 +34,7 @@ function readSupportMode(): { id: string; name: string } | null {
 
 const PAGE_TITLES: Array<{ prefix: string; title: string }> = [
   { prefix: "/dashboard", title: "Dashboard" },
+  { prefix: "/organizations/pending", title: "Pending Approvals" },
   { prefix: "/organizations/active", title: "Active Organizations" },
   { prefix: "/organizations/trial", title: "Trial Organizations" },
   { prefix: "/organizations/suspended", title: "Suspended Organizations" },

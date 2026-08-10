@@ -91,6 +91,7 @@ export const PLATFORM_NAV: PlatformNavSection[] = [
     permission: PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW,
     items: [
       { label: "All", href: "/organizations", permission: PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW },
+      { label: "Pending approval", href: "/organizations/pending", permission: PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW },
       { label: "Active", href: "/organizations/active", permission: PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW },
       { label: "Trial", href: "/organizations/trial", permission: PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW },
       { label: "Suspended", href: "/organizations/suspended", permission: PLATFORM_PERMISSIONS.ORGANIZATIONS_VIEW },

@@ -4,7 +4,7 @@ import { getDashboardOverview } from "@/lib/platform.functions";
 import { KpiCard } from "@/components/platform/KpiCard";
 import { StatusBadge } from "@/components/platform/StatusBadge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Building2, Users, Wallet, TrendingUp, Inbox } from "lucide-react";
+import { Building2, Users, Wallet, TrendingUp, Inbox, ClipboardCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_platform/dashboard")({ component: DashboardPage });
 
@@ -19,7 +19,18 @@ function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <KpiCard
+          label="Pending approvals"
+          value={orgs?.pending}
+          icon={ClipboardCheck}
+          loading={isLoading}
+          hint={
+            orgs?.pending
+              ? "New Rasoi registrations waiting for review"
+              : "No registrations waiting"
+          }
+        />
         <KpiCard
           label="Total organizations"
           value={orgs?.total}
@@ -46,6 +57,25 @@ function DashboardPage() {
           loading={isLoading}
         />
       </div>
+
+      {(orgs?.pending ?? 0) > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-500/25 bg-sky-500/5 px-5 py-4">
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              {orgs?.pending} registration{orgs?.pending === 1 ? "" : "s"} awaiting approval
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Approve to unlock Rasoi for those businesses.
+            </p>
+          </div>
+          <Link
+            to="/organizations/pending"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            Review pending →
+          </Link>
+        </div>
+      )}
 
       <div className="rounded-xl border border-border bg-card shadow-[var(--shadow-card)]">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">

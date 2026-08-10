@@ -50,8 +50,17 @@ function Index() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-black px-6 sm:px-10">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[oklch(0.14_0.02_45)] font-sans text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse 90% 70% at 50% -20%, oklch(0.5 0.18 48 / 0.4), transparent 55%), radial-gradient(ellipse 40% 35% at 100% 60%, oklch(0.65 0.14 80 / 0.18), transparent)",
+        }}
+      />
+
+      <header className="relative z-10 flex h-16 shrink-0 items-center justify-between px-6 sm:px-10">
         <Link to="/" className="flex items-center">
           <img
             src="/images/rasoi-logo.png"
@@ -67,22 +76,25 @@ function Index() {
         </Link>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
-        <span className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-          Internal control plane
-        </span>
-        <h1 className="max-w-2xl font-[var(--font-display)] text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          Rasoi Platform
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-20 pt-10 text-center">
+        <img
+          src="/images/rasoi-logo.png"
+          alt=""
+          aria-hidden
+          className="mb-8 h-20 w-auto object-contain drop-shadow-[0_12px_40px_oklch(0.55_0.18_48/0.45)] sm:h-24"
+        />
+        <h1 className="max-w-2xl font-[var(--font-display)] text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          Platform control plane
         </h1>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-          The single control plane for managing every hotel and restaurant organization,
-          subscription, and system metric. Platform administrator access only.
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-white/60">
+          Manage every hotel and restaurant organization, subscription, and system metric from one
+          Rasoi console. Platform administrator access only.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/auth/login"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-md brand-gradient px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-95"
           >
             Sign in to the platform <ArrowRight className="size-4" />
           </Link>
@@ -93,7 +105,7 @@ function Index() {
             {
               icon: Building2,
               title: "Organizations",
-              desc: "Track every tenant's lifecycle from trial to churn.",
+              desc: "Approve signups and track every tenant lifecycle.",
             },
             {
               icon: Gauge,
@@ -108,21 +120,17 @@ function Index() {
           ].map((f) => (
             <div
               key={f.title}
-              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-5 text-center shadow-[var(--shadow-card)]"
+              className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] p-5 text-center backdrop-blur-sm"
             >
-              <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="flex size-9 items-center justify-center rounded-lg bg-primary/20 text-primary">
                 <f.icon className="size-4.5" />
               </span>
-              <span className="text-sm font-semibold text-foreground">{f.title}</span>
-              <span className="text-xs text-muted-foreground">{f.desc}</span>
+              <span className="text-sm font-semibold text-white">{f.title}</span>
+              <span className="text-xs text-white/50">{f.desc}</span>
             </div>
           ))}
         </div>
       </main>
-
-      <footer className="border-t border-border px-6 py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Rasoi Platform. Internal use only.
-      </footer>
     </div>
   );
 }

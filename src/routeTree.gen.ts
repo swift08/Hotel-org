@@ -29,6 +29,7 @@ import { Route as PlatformAnalyticsRevenueRouteImport } from './routes/_platform
 import { Route as PlatformOrganizationsIndexRouteImport } from './routes/_platform/organizations/index'
 import { Route as PlatformOrganizationsOrganizationIdRouteImport } from './routes/_platform/organizations/$organizationId'
 import { Route as PlatformOrganizationsActiveRouteImport } from './routes/_platform/organizations/active'
+import { Route as PlatformOrganizationsPendingRouteImport } from './routes/_platform/organizations/pending'
 import { Route as PlatformOrganizationsSuspendedRouteImport } from './routes/_platform/organizations/suspended'
 import { Route as PlatformOrganizationsTrialRouteImport } from './routes/_platform/organizations/trial'
 import { Route as PlatformUsageIndexRouteImport } from './routes/_platform/usage/index'
@@ -137,6 +138,12 @@ const PlatformOrganizationsActiveRoute =
     path: '/organizations/active',
     getParentRoute: () => PlatformRoute,
   } as any)
+const PlatformOrganizationsPendingRoute =
+  PlatformOrganizationsPendingRouteImport.update({
+    id: '/organizations/pending',
+    path: '/organizations/pending',
+    getParentRoute: () => PlatformRoute,
+  } as any)
 const PlatformOrganizationsSuspendedRoute =
   PlatformOrganizationsSuspendedRouteImport.update({
     id: '/organizations/suspended',
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/analytics/revenue': typeof PlatformAnalyticsRevenueRoute
   '/organizations/$organizationId': typeof PlatformOrganizationsOrganizationIdRoute
   '/organizations/active': typeof PlatformOrganizationsActiveRoute
+  '/organizations/pending': typeof PlatformOrganizationsPendingRoute
   '/organizations/suspended': typeof PlatformOrganizationsSuspendedRoute
   '/organizations/trial': typeof PlatformOrganizationsTrialRoute
   '/usage/features': typeof PlatformUsageFeaturesRoute
@@ -204,6 +212,7 @@ export interface FileRoutesByTo {
   '/analytics/revenue': typeof PlatformAnalyticsRevenueRoute
   '/organizations/$organizationId': typeof PlatformOrganizationsOrganizationIdRoute
   '/organizations/active': typeof PlatformOrganizationsActiveRoute
+  '/organizations/pending': typeof PlatformOrganizationsPendingRoute
   '/organizations/suspended': typeof PlatformOrganizationsSuspendedRoute
   '/organizations/trial': typeof PlatformOrganizationsTrialRoute
   '/usage/features': typeof PlatformUsageFeaturesRoute
@@ -231,6 +240,7 @@ export interface FileRoutesById {
   '/_platform/analytics/revenue': typeof PlatformAnalyticsRevenueRoute
   '/_platform/organizations/$organizationId': typeof PlatformOrganizationsOrganizationIdRoute
   '/_platform/organizations/active': typeof PlatformOrganizationsActiveRoute
+  '/_platform/organizations/pending': typeof PlatformOrganizationsPendingRoute
   '/_platform/organizations/suspended': typeof PlatformOrganizationsSuspendedRoute
   '/_platform/organizations/trial': typeof PlatformOrganizationsTrialRoute
   '/_platform/usage/features': typeof PlatformUsageFeaturesRoute
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/analytics/revenue'
     | '/organizations/$organizationId'
     | '/organizations/active'
+    | '/organizations/pending'
     | '/organizations/suspended'
     | '/organizations/trial'
     | '/usage/features'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/analytics/revenue'
     | '/organizations/$organizationId'
     | '/organizations/active'
+    | '/organizations/pending'
     | '/organizations/suspended'
     | '/organizations/trial'
     | '/usage/features'
@@ -309,6 +321,7 @@ export interface FileRouteTypes {
     | '/_platform/analytics/revenue'
     | '/_platform/organizations/$organizationId'
     | '/_platform/organizations/active'
+    | '/_platform/organizations/pending'
     | '/_platform/organizations/suspended'
     | '/_platform/organizations/trial'
     | '/_platform/usage/features'
@@ -464,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlatformOrganizationsActiveRouteImport
       parentRoute: typeof PlatformRoute
     }
+    '/_platform/organizations/pending': {
+      id: '/_platform/organizations/pending'
+      path: '/organizations/pending'
+      fullPath: '/organizations/pending'
+      preLoaderRoute: typeof PlatformOrganizationsPendingRouteImport
+      parentRoute: typeof PlatformRoute
+    }
     '/_platform/organizations/suspended': {
       id: '/_platform/organizations/suspended'
       path: '/organizations/suspended'
@@ -512,6 +532,7 @@ interface PlatformRouteChildren {
   PlatformAnalyticsRevenueRoute: typeof PlatformAnalyticsRevenueRoute
   PlatformOrganizationsOrganizationIdRoute: typeof PlatformOrganizationsOrganizationIdRoute
   PlatformOrganizationsActiveRoute: typeof PlatformOrganizationsActiveRoute
+  PlatformOrganizationsPendingRoute: typeof PlatformOrganizationsPendingRoute
   PlatformOrganizationsSuspendedRoute: typeof PlatformOrganizationsSuspendedRoute
   PlatformOrganizationsTrialRoute: typeof PlatformOrganizationsTrialRoute
   PlatformUsageFeaturesRoute: typeof PlatformUsageFeaturesRoute
@@ -537,6 +558,7 @@ const PlatformRouteChildren: PlatformRouteChildren = {
   PlatformOrganizationsOrganizationIdRoute:
     PlatformOrganizationsOrganizationIdRoute,
   PlatformOrganizationsActiveRoute: PlatformOrganizationsActiveRoute,
+  PlatformOrganizationsPendingRoute: PlatformOrganizationsPendingRoute,
   PlatformOrganizationsSuspendedRoute: PlatformOrganizationsSuspendedRoute,
   PlatformOrganizationsTrialRoute: PlatformOrganizationsTrialRoute,
   PlatformUsageFeaturesRoute: PlatformUsageFeaturesRoute,

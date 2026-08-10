@@ -86,31 +86,54 @@ function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 selection:bg-primary selection:text-primary-foreground">
-      <div className="w-full max-w-md space-y-6">
-        {/* Branding */}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12 text-foreground">
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[oklch(0.14_0.02_45)]"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.45 0.16 48 / 0.45), transparent), radial-gradient(ellipse 50% 40% at 90% 80%, oklch(0.55 0.14 80 / 0.2), transparent)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage:
+            "linear-gradient(oklch(0.9 0.05 70 / 0.35) 1px, transparent 1px), linear-gradient(90deg, oklch(0.9 0.05 70 / 0.35) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
+
+      <div className="relative z-10 w-full max-w-md space-y-7">
         <div className="text-center">
           <Link to="/" className="inline-flex flex-col items-center justify-center">
             <img
               src="/images/rasoi-logo.png"
               alt="Rasoi"
-              className="h-16 w-auto object-contain drop-shadow-lg"
+              className="h-[4.5rem] w-auto object-contain drop-shadow-[0_8px_24px_oklch(0.55_0.18_48/0.35)]"
             />
           </Link>
-          <h1 className="mt-4 text-xl font-bold text-white">Rasoi Platform</h1>
-          <p className="mt-1 text-sm text-slate-400">Sign in to the organization control plane</p>
+          <p className="mt-5 font-[var(--font-display)] text-2xl font-semibold tracking-tight text-white">
+            Platform control plane
+          </p>
+          <p className="mt-1.5 text-sm text-white/55">
+            Sign in to manage organizations across Rasoi
+          </p>
         </div>
 
-        <Card className="border-slate-800 bg-slate-900/80 backdrop-blur shadow-2xl text-slate-100">
+        <Card className="border-white/10 bg-[oklch(0.2_0.02_45/0.85)] text-white shadow-[var(--shadow-elevated)] backdrop-blur-xl">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-lg text-white">Platform Administrator Login</CardTitle>
-            <CardDescription className="text-slate-400">
-              Access is restricted to authorized Rasoi platform administrators.
+            <CardTitle className="font-[var(--font-display)] text-lg text-white">
+              Administrator login
+            </CardTitle>
+            <CardDescription className="text-white/50">
+              Restricted to authorized Rasoi platform administrators.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {errorMsg && (
-              <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400">
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
@@ -118,78 +141,62 @@ function Login() {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-semibold text-slate-300">
-                  Email Address
+                <Label htmlFor="email" className="text-white/70">
+                  Email
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                  <Mail className="pointer-events-none absolute left-3 top-2.5 size-4 text-white/35" />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="admin@orderlyhub.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="pl-9 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-primary focus:ring-primary"
+                    placeholder="admin@rasoi.app"
+                    className="border-white/15 bg-white/5 pl-10 text-white placeholder:text-white/30 focus-visible:ring-primary"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-xs font-semibold text-slate-300">
-                    Password
-                  </Label>
-                </div>
+                <Label htmlFor="password" className="text-white/70">
+                  Password
+                </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                  <Lock className="pointer-events-none absolute left-3 top-2.5 size-4 text-white/35" />
                   <Input
                     id="password"
-                    name="password"
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
-                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="pl-9 pr-10 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-primary focus:ring-primary"
+                    placeholder="••••••••"
+                    className="border-white/15 bg-white/5 pl-10 pr-10 text-white placeholder:text-white/30 focus-visible:ring-primary"
                   />
-
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-slate-500 hover:text-slate-300 focus:outline-none"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-2.5 text-white/35 hover:text-white/70"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-11 bg-primary font-bold text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
-              >
+              <Button type="submit" className="w-full brand-gradient border-0 text-primary-foreground" disabled={loading}>
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
+                    <Loader2 className="size-4 animate-spin" />
+                    Signing in…
                   </>
                 ) : (
                   <>
-                    Sign In
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    Sign in <ArrowRight className="size-4" />
                   </>
                 )}
               </Button>
             </form>
-
-            <div className="mt-6 text-center text-xs text-slate-400">
-              Not a platform administrator? Contact your Rasoi systems owner for access.
-            </div>
           </CardContent>
         </Card>
       </div>

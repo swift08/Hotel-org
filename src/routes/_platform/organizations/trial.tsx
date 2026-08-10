@@ -1,19 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listOrganizations } from "@/lib/platform.functions";
-import { OrganizationsTable } from "./index";
+import { OrganizationsTable, ORG_FILTERS } from "./index";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_platform/organizations/trial")({
   component: TrialOrganizationsPage,
 });
-
-const FILTERS = [
-  { label: "All", to: "/organizations" as const },
-  { label: "Active", to: "/organizations/active" as const },
-  { label: "Trial", to: "/organizations/trial" as const },
-  { label: "Suspended", to: "/organizations/suspended" as const },
-];
 
 function TrialOrganizationsPage() {
   const { data, isLoading } = useQuery({
@@ -24,7 +17,7 @@ function TrialOrganizationsPage() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-1 rounded-lg bg-muted p-1 w-fit">
-        {FILTERS.map((f) => (
+        {ORG_FILTERS.map((f) => (
           <Link
             key={f.to}
             to={f.to}

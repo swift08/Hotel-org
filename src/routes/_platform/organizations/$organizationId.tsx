@@ -2,7 +2,9 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  approveOrganization,
   getOrganization,
+  rejectOrganization,
   restoreOrganization,
   suspendOrganization,
 } from "@/lib/platform.functions";
@@ -27,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, LifeBuoy, Building2, Ban, RotateCcw } from "lucide-react";
+import { ArrowLeft, LifeBuoy, Building2, Ban, RotateCcw, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_platform/organizations/$organizationId")({
@@ -50,13 +52,21 @@ function OrganizationDetailPage() {
   const shell = usePlatformShell();
   const queryClient = useQueryClient();
   const [suspendOpen, setSuspendOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
   const [reason, setReason] = useState<SuspendReason>("administrative_action");
   const [notes, setNotes] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
 
   const { data: org, isLoading } = useQuery({
     queryKey: ["platform", "organization", organizationId],
     queryFn: () => getOrganization({ data: { organizationId } }),
   });
+
+  const invalidateOrg = () => {
+    queryClient.invalidateQueries({ queryKey: ["platform", "organization", organizationId] });
+    queryClient.invalidateQueries({ queryKey: ["platform", "organizations"] });
+    queryClient.invalidateQueries({ queryKey: ["platform", "dashboard-overview"] });
+  };
 
   const suspendMutation = useMutation({
     mutationFn: () =>
@@ -68,8 +78,7 @@ function OrganizationDetailPage() {
         },
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["platform", "organization", organizationId] });
-      queryClient.invalidateQueries({ queryKey: ["platform", "organizations"] });
+      invalidateOrg();
       setSuspendOpen(false);
       setNotes("");
       toast.success("Hotel access stopped — they can no longer use Orderly Hub");
@@ -80,11 +89,33 @@ function OrganizationDetailPage() {
   const restoreMutation = useMutation({
     mutationFn: () => restoreOrganization({ data: { organizationId } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["platform", "organization", organizationId] });
-      queryClient.invalidateQueries({ queryKey: ["platform", "organizations"] });
+      invalidateOrg();
       toast.success("Hotel access restored");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to restore"),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: () => approveOrganization({ data: { organizationId } }),
+    onSuccess: () => {
+      invalidateOrg();
+      toast.success("Registration approved — they can use Rasoi now");
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to approve"),
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: () =>
+      rejectOrganization({
+        data: { organizationId, reason: rejectReason.trim() },
+      }),
+    onSuccess: () => {
+      invalidateOrg();
+      setRejectOpen(false);
+      setRejectReason("");
+      toast.success("Registration rejected");
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to reject"),
   });
 
   if (isLoading) {
@@ -112,6 +143,8 @@ function OrganizationDetailPage() {
   }
 
   const inSupportMode = shell.supportOrg?.id === org.id;
+  const isPending = org.status === "pending";
+  const isRejected = org.status === "rejected";
   const isSuspended = org.status === "suspended";
 
   return (
@@ -119,11 +152,11 @@ function OrganizationDetailPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Link
-            to="/organizations"
+            to={isPending ? "/organizations/pending" : "/organizations"}
             className="mb-2 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="size-3.5" />
-            Organizations
+            {isPending ? "Pending approvals" : "Organizations"}
           </Link>
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-semibold tracking-tight text-foreground">{org.name}</h2>
@@ -131,11 +164,29 @@ function OrganizationDetailPage() {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {org.slug} · {org.ownerEmail ?? "No owner email on file"}
+            {org.ownerName ? ` · ${org.ownerName}` : ""}
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {isSuspended ? (
+          {isPending || isRejected ? (
+            <>
+              <Button
+                size="sm"
+                disabled={approveMutation.isPending}
+                onClick={() => approveMutation.mutate()}
+              >
+                <Check className="size-4" />
+                {approveMutation.isPending ? "Approving…" : "Approve registration"}
+              </Button>
+              {isPending && (
+                <Button variant="destructive" size="sm" onClick={() => setRejectOpen(true)}>
+                  <X className="size-4" />
+                  Reject
+                </Button>
+              )}
+            </>
+          ) : isSuspended ? (
             <Button
               variant="outline"
               size="sm"
@@ -151,20 +202,36 @@ function OrganizationDetailPage() {
               Stop hotel access
             </Button>
           )}
-          <Button
-            variant={inSupportMode ? "secondary" : "outline"}
-            size="sm"
-            onClick={() =>
-              void (inSupportMode
-                ? shell.exitSupportMode()
-                : shell.enterSupportMode({ id: org.id, name: org.name }))
-            }
-          >
-            <LifeBuoy className="size-4" />
-            {inSupportMode ? "Exit support mode" : "Enter support mode"}
-          </Button>
+          {!isPending && !isRejected && (
+            <Button
+              variant={inSupportMode ? "secondary" : "outline"}
+              size="sm"
+              onClick={() =>
+                void (inSupportMode
+                  ? shell.exitSupportMode()
+                  : shell.enterSupportMode({ id: org.id, name: org.name }))
+              }
+            >
+              <LifeBuoy className="size-4" />
+              {inSupportMode ? "Exit support mode" : "Enter support mode"}
+            </Button>
+          )}
         </div>
       </div>
+
+      {isPending && (
+        <div className="rounded-xl border border-sky-500/30 bg-sky-500/5 px-4 py-3 text-sm text-foreground">
+          Awaiting approval. This hotel cannot use Rasoi admin or QR ordering until you approve.
+        </div>
+      )}
+
+      {isRejected && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          Registration rejected
+          {org.rejectionReason ? `: ${org.rejectionReason}` : "."} You can still approve later if
+          needed.
+        </div>
+      )}
 
       {isSuspended && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -172,6 +239,40 @@ function OrganizationDetailPage() {
           until you restore access.
         </div>
       )}
+
+      <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <h3 className="mb-4 text-sm font-semibold text-foreground">Registration details</h3>
+        <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+          <div>
+            <dt className="text-xs text-muted-foreground">Owner</dt>
+            <dd className="font-medium text-foreground">{org.ownerName ?? "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Email</dt>
+            <dd className="font-medium text-foreground">{org.ownerEmail ?? "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Phone</dt>
+            <dd className="font-medium text-foreground">{org.phone ?? "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Business type</dt>
+            <dd className="font-medium text-foreground">
+              {org.businessType ? String(org.businessType).replace(/_/g, " ") : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">GSTIN</dt>
+            <dd className="font-medium text-foreground">{org.gstin ?? "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Registered</dt>
+            <dd className="font-mono text-xs text-foreground">
+              {new Date(org.createdAt).toLocaleString()}
+            </dd>
+          </div>
+        </dl>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] lg:col-span-2">
@@ -279,6 +380,42 @@ function OrganizationDetailPage() {
             >
               <Ban className="size-4" />
               {suspendMutation.isPending ? "Stopping…" : "Stop access"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject registration</DialogTitle>
+            <DialogDescription>
+              Reject <span className="font-medium text-foreground">{org.name}</span>. The owner will
+              see that their registration was not approved.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 py-2">
+            <Label>Reason</Label>
+            <Textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Why this registration is being rejected"
+              rows={3}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={rejectMutation.isPending || rejectReason.trim().length < 3}
+              onClick={() => rejectMutation.mutate()}
+            >
+              <X className="size-4" />
+              {rejectMutation.isPending ? "Rejecting…" : "Reject registration"}
             </Button>
           </DialogFooter>
         </DialogContent>

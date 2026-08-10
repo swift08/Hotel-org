@@ -10,8 +10,9 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_platform/organizations/")({ component: OrganizationsPage });
 
-const FILTERS = [
+export const ORG_FILTERS = [
   { label: "All", to: "/organizations" as const },
+  { label: "Pending", to: "/organizations/pending" as const },
   { label: "Active", to: "/organizations/active" as const },
   { label: "Trial", to: "/organizations/trial" as const },
   { label: "Suspended", to: "/organizations/suspended" as const },
@@ -41,7 +42,7 @@ function OrganizationsPage() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
-          {FILTERS.map((f) => (
+          {ORG_FILTERS.map((f) => (
             <Link
               key={f.to}
               to={f.to}
@@ -137,7 +138,13 @@ export function OrganizationsTable({
                     params={{ organizationId: org.id }}
                     className="text-xs font-medium text-primary hover:underline"
                   >
-                    {org.status === "suspended" ? "Restore / manage" : "Stop access"}
+                    {org.status === "pending"
+                      ? "Review"
+                      : org.status === "suspended"
+                        ? "Restore / manage"
+                        : org.status === "rejected"
+                          ? "View"
+                          : "Manage"}
                   </Link>
                 </TableCell>
               </TableRow>
